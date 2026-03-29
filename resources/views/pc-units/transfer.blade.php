@@ -15,7 +15,7 @@
                         <p class="text-gray-600 mt-1">
                             @if($pcUnit->employee)
                                 Currently assigned to: <strong>{{ $pcUnit->employee->full_name }}</strong> 
-                                ({{ $pcUnit->employee->department->department_name }})
+                                ({{ strtoupper($pcUnit->employee->department ?? 'N/A') }} / {{ strtoupper($pcUnit->employee->division ?? 'N/A') }} / {{ strtoupper($pcUnit->employee->group ?? 'N/A') }})
                             @else
                                 Currently <strong>Unassigned</strong>
                             @endif
@@ -26,16 +26,16 @@
                         @csrf
                         
                         <!-- New Employee -->
-                        <div class="mb-6">
+                        <div class="mb-6" x-data>
                             <label for="employee_id" class="block text-gray-700 text-sm font-medium mb-2">
                                 Transfer To <span class="text-red-500">*</span>
                             </label>
-                            <select name="employee_id" id="employee_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
-                                <option value="">Select New Owner</option>
+                            <select name="employee_id" id="employee_id" x-init="new Choices($el, { searchPlaceholderValue: 'SEARCH NAME, DEPARTMENT...' })" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
+                                <option value="">SELECT NEW OWNER</option>
                                 @foreach($employees as $employee)
                                     <option value="{{ $employee->id }}" {{ $pcUnit->employee_id == $employee->id ? 'disabled' : '' }}>
-                                        {{ $employee->full_name }} - {{ $employee->position }} ({{ $employee->department->department_name }})
-                                        {{ $pcUnit->employee_id == $employee->id ? '(Current)' : '' }}
+                                        {{ strtoupper($employee->full_name) }} &mdash; {{ strtoupper($employee->department ?? 'N/A') }} / {{ strtoupper($employee->division ?? 'N/A') }}
+                                        {{ $pcUnit->employee_id == $employee->id ? '(CURRENT OWNER)' : '' }}
                                     </option>
                                 @endforeach
                             </select>

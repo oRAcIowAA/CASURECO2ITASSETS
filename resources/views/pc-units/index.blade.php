@@ -1,198 +1,191 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('PC Units Inventory') }}
-        </h2>
+        <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                {{ __('PC UNITS') }}
+            </h2>
+
+        </div>
     </x-slot>
 
-    <div class="py-6">
+    <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
-            <!-- Success/Error Messages -->
-            @if(session('success'))
-                <div class="mb-6 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if(session('error'))
-                <div class="mb-6 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
-                    {{ session('error') }}
-                </div>
-            @endif
-
             <!-- Actions Bar -->
             <div class="mb-6 flex justify-between items-center">
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-900">All PC Units</h3>
-                    <p class="text-sm text-gray-500">Total: {{ $pcUnits->total() }} units</p>
+                        <h3 class="text-lg font-bold text-gray-900 uppercase">ALL PC UNITS</h3>
+                        <p class="text-sm text-gray-500 uppercase font-semibold">TOTAL: {{ $pcUnits->total() }} UNITS</p>
                 </div>
-                <div class="flex space-x-3">
-                    <a href="{{ route('pc-history.index') }}" 
-                       class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50">
+                <div class="flex space-x-2">
+                     <a href="{{ route('pc-history.index') }}" 
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50 shadow-sm bg-white">
                         <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        View History
-                    </a>
-                    <a href="{{ route('pc-units.create') }}" 
-                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                        </svg>
-                        Add New PC Unit
+                        VIEW HISTORY
                     </a>
                 </div>
             </div>
 
-            <!-- Search & Filter -->
-            <div class="mb-6 p-4 bg-gray-50 rounded-lg">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="sr-only">Search</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                </svg>
+            <!-- LIST VIEW -->
+
+                <!-- Search & Filters -->
+                <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <form method="GET" action="{{ route('pc-units.index') }}" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                        <div class="col-span-1 md:col-span-2 lg:col-span-1">
+                             <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                </span>
+                                <input type="text" name="search" placeholder="SEARCH..." 
+                                       class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 placeholder-gray-500 uppercase font-semibold text-xs"
+                                       value="{{ request('search') }}">
                             </div>
-                            <input type="text" 
-                                   placeholder="Search asset tag, model..." 
-                                   class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                         </div>
-                    </div>
-                    <div>
-                        <select class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md sm:text-sm">
-                            <option>All Statuses</option>
-                            <option>Available</option>
-                            <option>Not Available</option>
-                            <option>Incoming</option>
-                        </select>
-                    </div>
-                    <div>
-                        <select class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md sm:text-sm">
-                            <option>All Branches</option>
-                            @foreach(\App\Models\Branch::all() as $branch)
-                                <option value="{{ $branch->id }}">{{ $branch->branch_name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-            </div>
 
-            <!-- PC Units Table -->
-            <div class="bg-white rounded-xl shadow-md overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset Tag</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Device Type</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Model</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branch</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse($pcUnits as $pc)
-                            <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $pc->asset_tag }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <div class="flex items-center">
-                                        @if(strtolower($pc->device_type) == 'laptop')
-                                            <svg class="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M5 18h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2zM9 21h6"></path>
-                                            </svg>
-                                        @elseif(strtolower($pc->device_type) == 'printer')
-                                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                                            </svg>
-                                        @else
-                                            <svg class="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                            </svg>
-                                        @endif
-                                        <span class="font-medium text-gray-900">{{ $pc->device_type }}</span>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $pc->model }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $pc->branch->branch_name ?? 'N/A' }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $pc->department->department_name ?? 'N/A' }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $pc->employee->full_name ?? 'Unassigned' }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    @if($pc->status == 'available')
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                            Available
-                                        </span>
-                                    @elseif($pc->status == 'assigned')
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                            Assigned
-                                        </span>
-                                    @elseif($pc->status == 'defective')
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">
-                                            Defective
-                                        </span>
-                                    @elseif($pc->status == 'condemned')
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                            Condemned
-                                        </span>
-                                    @else
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                            {{ ucfirst(str_replace('_', ' ', $pc->status)) }}
-                                        </span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <div class="flex space-x-2">
-                                        <a href="{{ route('pc-units.show', $pc) }}" 
-                                           class="text-blue-600 hover:text-blue-900" title="View">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                            </svg>
-                                        </a>
-                                        <a href="{{ route('pc-units.edit', $pc) }}" 
-                                           class="text-yellow-600 hover:text-yellow-900" title="Edit">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                            </svg>
-                                        </a>
-                                        <form method="POST" action="{{ route('pc-units.destroy', $pc) }}" 
-                                              onsubmit="return confirm('Are you sure you want to delete this {{ $pc->device_type }} ({{ $pc->model }})?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-gray-400 hover:text-red-600" title="Delete">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                                </svg>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="8" class="px-6 py-4 text-center text-gray-500">
-                                    No PC units found. <a href="{{ route('pc-units.create') }}" class="text-indigo-600 hover:text-indigo-800">Add one now</a>
-                                </td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                        <div>
+                            <select name="group" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900">
+                                <option value="">ALL GROUPS</option>
+                                @foreach($groups as $group)
+                                    <option value="{{ $group }}" {{ request('group') == $group ? 'selected' : '' }}>{{ strtoupper($group) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <select name="division" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900">
+                                <option value="">ALL DIVISIONS</option>
+                                @foreach($divisions as $division)
+                                    <option value="{{ $division }}" {{ request('division') == $division ? 'selected' : '' }}>{{ strtoupper($division) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <select name="department" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900">
+                                <option value="">ALL DEPARTMENTS</option>
+                                @foreach($departments as $department)
+                                    <option value="{{ $department }}" {{ request('department') == $department ? 'selected' : '' }}>{{ strtoupper($department) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <select name="type" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900">
+                                <option value="">ALL TYPES</option>
+                                <option value="Desktop" {{ request('type') == 'Desktop' ? 'selected' : '' }}>DESKTOP</option>
+                                <option value="All-in-One" {{ request('type') == 'All-in-One' ? 'selected' : '' }}>ALL-IN-ONE</option>
+                                <option value="Laptop" {{ request('type') == 'Laptop' ? 'selected' : '' }}>LAPTOP</option>
+                                <option value="Server" {{ request('type') == 'Server' ? 'selected' : '' }}>SERVER</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <select name="status" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900">
+                                <option value="">ALL STATUSES</option>
+                                <option value="Assigned" {{ request('status') == 'Assigned' ? 'selected' : '' }}>ASSIGNED</option>
+                                <option value="Available" {{ request('status') == 'Available' ? 'selected' : '' }}>AVAILABLE</option>
+                                <option value="Defective" {{ request('status') == 'Defective' ? 'selected' : '' }}>DEFECTIVE</option>
+                                <option value="Condemned" {{ request('status') == 'Condemned' ? 'selected' : '' }}>CONDEMNED</option>
+                                <option value="Disposed" {{ request('status') == 'Disposed' ? 'selected' : '' }}>DISPOSED</option>
+                            </select>
+                        </div>
+
+                        <div class="flex justify-end col-span-1 md:col-span-1 lg:col-span-1">
+                            <button type="submit" class="w-full px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-md shadow-sm transition-colors uppercase">
+                                SEARCH
+                            </button>
+                        </div>
+
+                         <!-- Quick Filters -->
+                        <div class="col-span-1 md:col-span-3 lg:col-span-6 flex items-center gap-2">
+                             <a href="{{ route('pc-units.index', array_merge(request()->query(), ['status' => 'Available'])) }}" 
+                                class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                SHOW AVAILABLE (STANDBY)
+                            </a>
+                             @if(request('status') === 'Available')
+                                <a href="{{ route('pc-units.index', request()->except('status')) }}" class="ml-2 text-indigo-600 hover:text-indigo-900 text-xs font-bold uppercase">CLEAR FILTER</a>
+                             @endif
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Table -->
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset Tag</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type / Model / IP</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned To</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @forelse($pcUnits as $pcUnit)
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">
+                                            <a href="{{ route('pc-units.show', $pcUnit) }}" class="hover:underline">{{ $pcUnit->asset_tag }}</a>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900">{{ $pcUnit->device_type }}</div>
+                                            <div class="text-xs text-gray-500">{{ $pcUnit->model }}</div>
+                                            @if($pcUnit->ip_address)
+                                                <div class="text-xs text-gray-400 font-mono mt-0.5">{{ $pcUnit->ip_address }}</div>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">{{ strtoupper($pcUnit->group ?? 'N/A') }}</div>
+                                            <div class="text-xs text-gray-500">
+                                                @php
+                                                    $locParts = array_filter([$pcUnit->department, $pcUnit->division]);
+                                                    echo strtoupper(implode(' / ', $locParts)) ?: 'N/A';
+                                                @endphp
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ $pcUnit->employee->full_name ?? 'N/A' }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                {{ $pcUnit->status == 'assigned' ? 'bg-green-100 text-green-800' : '' }}
+                                                {{ $pcUnit->status == 'available' ? 'bg-blue-100 text-blue-800' : '' }}
+                                                {{ in_array(strtolower($pcUnit->status), ['defective', 'condemned', 'not_available', 'disposed']) ? 'bg-red-100 text-red-800' : '' }}
+                                                {{ !in_array(strtolower($pcUnit->status), ['assigned', 'available', 'defective', 'condemned', 'not_available', 'disposed']) ? 'bg-gray-100 text-gray-800' : '' }}">
+                                                {{ strtoupper(str_replace('_', ' ', $pcUnit->status)) }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <a href="{{ route('pc-units.show', $pcUnit) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">View</a>
+                                            <a href="{{ route('pc-units.edit', $pcUnit) }}" class="text-blue-600 hover:text-blue-900 mr-3">Edit</a>
+                                            <form action="{{ route('pc-units.destroy', $pcUnit) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="px-6 py-10 text-center text-gray-500">
+                                            NO PC UNITS FOUND.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 
-                <!-- Pagination -->
-                @if($pcUnits->hasPages())
-                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                <div class="mt-4">
                     {{ $pcUnits->links() }}
                 </div>
-                @endif
-            </div>
+
         </div>
     </div>
 </x-app-layout>

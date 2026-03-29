@@ -1,0 +1,47 @@
+﻿
+   PASS  Tests\Unit\ExampleTest
+  Γ£ô that true is true        0.44s  
+
+   PASS  Tests\Feature\Auth\AuthenticationTest
+  Γ£ô login screen can be renΓÇª 8.24s  
+  Γ£ô users can authenticateΓÇª  3.03s  
+  Γ£ô users can not authenticΓÇª 0.36s  
+  Γ£ô users can logout         0.04s  
+
+   PASS  Tests\Feature\Auth\EmailVerificationTest
+  Γ£ô email verification screΓÇª 0.39s  
+  Γ£ô email can be verified    0.25s  
+  Γ£ô email is not verified wΓÇª 0.34s  
+
+   PASS  Tests\Feature\Auth\PasswordConfirmationTest
+  Γ£ô confirm password screenΓÇª 0.54s  
+  Γ£ô password can be confirmΓÇª 0.02s  
+  Γ£ô password is not confirmΓÇª 0.23s  
+
+   PASS  Tests\Feature\Auth\PasswordResetTest
+  Γ£ô reset password link scrΓÇª 0.61s  
+  Γ£ô reset password link canΓÇª 1.23s  
+  Γ£ô reset password screen cΓÇª 1.31s  
+  Γ£ô password can be reset wΓÇª 0.45s  
+
+   PASS  Tests\Feature\Auth\PasswordUpdateTest
+  Γ£ô password can be updated  0.02s  
+  Γ£ô correct password must bΓÇª 0.04s  
+
+   PASS  Tests\Feature\Auth\RegistrationTest
+  Γ£ô registration screen canΓÇª 1.47s  
+  Γ£ô new users can register   0.08s  
+
+   PASS  Tests\Feature\ExampleTest
+  Γ£ô the application returnsΓÇª 0.11s  
+
+   PASS  Tests\Feature\ProfileTest
+  Γ£ô profile page is displayΓÇª 3.87s  
+  Γ£ô profile information canΓÇª 0.18s  
+  Γ£ô email verification statΓÇª 0.14s  
+  Γ£ô user can delete their aΓÇª 0.02s  
+  Γ£ô correct password must bΓÇª 0.02s  
+
+  Tests:    25 passed (61 assertions)
+  Duration: 27.58s
+

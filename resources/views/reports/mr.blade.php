@@ -5,29 +5,40 @@
     <title>Memorandum Receipt</title>
     <style>
         body { font-family: sans-serif; font-size: 12px; }
-        .header { text-align: center; margin-bottom: 20px; }
+        .header { text-align: center; margin-bottom: 20px; position: relative; }
         .header h1 { margin: 0; font-size: 18px; text-transform: uppercase; }
         .header p { margin: 2px; }
         .logo { position: absolute; top: 0; left: 0; width: 60px; }
-        
+
         .meta-table { width: 100%; margin-bottom: 20px; }
-        .meta-table td { padding: 5px; }
-        .label { font-weight: bold; width: 120px; }
+        .meta-table td { padding: 5px; vertical-align: top; }
+        .label { font-weight: bold; width: 130px; }
 
-        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
-        .items-table th, .items-table td { border: 1px solid #000; padding: 8px; text-align: left; }
-        .items-table th { background-color: #f0f0f0; }
+        .section-title { font-weight: bold; text-transform: uppercase; margin: 10px 0 4px; font-size: 11px; }
 
-        .footer { margin-top: 50px; }
-        .signatures { width: 100%; margin-top: 50px; }
+        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        .items-table th, .items-table td { border: 1px solid #000; padding: 6px; text-align: left; }
+        .items-table th { background-color: transparent; }
+
+        .signatures { width: 100%; margin-top: 40px; }
         .signatures td { width: 50%; vertical-align: top; padding-right: 20px; }
         .line { border-bottom: 1px solid #000; margin-top: 40px; margin-bottom: 5px; }
         .signatory-name { font-weight: bold; text-transform: uppercase; }
+
+        .note { font-size: 11px; line-height: 1.4; text-align: justify; }
     </style>
 </head>
 <body>
+    @php
+        $employee = $pcUnit->employee;
+        $department = optional($employee)->department;
+        $branch = $pcUnit->branch;
+    @endphp
+
     <div class="header">
-        <!-- <img src="{{ public_path('images/casureco-logo.png') }}" class="logo"> -->
+        <!-- Company Logo -->
+        <img src="{{ public_path('images/casureco-logo.png') }}" class="logo" alt="Casureco Logo">
+
         <h1>Camarines Sur II Electric Cooperative, Inc.</h1>
         <p>Del Gallego, Camarines Sur</p>
         <br>
@@ -39,29 +50,34 @@
         <tr>
             <td class="label">Date Issued:</td>
             <td>{{ $pcUnit->date_assigned ? $pcUnit->date_assigned->format('F d, Y') : date('F d, Y') }}</td>
+            <td class="label">Branch:</td>
+            <td>{{ optional($branch)->branch_name ?? 'N/A' }}</td>
         </tr>
         <tr>
             <td class="label">Issued To:</td>
-            <td style="font-weight: bold; text-transform: uppercase;">{{ $pcUnit->employee->full_name }}</td>
+            <td style="font-weight: bold; text-transform: uppercase;">
+                {{ optional($employee)->full_name ?? 'N/A' }}
+            </td>
+            <td class="label">Employee ID:</td>
+            <td>{{ optional($employee)->employee_id ?? 'N/A' }}</td>
         </tr>
         <tr>
             <td class="label">Position:</td>
-            <td>{{ $pcUnit->employee->position }}</td>
-        </tr>
-        <tr>
+            <td>{{ optional($employee)->position ?? 'N/A' }}</td>
             <td class="label">Department:</td>
-            <td>{{ $pcUnit->employee->department->department_name }}</td>
+            <td>{{ optional($department)->department_name ?? 'N/A' }}</td>
         </tr>
     </table>
 
+    <div class="section-title">Equipment Details</div>
     <table class="items-table">
         <thead>
             <tr>
-                <th>Qty</th>
-                <th>Unit</th>
-                <th>Description / Specification</th>
-                <th>Property No.</th>
-                <th>Status</th>
+                <th style="width: 8%;">Qty</th>
+                <th style="width: 10%;">Unit</th>
+                <th style="width: 47%;">Description / Specification</th>
+                <th style="width: 20%;">Property No.</th>
+                <th style="width: 15%;">Status</th>
             </tr>
         </thead>
         <tbody>
@@ -70,10 +86,18 @@
                 <td>Unit</td>
                 <td>
                     <b>{{ $pcUnit->device_type }} - {{ $pcUnit->model }}</b><br>
-                    {{ $pcUnit->device_type == 'Printer' ? 'Type' : 'Processor' }}: {{ $pcUnit->processor }}<br>
-                    {{ $pcUnit->device_type == 'Printer' ? 'Support' : 'RAM' }}: {{ $pcUnit->ram }}<br>
-                    {{ $pcUnit->device_type == 'Printer' ? 'Connectivity' : 'Storage' }}: {{ $pcUnit->storage }}<br>
-                    <i>{{ $pcUnit->remarks }}</i>
+                    {{ $pcUnit->device_type == 'Printer' ? 'Type' : 'Processor' }}:
+                    {{ $pcUnit->processor ?? 'N/A' }}<br>
+                    {{ $pcUnit->device_type == 'Printer' ? 'Support' : 'RAM' }}:
+                    {{ $pcUnit->ram ?? 'N/A' }}<br>
+                    {{ $pcUnit->device_type == 'Printer' ? 'Connectivity' : 'Storage' }}:
+                    {{ $pcUnit->storage ?? 'N/A' }}<br>
+                    @if($pcUnit->ip_address || $pcUnit->mac_address)
+                        Network: IP {{ $pcUnit->ip_address ?? 'N/A' }} / MAC {{ $pcUnit->mac_address ?? 'N/A' }}<br>
+                    @endif
+                    @if($pcUnit->remarks)
+                        <i>{{ $pcUnit->remarks }}</i>
+                    @endif
                 </td>
                 <td>{{ $pcUnit->asset_tag }}</td>
                 <td>Good</td>
@@ -81,7 +105,11 @@
         </tbody>
     </table>
 
-    <p>I hereby acknowledge receipt of the above-described property/equipment which I shall use in the performance of my official duties. I perform to be fully accountable for the same and to return it in good condition upon demand or upon separation from the service.</p>
+    <p class="note">
+        I hereby acknowledge receipt of the above-described property/equipment which I shall use
+        in the performance of my official duties. I promise to be fully accountable for the same
+        and to return it in good condition upon demand or upon separation from the service.
+    </p>
 
     <table class="signatures">
         <tr>
@@ -94,13 +122,13 @@
             <td>
                 Received by:
                 <div class="line"></div>
-                <div class="signatory-name">{{ $pcUnit->employee->full_name }}</div>
-                <div>{{ $pcUnit->employee->position }}</div>
+                <div class="signatory-name">{{ optional($employee)->full_name ?? 'N/A' }}</div>
+                <div>{{ optional($employee)->position ?? 'N/A' }}</div>
             </td>
         </tr>
     </table>
 
-    <div style="font-size: 10px; margin-top: 50px; text-align: center; color: #666;">
+    <div style="font-size: 10px; margin-top: 40px; text-align: center; color: #000;">
         Generated by Casureco DMS on {{ date('Y-m-d H:i:s') }}
     </div>
 </body>

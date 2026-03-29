@@ -12,13 +12,10 @@ class Employee extends Model
         'employee_id',
         'full_name',
         'position',
-        'department_id'
+        'department',
+        'group',
+        'division'
     ];
-
-    public function department(): BelongsTo
-    {
-        return $this->belongsTo(Department::class , 'department_id');
-    }
 
     public function pcUnits(): HasMany
     {
@@ -28,5 +25,15 @@ class Employee extends Model
     public function pcHistory(): HasMany
     {
         return $this->hasMany(PcHistory::class , 'employee_id');
+    }
+
+    public function printers(): HasMany
+    {
+        return $this->hasMany(Printer::class , 'employee_id');
+    }
+
+    public function networkDevices(): HasMany
+    {
+        return $this->hasMany(NetworkDevice::class , 'employee_id');
     }
 }

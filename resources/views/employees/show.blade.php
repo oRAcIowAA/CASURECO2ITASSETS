@@ -3,9 +3,10 @@
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Employee: ') . $employee->full_name }}
         </h2>
-        <div class="mt-1 text-sm text-gray-500">
-            ID: <span class="font-medium text-gray-900">{{ $employee->employee_id ?? 'N/A' }}</span> &bull; 
-            {{ $employee->position ?? 'No Position' }} &bull; {{ $employee->department->department_name }} ({{ $employee->department->branch->branch_name }})
+        <div class="mt-1 text-sm text-gray-500 uppercase">
+            ID: <span class="font-medium text-gray-900">{{ strtoupper($employee->employee_id ?? 'N/A') }}</span> &bull; 
+            {{ strtoupper($employee->position ?? 'NO POSITION') }} &bull; 
+            {{ strtoupper($employee->department ?? 'N/A') }} / {{ strtoupper($employee->division ?? 'N/A') }} / {{ strtoupper($employee->group ?? 'N/A') }}
         </div>
     </x-slot>
 
@@ -19,7 +20,7 @@
                     <!-- Current Assets -->
                     <div class="bg-white overflow-hidden shadow-sm rounded-lg">
                         <div class="p-6 border-b border-gray-200">
-                            <h3 class="text-lg font-medium text-gray-900">Current Assets</h3>
+                            <h3 class="text-lg font-bold text-gray-900 uppercase">Current Assets</h3>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
@@ -33,24 +34,67 @@
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
-                                    @forelse($employee->pcUnits as $unit)
+                                    @php
+                                        $assets = collect();
+                                        
+                                        foreach($employee->pcUnits as $pc) {
+                                            $assets->push((object)[
+                                                'id' => $pc->id,
+                                                'type' => $pc->device_type,
+                                                'brand_model' => $pc->model, // PC has model, brand is usually implied or separate
+                                                'asset_tag' => $pc->asset_tag,
+                                                'date_assigned' => $pc->date_assigned,
+                                                'route_show' => route('pc-units.show', $pc),
+                                                'route_transfer' => route('pc-units.transfer', $pc),
+                                                'category' => 'PC Unit'
+                                            ]);
+                                        }
+
+                                        foreach($employee->printers as $printer) {
+                                            $assets->push((object)[
+                                                'id' => $printer->id,
+                                                'type' => 'Printer',
+                                                'brand_model' => $printer->brand . ' ' . $printer->model,
+                                                'asset_tag' => $printer->asset_tag,
+                                                'date_assigned' => $printer->date_assigned,
+                                                'route_show' => route('printers.show', $printer),
+                                                'route_transfer' => route('printers.transfer', $printer),
+                                                'category' => 'Printer'
+                                            ]);
+                                        }
+
+                                        foreach($employee->networkDevices as $device) {
+                                            $assets->push((object)[
+                                                'id' => $device->id,
+                                                'type' => ucfirst($device->device_type), // Router/Switch
+                                                'brand_model' => $device->brand . ' ' . $device->model,
+                                                'asset_tag' => $device->asset_tag,
+                                                'date_assigned' => $device->date_assigned,
+                                                'route_show' => route('network-devices.show', $device),
+                                                'route_transfer' => route('network-devices.transfer', $device),
+                                                'category' => 'Network Device'
+                                            ]);
+                                        }
+                                    @endphp
+
+                                    @forelse ($assets as $asset)
                                         <tr>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                <a href="{{ route('pc-units.show', $unit) }}" class="text-indigo-600 hover:text-indigo-900">
-                                                    {{ $unit->asset_tag }}
+                                                <a href="{{ $asset->route_show }}" class="text-indigo-600 hover:text-indigo-900">
+                                                    {{ $asset->asset_tag }}
                                                 </a>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {{ $unit->model }}
+                                                {{ $asset->brand_model }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {{ $unit->device_type }}
+                                                {{ strtoupper($asset->type) }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {{ $unit->date_assigned ? $unit->date_assigned->format('M d, Y') : 'N/A' }}
+                                                {{ $asset->date_assigned ? \Carbon\Carbon::parse($asset->date_assigned)->format('M d, Y') : 'N/A' }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <a href="{{ route('pc-units.transfer', $unit) }}" class="text-indigo-600 hover:text-indigo-900 mr-2">Transfer</a>
+                                                <a href="{{ $asset->route_transfer }}" class="text-indigo-600 hover:text-indigo-900 mr-2">Transfer</a>
                                             </td>
                                         </tr>
                                     @empty
@@ -66,36 +110,31 @@
                     <!-- History Log -->
                     <div class="bg-white overflow-hidden shadow-sm rounded-lg">
                         <div class="p-6 border-b border-gray-200">
-                            <h3 class="text-lg font-medium text-gray-900">Assignment History</h3>
+                            <h3 class="text-lg font-bold text-gray-900 uppercase">Assignment History</h3>
                         </div>
                         <ul class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
-                            @forelse($history as $log)
+                            @forelse ($history as $log)
                                 <li class="px-6 py-4 hover:bg-gray-50">
                                     <div class="flex space-x-3">
                                         <div class="flex-shrink-0">
                                             <!-- Icon based on action -->
-                                            @if($log->action == 'assigned')
+                                            @php $action = strtolower($log->action); @endphp
+                                            @if(in_array($action, ['defective', 'condemned', 'disposed']))
+                                                <span class="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center ring-8 ring-white">
+                                                    <svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                    </svg>
+                                                </span>
+                                            @elseif(in_array($action, ['repaired', 'restored']))
                                                 <span class="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center ring-8 ring-white">
                                                     <svg class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                                     </svg>
                                                 </span>
-                                            @elseif($log->action == 'returned')
-                                                <span class="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center ring-8 ring-white">
-                                                    <svg class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                                    </svg>
-                                                </span>
-                                            @elseif($log->action == 'transferred')
+                                            @else
                                                 <span class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center ring-8 ring-white">
                                                     <svg class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                                                    </svg>
-                                                </span>
-                                            @else
-                                                 <span class="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center ring-8 ring-white">
-                                                    <svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                                     </svg>
                                                 </span>
                                             @endif
@@ -103,7 +142,7 @@
                                         <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
                                             <div>
                                                 <p class="text-sm text-gray-500">
-                                                    <span class="font-medium text-gray-900">{{ ucfirst($log->action) }}</span> 
+                                                    <span class="font-medium text-gray-900">{{ strtoupper($log->action) }}</span> 
                                                     <a href="{{ route('pc-units.show', $log->pc_unit_id) }}" class="text-indigo-600 hover:text-indigo-900 mx-1">
                                                         {{ $log->pcUnit->asset_tag ?? 'Unknown Unit' }}
                                                     </a>
@@ -134,7 +173,7 @@
                 <div class="lg:col-span-1">
                     <div class="bg-white overflow-hidden shadow-sm rounded-lg p-6 mb-6">
                         <div class="text-gray-500 text-sm font-medium uppercase tracking-wider">Current Assets</div>
-                        <div class="mt-2 text-3xl font-bold text-blue-600">{{ $employee->pcUnits->count() }}</div>
+                        <div class="mt-2 text-3xl font-bold text-blue-600">{{ $employee->pcUnits->count() + $employee->printers->count() + $employee->networkDevices->count() }}</div>
                     </div>
                     
                      <div class="bg-white overflow-hidden shadow-sm rounded-lg p-6">

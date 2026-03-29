@@ -28,16 +28,17 @@
                         
                         <!-- Device Type -->
                         <div class="mb-6">
-                            <label for="device_type" class="block text-gray-700 text-sm font-medium mb-2">
-                                Device Type <span class="text-red-500">*</span>
+                            <label for="device_type" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                DEVICE TYPE <span class="text-red-500">*</span>
                             </label>
                             <select name="device_type" id="device_type" 
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('device_type') border-red-500 @enderror" 
                                     required>
-                                <option value="">Select Device Type</option>
-                                <option value="PC" {{ $pcUnit->device_type == 'PC' ? 'selected' : '' }}>PC</option>
-                                <option value="Laptop" {{ $pcUnit->device_type == 'Laptop' ? 'selected' : '' }}>Laptop</option>
-                                <option value="Printer" {{ $pcUnit->device_type == 'Printer' ? 'selected' : '' }}>Printer</option>
+                                <option value="">SELECT DEVICE TYPE</option>
+                                <option value="Desktop" {{ $pcUnit->device_type == 'Desktop' ? 'selected' : '' }}>DESKTOP</option>
+                                <option value="All-in-One" {{ $pcUnit->device_type == 'All-in-One' ? 'selected' : '' }}>ALL-IN-ONE</option>
+                                <option value="Laptop" {{ $pcUnit->device_type == 'Laptop' ? 'selected' : '' }}>LAPTOP</option>
+                                <option value="Server" {{ $pcUnit->device_type == 'Server' ? 'selected' : '' }}>SERVER</option>
                             </select>
                             @error('device_type')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -46,13 +47,19 @@
 
                         <!-- Asset Tag -->
                         <div class="mb-6">
-                            <label for="asset_tag" class="block text-gray-700 text-sm font-medium mb-2">
-                                Asset Tag <span class="text-red-500">*</span>
+                            <label for="asset_tag_number" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                ASSET TAG <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" name="asset_tag" id="asset_tag" 
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('asset_tag') border-red-500 @enderror" 
-                                   value="{{ old('asset_tag', $pcUnit->asset_tag) }}" 
-                                   required>
+                            <div class="flex rounded-md shadow-sm">
+                                <span class="inline-flex items-center px-4 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-700 sm:text-sm font-semibold">
+                                    CAS-PC-
+                                </span>
+                                <input type="text" name="asset_tag_number" id="asset_tag_number" 
+                                       class="flex-1 min-w-0 block w-full px-4 py-2 rounded-none rounded-r-md border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 @error('asset_tag') border-red-500 @enderror" 
+                                       value="{{ old('asset_tag_number', Str::afterLast($pcUnit->asset_tag, '-')) }}" 
+                                       placeholder="001"
+                                       required>
+                            </div>
                             @error('asset_tag')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -60,8 +67,8 @@
 
                         <!-- Model -->
                         <div class="mb-6">
-                            <label for="model" class="block text-gray-700 text-sm font-medium mb-2">
-                                Model <span class="text-red-500">*</span>
+                            <label for="model" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                MODEL <span class="text-red-500">*</span>
                             </label>
                             <input type="text" name="model" id="model" 
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('model') border-red-500 @enderror" 
@@ -74,31 +81,91 @@
 
                         <!-- Hardware Specs -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                            <div>
-                                <label for="processor" class="block text-gray-700 text-sm font-medium mb-2">
-                                    {{ $pcUnit->device_type == 'Printer' ? 'Printer Type' : 'Processor' }}
+                            <!-- Processor -->
+                            <div x-data="{ procType: '{{ old('processor', $pcUnit->processor) }}', customProc: '' }">
+                                <label for="processor_select" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                    PROCESSOR
                                 </label>
-                                <input type="text" name="processor" id="processor" 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
-                                       value="{{ old('processor', $pcUnit->processor) }}">
+                                @php
+                                    $procOptions = ['Intel i3', 'Intel i5', 'Intel i7', 'Intel i9', 'AMD Ryzen 3', 'AMD Ryzen 5', 'AMD Ryzen 7', 'Apple M1', 'Apple M2', 'Apple M3'];
+                                    $oldProc = old('processor', $pcUnit->processor);
+                                    $isCustomProc = $oldProc && !in_array($oldProc, $procOptions);
+                                @endphp
+                                <select x-model="procType" id="processor_select"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 mb-2 uppercase"
+                                        @change="if(procType !== 'Other') { customProc = ''; $refs.hiddenProc.value = procType } else { $refs.hiddenProc.value = customProc }">
+                                    <option value="">SELECT PROCESSOR</option>
+                                    @foreach($procOptions as $opt)
+                                        <option value="{{ $opt }}" {{ $oldProc === $opt ? 'selected' : '' }}>{{ strtoupper($opt) }}</option>
+                                    @endforeach
+                                    <option value="Other" {{ $isCustomProc ? 'selected' : '' }}>OTHER...</option>
+                                </select>
+                                
+                                <div x-show="procType === 'Other'" style="display: none;">
+                                    <input type="text" x-model="customProc" @input="$refs.hiddenProc.value = customProc"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                           placeholder="Specify Processor"
+                                           x-init="if('{{ $isCustomProc }}' == '1') { customProc = '{{ $oldProc }}'; }">
+                                </div>
+                                <input type="hidden" name="processor" x-ref="hiddenProc" value="{{ old('processor', $pcUnit->processor) }}">
                             </div>
                             
-                            <div>
-                                <label for="ram" class="block text-gray-700 text-sm font-medium mb-2">
-                                    {{ $pcUnit->device_type == 'Printer' ? 'Support' : 'RAM' }}
+                            <!-- RAM -->
+                            <div x-data="{ ramType: '{{ old('ram', $pcUnit->ram) }}', customRam: '' }">
+                                <label for="ram_select" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                    RAM
                                 </label>
-                                <input type="text" name="ram" id="ram" 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
-                                       value="{{ old('ram', $pcUnit->ram) }}">
+                                @php
+                                    $ramOptions = ['4GB', '8GB', '16GB', '32GB', '64GB', '128GB'];
+                                    $oldRam = old('ram', $pcUnit->ram);
+                                    $isCustomRam = $oldRam && !in_array($oldRam, $ramOptions);
+                                @endphp
+                                <select x-model="ramType" id="ram_select"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 mb-2 uppercase"
+                                        @change="if(ramType !== 'Other') { customRam = ''; $refs.hiddenRam.value = ramType } else { $refs.hiddenRam.value = customRam }">
+                                    <option value="">SELECT RAM</option>
+                                    @foreach($ramOptions as $opt)
+                                        <option value="{{ $opt }}" {{ $oldRam === $opt ? 'selected' : '' }}>{{ strtoupper($opt) }}</option>
+                                    @endforeach
+                                    <option value="Other" {{ $isCustomRam ? 'selected' : '' }}>OTHER...</option>
+                                </select>
+                                
+                                <div x-show="ramType === 'Other'" style="display: none;">
+                                    <input type="text" x-model="customRam" @input="$refs.hiddenRam.value = customRam"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                           placeholder="Specify RAM"
+                                           x-init="if('{{ $isCustomRam }}' == '1') { customRam = '{{ $oldRam }}'; }">
+                                </div>
+                                <input type="hidden" name="ram" x-ref="hiddenRam" value="{{ old('ram', $pcUnit->ram) }}">
                             </div>
                             
-                            <div>
-                                <label for="storage" class="block text-gray-700 text-sm font-medium mb-2">
-                                    {{ $pcUnit->device_type == 'Printer' ? 'Connectivity' : 'Storage' }}
+                            <!-- Storage -->
+                            <div x-data="{ storageType: '{{ old('storage', $pcUnit->storage) }}', customStorage: '' }">
+                                <label for="storage_select" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                    STORAGE
                                 </label>
-                                <input type="text" name="storage" id="storage" 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
-                                       value="{{ old('storage', $pcUnit->storage) }}">
+                                @php
+                                    $storageOptions = ['256GB SSD', '512GB SSD', '1TB SSD', '2TB SSD', '500GB HDD', '1TB HDD', '2TB HDD', 'Hybrid'];
+                                    $oldStorage = old('storage', $pcUnit->storage);
+                                    $isCustomStorage = $oldStorage && !in_array($oldStorage, $storageOptions);
+                                @endphp
+                                <select x-model="storageType" id="storage_select"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 mb-2 uppercase"
+                                        @change="if(storageType !== 'Other') { customStorage = ''; $refs.hiddenStorage.value = storageType } else { $refs.hiddenStorage.value = customStorage }">
+                                    <option value="">SELECT STORAGE</option>
+                                    @foreach($storageOptions as $opt)
+                                        <option value="{{ $opt }}" {{ $oldStorage === $opt ? 'selected' : '' }}>{{ strtoupper($opt) }}</option>
+                                    @endforeach
+                                    <option value="Other" {{ $isCustomStorage ? 'selected' : '' }}>OTHER...</option>
+                                </select>
+                                
+                                <div x-show="storageType === 'Other'" style="display: none;">
+                                    <input type="text" x-model="customStorage" @input="$refs.hiddenStorage.value = customStorage"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                           placeholder="Specify Storage"
+                                           x-init="if('{{ $isCustomStorage }}' == '1') { customStorage = '{{ $oldStorage }}'; }">
+                                </div>
+                                <input type="hidden" name="storage" x-ref="hiddenStorage" value="{{ old('storage', $pcUnit->storage) }}">
                             </div>
                         </div>
 
@@ -106,8 +173,8 @@
                         <h3 class="text-lg font-medium text-gray-900 mb-4">Network Details</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                             <div>
-                                <label for="ip_address" class="block text-gray-700 text-sm font-medium mb-2">
-                                    IP Address
+                                <label for="ip_address" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                    IP ADDRESS
                                 </label>
                                 <input type="text" name="ip_address" id="ip_address" 
                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('ip_address') border-red-500 @enderror" 
@@ -118,22 +185,35 @@
                                 @enderror
                             </div>
                             
-                            <div>
-                                <label for="mac_address" class="block text-gray-700 text-sm font-medium mb-2">
-                                    MAC Address
+                            <div x-data="{ 
+                                mac: '{{ old('mac_address', $pcUnit->mac_address) }}',
+                                formatMac(e) {
+                                    let val = e.target.value.replace(/[^a-fA-F0-9]/g, '').toUpperCase();
+                                    let matches = val.match(/.{1,2}/g);
+                                    if (matches) {
+                                        this.mac = matches.join(':').substring(0, 17);
+                                    } else {
+                                        this.mac = val;
+                                    }
+                                }
+                            }">
+                                <label for="mac_address" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                    MAC ADDRESS
                                 </label>
                                 <input type="text" name="mac_address" id="mac_address" 
                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('mac_address') border-red-500 @enderror" 
-                                       value="{{ old('mac_address', $pcUnit->mac_address) }}" 
-                                       placeholder="00:1A:2B:3C:4D:5E">
+                                       x-model="mac"
+                                       @input="formatMac"
+                                       placeholder="00:1A:2B:3C:4D:5E"
+                                       maxlength="17">
                                 @error('mac_address')
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
                             
                             <div>
-                                <label for="network_segment" class="block text-gray-700 text-sm font-medium mb-2">
-                                    Network Segment
+                                <label for="network_segment" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                    NETWORK SEGMENT
                                 </label>
                                 <input type="text" name="network_segment" id="network_segment" 
                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
@@ -142,83 +222,125 @@
                             </div>
                         </div>
 
-                        <!-- Branch -->
-                        <div class="mb-6">
-                            <label for="branch_id" class="block text-gray-700 text-sm font-medium mb-2">
-                                Branch <span class="text-red-500">*</span>
-                            </label>
-                            <select name="branch_id" id="branch_id" 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('branch_id') border-red-500 @enderror" 
-                                    required>
-                                <option value="">Select Branch</option>
-                                @foreach($branches as $branch)
-                                    <option value="{{ $branch->id }}" {{ old('branch_id', $pcUnit->branch_id) == $branch->id ? 'selected' : '' }}>
-                                        {{ $branch->branch_name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('branch_id')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
                         <!-- Department -->
                         <div class="mb-6">
-                            <label for="department_id" class="block text-gray-700 text-sm font-medium mb-2">
+                            <label for="department" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
                                 Department <span class="text-red-500">*</span>
                             </label>
-                            <select name="department_id" id="department_id" 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('department_id') border-red-500 @enderror" 
+                            <select name="department" id="department"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('department') border-red-500 @enderror"
                                     required>
-                                <option value="">Select Department</option>
+                                <option value="">SELECT DEPARTMENT</option>
                                 @foreach($departments as $department)
-                                    <option value="{{ $department->id }}" {{ old('department_id', $pcUnit->department_id) == $department->id ? 'selected' : '' }}>
-                                        {{ $department->department_name }} ({{ $department->branch->branch_name }})
+                                    <option value="{{ $department }}" {{ old('department', $pcUnit->department) === $department ? 'selected' : '' }}>
+                                        {{ strtoupper($department) }}
                                     </option>
                                 @endforeach
                             </select>
-                            @error('department_id')
+                            @error('department')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
-                        <!-- Employee -->
+                        <!-- Division -->
                         <div class="mb-6">
-                            <label for="employee_id" class="block text-gray-700 text-sm font-medium mb-2">
-                                Assign to Employee (Optional)
+                            <label for="division" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                Division
                             </label>
-                            <select name="employee_id" id="employee_id" 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                                <option value="">Not Assigned (Available)</option>
-                                @foreach($employees as $employee)
-                                    <option value="{{ $employee->id }}" {{ old('employee_id', $pcUnit->employee_id) == $employee->id ? 'selected' : '' }}>
-                                        {{ $employee->full_name }} - {{ $employee->position }} ({{ $employee->department->department_name ?? 'N/A' }})
+                            <select name="division" id="division"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('division') border-red-500 @enderror">
+                                <option value="">SELECT DIVISION</option>
+                                @foreach($divisions as $division)
+                                    <option value="{{ $division }}" {{ old('division', $pcUnit->division) === $division ? 'selected' : '' }}>
+                                        {{ strtoupper($division) }}
                                     </option>
                                 @endforeach
                             </select>
+                            @error('division')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
-                        <!-- Status -->
+                        <!-- Group -->
                         <div class="mb-6">
-                            <label for="status" class="block text-gray-700 text-sm font-medium mb-2">
-                                Status <span class="text-red-500">*</span>
+                            <label for="group" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                Group <span class="text-red-500">*</span>
                             </label>
-                            <select name="status" id="status" 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('status') border-red-500 @enderror" 
+                            <select name="group" id="group"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('group') border-red-500 @enderror"
                                     required>
-                                <option value="available" {{ old('status', $pcUnit->status) == 'available' ? 'selected' : '' }}>Available</option>
-                                <option value="not_available" {{ old('status', $pcUnit->status) == 'not_available' ? 'selected' : '' }}>Not Available</option>
-                                <option value="incoming" {{ old('status', $pcUnit->status) == 'incoming' ? 'selected' : '' }}>Incoming</option>
+                                <option value="">SELECT GROUP</option>
+                                @foreach($groups as $group)
+                                    <option value="{{ $group }}" {{ old('group', $pcUnit->group) === $group ? 'selected' : '' }}>
+                                        {{ strtoupper($group) }}
+                                    </option>
+                                @endforeach
                             </select>
-                            @error('status')
+                            @error('group')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
+
+                        <!-- Assignment Section -->
+                        <!-- Assignment Section -->
+                        @php
+                            $specialStatuses = ['disposed', 'condemned', 'defective'];
+                            $isSpecialStatus = in_array(strtolower($pcUnit->status), $specialStatuses);
+                        @endphp
+
+                        @if($isSpecialStatus)
+                            <div class="mb-6 border-t pt-4">
+                                <label class="block text-lg font-medium text-gray-900 mb-2">Status & Assignment</label>
+                                <div class="p-4 rounded-lg {{ strtolower($pcUnit->status) === 'disposed' ? 'bg-red-50' : 'bg-yellow-50' }} border border-{{ strtolower($pcUnit->status) === 'disposed' ? 'red' : 'yellow' }}-200">
+                                    <div class="flex items-center">
+                                        <span class="px-3 py-1 text-sm font-bold uppercase rounded-full 
+                                            {{ strtolower($pcUnit->status) === 'disposed' ? 'bg-red-600 text-white' : 'bg-yellow-500 text-white' }}">
+                                            {{ strtoupper($pcUnit->status) }}
+                                        </span>
+                                        <span class="ml-3 text-sm text-gray-600">
+                                            This unit is currently <strong>{{ strtoupper($pcUnit->status) }}</strong> and cannot be reassigned. To change the status, please use the appropriate action from the details page.
+                                        </span>
+                                    </div>
+                                    <input type="hidden" name="assignment_type" value="standby">
+                                </div>
+                            </div>
+                        @else
+                            <div class="mb-6 border-t pt-4" x-data="{ assignmentType: '{{ $pcUnit->employee_id ? 'assign' : 'standby' }}' }">
+                                <label class="block text-lg font-bold text-gray-900 mb-2 uppercase tracking-wide">ASSIGNMENT</label>
+                                
+                                <div class="flex space-x-6 mb-4">
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" name="assignment_type" value="standby" 
+                                               class="border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                               x-model="assignmentType">
+                                        <span class="ml-2 text-gray-700 uppercase font-bold">STANDBY (AVAILABLE)</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" name="assignment_type" value="assign" 
+                                               class="border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                               x-model="assignmentType">
+                                        <span class="ml-2 text-gray-700 uppercase font-bold">ASSIGN TO EMPLOYEE</span>
+                                    </label>
+                                </div>
+
+                                <div x-show="assignmentType === 'assign'" class="bg-gray-50 p-4 rounded-md mb-4">
+                                    <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">SELECT EMPLOYEE</label>
+                                    <select name="employee_id" x-init="new Choices($el, { searchPlaceholderValue: 'SEARCH NAME, DEPARTMENT...' })" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                        <option value="">-- CHOOSE EMPLOYEE --</option>
+                                        @foreach($employees as $employee)
+                                            <option value="{{ $employee->id }}" {{ old('employee_id', $pcUnit->employee_id) == $employee->id ? 'selected' : '' }}>
+                                                {{ strtoupper($employee->full_name) }} &mdash; {{ strtoupper($employee->department ?? 'N/A') }} / {{ strtoupper($employee->division ?? 'N/A') }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        @endif
 
                         <!-- Date Received -->
                         <div class="mb-6">
-                            <label for="date_received" class="block text-gray-700 text-sm font-medium mb-2">
-                                Date Received
+                            <label for="date_received" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                DATE RECEIVED
                             </label>
                             <input type="date" name="date_received" id="date_received" 
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
@@ -227,8 +349,8 @@
 
                         <!-- Remarks -->
                         <div class="mb-6">
-                            <label for="remarks" class="block text-gray-700 text-sm font-medium mb-2">
-                                Remarks
+                            <label for="remarks" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                REMARKS
                             </label>
                             <textarea name="remarks" id="remarks" 
                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 

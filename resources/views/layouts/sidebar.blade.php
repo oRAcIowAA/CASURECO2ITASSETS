@@ -1,9 +1,13 @@
-<div class="flex flex-col w-64 bg-blue-900 border-r border-gray-200 min-h-screen">
-    <div class="flex items-center justify-center h-20 shadow-md bg-blue-900">
+<div class="fixed inset-y-0 left-0 z-30 w-64 bg-blue-900 border-r border-blue-800 transition-transform duration-300 ease-in-out transform md:relative md:translate-x-0 flex flex-col min-h-screen"
+     :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}">
+    <div class="flex items-center justify-between px-4 h-20 shadow-md bg-blue-900">
         <a href="{{ route('dashboard') }}" class="flex items-center space-x-2">
             <img src="{{ asset('images/casureco-logo.png') }}" alt="Casureco Logo" class="h-10 w-auto bg-white rounded-full p-1" style="max-height: 40px;">
-            <span class="text-white text-xl font-bold tracking-wider">DMS</span>
+            <span class="text-white text-xl font-bold tracking-wider">IT ASSETS</span>
         </a>
+        <button @click="sidebarOpen = false" class="md:hidden text-white hover:text-gray-300 focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
     </div>
     
     <div class="flex-grow overflow-y-auto">
@@ -20,6 +24,14 @@
                 <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Asset Management</p>
             </div>
 
+            <!-- Create Unit -->
+            <a href="{{ route('pc-units.create') }}" class="flex items-center px-4 py-3 text-gray-100 transition-colors rounded-lg hover:bg-green-500 hover:text-white mb-4 bg-green-600 shadow-md">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                <span class="font-bold">Create New Unit</span>
+            </a>
+
             <!-- PC Units -->
             <a href="{{ route('pc-units.index') }}" class="flex items-center px-4 py-3 text-gray-100 transition-colors rounded-lg hover:bg-blue-800 hover:text-yellow-400 {{ request()->routeIs('pc-units.*') ? 'bg-blue-800 shadow-lg text-yellow-400' : '' }}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -28,27 +40,51 @@
                 <span class="font-medium">PC Units</span>
             </a>
 
-            <!-- PC History -->
-            <a href="{{ route('pc-history.index') }}" class="flex items-center px-4 py-3 text-gray-100 transition-colors rounded-lg hover:bg-blue-800 hover:text-yellow-400 {{ request()->routeIs('pc-history.*') ? 'bg-blue-800 shadow-lg text-yellow-400' : '' }}">
+            <!-- Printers -->
+            <a href="{{ route('printers.index') }}" class="flex items-center px-4 py-3 text-gray-100 transition-colors rounded-lg hover:bg-blue-800 hover:text-yellow-400 {{ request()->routeIs('printers.*') ? 'bg-blue-800 shadow-lg text-yellow-400' : '' }}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
                 </svg>
-                <span class="font-medium">History Logs</span>
+                <span class="font-medium">Printers</span>
             </a>
 
-            <!-- Reports -->
-            <a href="{{ route('reports.index') }}" class="flex items-center px-4 py-3 text-gray-100 transition-colors rounded-lg hover:bg-blue-800 hover:text-yellow-400 {{ request()->routeIs('reports.*') ? 'bg-blue-800 shadow-lg text-yellow-400' : '' }}">
+            <!-- Networking Devices -->
+            <a href="{{ route('network-devices.index') }}" class="flex items-center px-4 py-3 text-gray-100 transition-colors rounded-lg hover:bg-blue-800 hover:text-yellow-400 {{ request()->routeIs('network-devices.*') ? 'bg-blue-800 shadow-lg text-yellow-400' : '' }}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 00-4-4H5a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"></path>
                 </svg>
-                <span class="font-medium">Reports</span>
+                <span class="font-medium">Networking</span>
+            </a>
+
+            <!-- Parts Management (Disposed Units) -->
+            <a href="{{ route('parts.index') }}" class="flex items-center px-4 py-3 text-gray-100 transition-colors rounded-lg hover:bg-blue-800 hover:text-yellow-400 {{ request()->routeIs('parts.*') ? 'bg-blue-800 shadow-lg text-yellow-400' : '' }}">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                <span class="font-medium">Parts</span>
+            </a>
+
+            <!-- QR Codes -->
+            <a href="{{ route('qr-assets.index') }}" class="flex items-center px-4 py-3 text-gray-100 transition-colors rounded-lg hover:bg-blue-800 hover:text-yellow-400 {{ request()->routeIs('qr-assets.*') ? 'bg-blue-800 shadow-lg text-yellow-400' : '' }}">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                </svg>
+                <span class="font-medium">QR</span>
             </a>
 
             <div class="pt-4 pb-2">
-                <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Organization</p>
+                <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Organization & Administration</p>
             </div>
 
-            <!-- Organization Chart -->
+            <!-- Administrators -->
+            <a href="{{ route('admins.index') }}" class="flex items-center px-4 py-3 text-gray-100 transition-colors rounded-lg hover:bg-blue-800 hover:text-yellow-400 {{ request()->routeIs('admins.*') ? 'bg-blue-800 shadow-lg text-yellow-400' : '' }}">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+                <span class="font-medium">System Admins</span>
+            </a>
+
+            <!-- Org Chart -->
             <a href="{{ route('organization.index') }}" class="flex items-center px-4 py-3 text-gray-100 transition-colors rounded-lg hover:bg-blue-800 hover:text-yellow-400 {{ request()->routeIs('organization.index') ? 'bg-blue-800 shadow-lg text-yellow-400' : '' }}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
@@ -58,26 +94,38 @@
 
             <!-- Employees -->
             <a href="{{ route('employees.index') }}" class="flex items-center px-4 py-3 text-gray-100 transition-colors rounded-lg hover:bg-blue-800 hover:text-yellow-400 {{ request()->routeIs('employees.*') ? 'bg-blue-800 shadow-lg text-yellow-400' : '' }}">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                 </svg>
                 <span class="font-medium">Employees</span>
             </a>
+            
+            <div class="pt-4 pb-2">
+                <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Reports</p>
+            </div>
 
-            <!-- Departments -->
-            <a href="{{ route('departments.index') }}" class="flex items-center px-4 py-3 text-gray-100 transition-colors rounded-lg hover:bg-blue-800 hover:text-yellow-400 {{ request()->routeIs('departments.*') ? 'bg-blue-800 shadow-lg text-yellow-400' : '' }}">
+            <!-- Reports -->
+            <a href="{{ route('reports.index') }}" class="flex items-center px-4 py-3 text-gray-100 transition-colors rounded-lg hover:bg-blue-800 hover:text-yellow-400 {{ request()->routeIs('reports.index') ? 'bg-blue-800 shadow-lg text-yellow-400' : '' }}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
-                <span class="font-medium">Departments</span>
+                <span class="font-medium">Master List</span>
             </a>
 
-            <!-- Branches -->
-            <a href="{{ route('branches.index') }}" class="flex items-center px-4 py-3 text-gray-100 transition-colors rounded-lg hover:bg-blue-800 hover:text-yellow-400 {{ request()->routeIs('branches.*') ? 'bg-blue-800 shadow-lg text-yellow-400' : '' }}">
+            <!-- Department Reports -->
+            <a href="{{ route('reports.department') }}" class="flex items-center px-4 py-3 text-gray-100 transition-colors rounded-lg hover:bg-blue-800 hover:text-yellow-400 {{ request()->routeIs('reports.department') ? 'bg-blue-800 shadow-lg text-yellow-400' : '' }}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
                 </svg>
-                <span class="font-medium">Branches</span>
+                <span class="font-medium">Department Assets</span>
+            </a>
+
+            <!-- Activity Log -->
+            <a href="{{ route('activities.index') }}" class="flex items-center px-4 py-3 text-gray-100 transition-colors rounded-lg hover:bg-blue-800 hover:text-yellow-400 {{ request()->routeIs('activities.index') ? 'bg-blue-800 shadow-lg text-yellow-400' : '' }}">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="font-medium">Activity Log</span>
             </a>
         </nav>
     </div>

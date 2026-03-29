@@ -1,0 +1,100 @@
+﻿
+  GET|HEAD        / .............. 
+  GET|HEAD        confirm-password password.confirm ΓÇ║ Auth\ConfirmablePasswordController@shΓÇª
+  POST            confirm-password Auth\ConfirmablePasswordController@stoΓÇª
+  GET|HEAD        dashboard dashbΓÇª
+  POST            email/verification-notification verification.send ΓÇ║ Auth\EmailVerificationNotificatioΓÇª
+  GET|HEAD        employees emploΓÇª
+  POST            employees emploΓÇª
+  GET|HEAD        employees/create employees.create ΓÇ║ EmployeeController@creaΓÇª
+  GET|HEAD        employees/{employee} employees.show ΓÇ║ EmployeeControlleΓÇª
+  PUT|PATCH       employees/{employee} employees.update ΓÇ║ EmployeeController@ΓÇª
+  DELETE          employees/{employee} employees.destroy ΓÇ║ EmployeeController@dΓÇª
+  GET|HEAD        employees/{employee}/edit employees.edit ΓÇ║ EmployeeContΓÇª
+  GET|HEAD        forgot-password password.request ΓÇ║ Auth\PasswordResetLinkController@creatΓÇª
+  POST            forgot-password password.email ΓÇ║ Auth\PasswordResetLinkController@storΓÇª
+  GET|HEAD        login login ΓÇ║ AΓÇª
+  POST            login Auth\AuthΓÇª
+  POST            logout logout  ΓÇª
+  GET|HEAD        network-device-history network-device-history.index ΓÇ║ NetworkDeviceHistoryControllΓÇª
+  GET|HEAD        network-device-history/{networkDevice} network-device-history.show ΓÇ║ NetworkDeviceHistorΓÇª
+  GET|HEAD        network-devices network-devices.index ΓÇ║ NetworkDeviceController@indeΓÇª
+  POST            network-devices network-devices.store ΓÇ║ NetworkDeviceController@storΓÇª
+  GET|HEAD        network-devices/create network-devices.create ΓÇ║ NetworkDeviceControlleΓÇª
+  POST            network-devices/{networkDevice}/condemn network-devices.condemn ΓÇ║ NetworΓÇª
+  GET|HEAD        network-devices/{networkDevice}/dispose network-devices.dispose ΓÇ║ NetworΓÇª
+  GET|HEAD        network-devices/{networkDevice}/print-condemn network-devices.print-condemn ΓÇ║ NetwoΓÇª
+  GET|HEAD        network-devices/{networkDevice}/print-disposal network-devices.print-disposal ΓÇ║ NetwoΓÇª
+  GET|HEAD        network-devices/{networkDevice}/print-label network-devices.print-label ΓÇ║ NetwoΓÇª
+  GET|HEAD        network-devices/{networkDevice}/print-mr network-devices.print-mr ΓÇ║ NetwoΓÇª
+  POST            network-devices/{networkDevice}/reassign network-devices.reassign ΓÇ║ NetworΓÇª
+  POST            network-devices/{networkDevice}/repair network-devices.repair ΓÇ║ NetworΓÇª
+  POST            network-devices/{networkDevice}/restore network-devices.restore ΓÇ║ NetworΓÇª
+  POST            network-devices/{networkDevice}/return network-devices.return ΓÇ║ NetworkDevicΓÇª
+  GET|HEAD        network-devices/{networkDevice}/transfer network-devices.transfer ΓÇ║ NetworΓÇª
+  GET|HEAD        network-devices/{network_device} network-devices.show ΓÇ║ NetworkDevΓÇª
+  PUT|PATCH       network-devices/{network_device} network-devices.update ΓÇ║ NetworkDevicΓÇª
+  DELETE          network-devices/{network_device} network-devices.destroy ΓÇ║ NetworkDeviceΓÇª
+  GET|HEAD        network-devices/{network_device}/edit network-devices.edit ΓÇ║ NetwoΓÇª
+  GET|HEAD        organization orΓÇª
+  PUT             password passwoΓÇª
+  GET|HEAD        pc-history pc-hΓÇª
+  GET|HEAD        pc-history/employee/{employeeId} pc-history.show-by-employee ΓÇ║ PcHistoryControlΓÇª
+  GET|HEAD        pc-history/pc/{pcUnitId} pc-history.show-by-pc ΓÇ║ PcHistoryControlleΓÇª
+  GET|HEAD        pc-history/report pc-history.report ΓÇ║ PcHistoryController@repΓÇª
+  GET|HEAD        pc-units pc-uniΓÇª
+  POST            pc-units pc-uniΓÇª
+  GET|HEAD        pc-units/create pc-units.create ΓÇ║ PcUnitController@creatΓÇª
+  POST            pc-units/{pcUnit}/assign pc-units.assign ΓÇ║ PcUnitControlΓÇª
+  POST            pc-units/{pcUnit}/condemn pc-units.condemn ΓÇ║ PcUnitControlΓÇª
+  GET|HEAD        pc-units/{pcUnit}/dispose pc-units.dispose ΓÇ║ PcUnitControlΓÇª
+  GET|HEAD        pc-units/{pcUnit}/print-condemn pc-units.print-condemn ΓÇ║ ReportControΓÇª
+  GET|HEAD        pc-units/{pcUnit}/print-disposal pc-units.print-disposal ΓÇ║ PcUnitControΓÇª
+  GET|HEAD        pc-units/{pcUnit}/print-label pc-units.print-label ΓÇ║ PcUnitControΓÇª
+  GET|HEAD        pc-units/{pcUnit}/print-mr pc-units.print-mr ΓÇ║ ReportControΓÇª
+  POST            pc-units/{pcUnit}/reassign pc-units.reassign ΓÇ║ PcUnitControlΓÇª
+  POST            pc-units/{pcUnit}/repair pc-units.repair ΓÇ║ PcUnitControlΓÇª
+  POST            pc-units/{pcUnit}/restore pc-units.restore ΓÇ║ PcUnitControlΓÇª
+  POST            pc-units/{pcUnit}/return pc-units.return ΓÇ║ PcUnitControlΓÇª
+  GET|HEAD        pc-units/{pcUnit}/transfer pc-units.transfer ΓÇ║ PcUnitControlΓÇª
+  GET|HEAD        pc-units/{pc_unit} pc-units.show ΓÇ║ PcUnitController@ΓÇª
+  PUT|PATCH       pc-units/{pc_unit} pc-units.update ΓÇ║ PcUnitController@upΓÇª
+  DELETE          pc-units/{pc_unit} pc-units.destroy ΓÇ║ PcUnitController@desΓÇª
+  GET|HEAD        pc-units/{pc_unit}/edit pc-units.edit ΓÇ║ PcUnitControΓÇª
+  GET|HEAD        printer-history printer-history.index ΓÇ║ PrinterHistoryController@indeΓÇª
+  GET|HEAD        printer-history/{printer} printer-history.show ΓÇ║ PrinterHistoryController@shΓÇª
+  GET|HEAD        printers printeΓÇª
+  POST            printers printeΓÇª
+  GET|HEAD        printers/create printers.create ΓÇ║ PrinterController@creatΓÇª
+  GET|HEAD        printers/{printer} printers.show ΓÇ║ PrinterController@ΓÇª
+  PUT|PATCH       printers/{printer} printers.update ΓÇ║ PrinterController@upΓÇª
+  DELETE          printers/{printer} printers.destroy ΓÇ║ PrinterController@desΓÇª
+  POST            printers/{printer}/condemn printers.condemn ΓÇ║ PrinterControΓÇª
+  GET|HEAD        printers/{printer}/dispose printers.dispose ΓÇ║ PrinterControΓÇª
+  GET|HEAD        printers/{printer}/edit printers.edit ΓÇ║ PrinterControΓÇª
+  GET|HEAD        printers/{printer}/print-condemn printers.print-condemn ΓÇ║ PrinterContrΓÇª
+  GET|HEAD        printers/{printer}/print-disposal printers.print-disposal ΓÇ║ PrinterContrΓÇª
+  GET|HEAD        printers/{printer}/print-label printers.print-label ΓÇ║ PrinterContrΓÇª
+  GET|HEAD        printers/{printer}/print-mr printers.print-mr ΓÇ║ PrinterContrΓÇª
+  POST            printers/{printer}/reassign printers.reassign ΓÇ║ PrinterControΓÇª
+  POST            printers/{printer}/repair printers.repair ΓÇ║ PrinterControΓÇª
+  POST            printers/{printer}/restore printers.restore ΓÇ║ PrinterControΓÇª
+  POST            printers/{printer}/return printers.return ΓÇ║ PrinterController@reΓÇª
+  GET|HEAD        printers/{printer}/transfer printers.transfer ΓÇ║ PrinterControΓÇª
+  GET|HEAD        profile profileΓÇª
+  PATCH           profile profileΓÇª
+  DELETE          profile profileΓÇª
+  GET|HEAD        register registΓÇª
+  POST            register Auth\RΓÇª
+  GET|HEAD        reports reportsΓÇª
+  GET|HEAD        reports/print-list reports.print-list ΓÇ║ ReportController@printΓÇª
+  POST            reset-password ΓÇª
+  GET|HEAD        reset-password/{token} password.reset ΓÇ║ Auth\NewPasswordControlleΓÇª
+  GET|HEAD        scan/{uuid} pubΓÇª
+  GET|HEAD        storage/{path} ΓÇª
+  GET|HEAD        up ............. 
+  GET|HEAD        verify-email veΓÇª
+  GET|HEAD        verify-email/{id}/{hash} verification.verify ΓÇ║ Auth\VerifyEmailΓÇª
+
+               Showing [96] routes
+

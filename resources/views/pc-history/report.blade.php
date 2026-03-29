@@ -31,13 +31,7 @@
                             @endif
                         </div>
                         <div class="flex space-x-3">
-                            <button onclick="window.print()" 
-                                    class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50">
-                                <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z"></path>
-                                </svg>
-                                Print
-                            </button>
+                            <!-- Print button removed as requested -->
                             <a href="{{ route('pc-history.index') }}" 
                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
                                 ← Back
@@ -49,7 +43,8 @@
 
             <!-- Statistics Summary -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-indigo-500">
+                <a href="{{ route('pc-history.report', request()->except(['action', 'page'])) }}" 
+                   class="bg-white rounded-xl shadow-md p-6 border-l-4 border-indigo-500 hover:bg-indigo-50 transition block cursor-pointer {{ !request('action') ? 'ring-2 ring-indigo-500' : '' }}">
                     <div class="flex items-center">
                         <div class="flex-shrink-0 bg-indigo-100 p-3 rounded-full">
                             <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,9 +56,10 @@
                             <p class="text-2xl font-bold text-gray-900">{{ $history->total() }}</p>
                         </div>
                     </div>
-                </div>
+                </a>
                 
-                <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+                <a href="{{ route('pc-history.report', array_merge(request()->all(), ['action' => 'assigned'])) }}" 
+                   class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500 hover:bg-green-50 transition block cursor-pointer {{ request('action') == 'assigned' ? 'ring-2 ring-green-500' : '' }}">
                     <div class="flex items-center">
                         <div class="flex-shrink-0 bg-green-100 p-3 rounded-full">
                             <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,9 +73,10 @@
                             </p>
                         </div>
                     </div>
-                </div>
+                </a>
                 
-                <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-red-500">
+                <a href="{{ route('pc-history.report', array_merge(request()->all(), ['action' => 'returned'])) }}" 
+                   class="bg-white rounded-xl shadow-md p-6 border-l-4 border-red-500 hover:bg-red-50 transition block cursor-pointer {{ request('action') == 'returned' ? 'ring-2 ring-red-500' : '' }}">
                     <div class="flex items-center">
                         <div class="flex-shrink-0 bg-red-100 p-3 rounded-full">
                             <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -93,9 +90,10 @@
                             </p>
                         </div>
                     </div>
-                </div>
+                </a>
                 
-                <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+                <a href="{{ route('pc-history.report', array_merge(request()->all(), ['action' => 'transferred'])) }}" 
+                   class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500 hover:bg-blue-50 transition block cursor-pointer {{ request('action') == 'transferred' ? 'ring-2 ring-blue-500' : '' }}">
                     <div class="flex items-center">
                         <div class="flex-shrink-0 bg-blue-100 p-3 rounded-full">
                             <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,7 +107,7 @@
                             </p>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
 
             <!-- Detailed Report Table -->

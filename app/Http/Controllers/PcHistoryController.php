@@ -14,16 +14,59 @@ class PcHistoryController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->has('view') && $request->view == 'folders') {
-            $branches = \App\Models\Branch::with(['departments.pcUnits.history.employee', 'departments.pcUnits.history.createdBy'])->get();
-            return view('pc-history.folders', compact('branches'));
+        $query = PcHistory::query();
+
+        $query->with(['pcUnit', 'employee', 'createdBy', 'previousEmployee']);
+
+        // Filter by Group (current location of the unit)
+        if ($request->filled('group')) {
+            $query->whereHas('pcUnit', function ($q) use ($request) {
+                $q->where('group', $request->group);
+            });
         }
 
-        $history = PcHistory::with(['pcUnit', 'employee', 'createdBy'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
+        // Filter by Division (current location of the unit)
+        if ($request->filled('division')) {
+            $query->whereHas('pcUnit', function ($q) use ($request) {
+                $q->where('division', $request->division);
+            });
+        }
 
-        return view('pc-history.index', compact('history'));
+        // Filter by Department (current location of the unit)
+        if ($request->filled('department')) {
+            $query->whereHas('pcUnit', function ($q) use ($request) {
+                $q->where('department', $request->department);
+            });
+        }
+
+        // Filter by generic search (Asset Tag, Employee Name)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('pcUnit', function ($q2) use ($search) {
+                        $q2->where('asset_tag', 'like', "%{$search}%");
+                    }
+                    )->orWhereHas('employee', function ($q3) use ($search) {
+                        $q3->where('full_name', 'like', "%{$search}%");
+                    }
+                    );
+                });
+        }
+
+        // Filter by action
+        if ($request->filled('action')) {
+            $query->where('action', $request->action);
+        }
+
+        $history = $query->orderBy('created_at', 'desc')
+            ->paginate(10)
+            ->withQueryString();
+
+        $groups = \App\Constants\Organization::GROUPS;
+        $divisions = \App\Constants\Organization::DIVISIONS;
+        $departments = \App\Constants\Organization::DEPARTMENTS;
+
+        return view('pc-history.index', compact('history', 'groups', 'divisions', 'departments'));
     }
 
     /**
@@ -61,14 +104,19 @@ class PcHistoryController extends Controller
     {
         $query = PcHistory::query();
 
-        // Filter by date range
-        if ($request->filled('start_date')) {
-            $query->whereDate('created_at', '>=', $request->start_date);
+        // Filter by generic search (Asset Tag, Employee Name)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('pcUnit', function ($q2) use ($search) {
+                        $q2->where('asset_tag', 'like', "%{$search}%");
+                    }
+                    )->orWhereHas('employee', function ($q3) use ($search) {
+                        $q3->where('full_name', 'like', "%{$search}%");
+                    }
+                    );
+                });
         }
-        if ($request->filled('end_date')) {
-            $query->whereDate('created_at', '<=', $request->end_date);
-        }
-
         // Filter by action
         if ($request->filled('action')) {
             $query->where('action', $request->action);

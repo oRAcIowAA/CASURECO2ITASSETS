@@ -20,14 +20,9 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                     
-                    <!-- Branches -->
-                    <x-nav-link :href="route('branches.index')" :active="request()->routeIs('branches.*')">
-                        {{ __('Branches') }}
-                    </x-nav-link>
-                    
-                    <!-- Departments -->
-                    <x-nav-link :href="route('departments.index')" :active="request()->routeIs('departments.*')">
-                        {{ __('Departments') }}
+                    <!-- Org Chart -->
+                    <x-nav-link :href="route('organization.index')" :active="request()->routeIs('organization.index')">
+                        {{ __('Org Chart') }}
                     </x-nav-link>
                     
                     <!-- Employees -->
@@ -40,9 +35,9 @@
                         {{ __('PC Units') }}
                     </x-nav-link>
                     
-                    <!-- PC History -->
-                    <x-nav-link :href="route('pc-history.index')" :active="request()->routeIs('pc-history.*')">
-                        {{ __('PC History') }}
+                    <!-- Activity Log -->
+                    <x-nav-link :href="route('activities.index')" :active="request()->routeIs('activities.*')">
+                        {{ __('Activity Log') }}
                     </x-nav-link>
                     
                     <!-- Reports Dropdown -->
@@ -124,12 +119,8 @@
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
             
-            <x-responsive-nav-link :href="route('branches.index')" :active="request()->routeIs('branches.*')">
-                {{ __('Branches') }}
-            </x-responsive-nav-link>
-            
-            <x-responsive-nav-link :href="route('departments.index')" :active="request()->routeIs('departments.*')">
-                {{ __('Departments') }}
+            <x-responsive-nav-link :href="route('organization.index')" :active="request()->routeIs('organization.index')">
+                {{ __('Org Chart') }}
             </x-responsive-nav-link>
             
             <x-responsive-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.*')">

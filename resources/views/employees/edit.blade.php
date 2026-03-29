@@ -15,8 +15,8 @@
                         @method('PUT')
                         
                         <div class="mb-4">
-                            <label for="employee_id" class="block text-gray-700 text-sm font-bold mb-2">
-                                Employee ID *
+                            <label for="employee_id" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                EMPLOYEE ID *
                             </label>
                             <input type="text" name="employee_id" id="employee_id" 
                                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('employee_id') border-red-500 @enderror"
@@ -27,8 +27,8 @@
                         </div>
 
                         <div class="mb-4">
-                            <label for="full_name" class="block text-gray-700 text-sm font-bold mb-2">
-                                Full Name *
+                            <label for="full_name" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                FULL NAME *
                             </label>
                             <input type="text" name="full_name" id="full_name" 
                                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('full_name') border-red-500 @enderror"
@@ -39,8 +39,8 @@
                         </div>
 
                         <div class="mb-4">
-                            <label for="position" class="block text-gray-700 text-sm font-bold mb-2">
-                                Position
+                            <label for="position" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                POSITION
                             </label>
                             <input type="text" name="position" id="position" 
                                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -48,19 +48,58 @@
                         </div>
 
                         <div class="mb-4">
-                            <label for="department_id" class="block text-gray-700 text-sm font-bold mb-2">
+                            <label for="department" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
                                 Department *
                             </label>
-                            <select name="department_id" id="department_id" 
-                                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('department_id') border-red-500 @enderror" required>
-                                <option value="">Select Department</option>
+                            <select name="department" id="department"
+                                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('department') border-red-500 @enderror"
+                                    required>
+                                <option value="">SELECT DEPARTMENT</option>
                                 @foreach($departments as $department)
-                                    <option value="{{ $department->id }}" {{ (old('department_id', $employee->department_id) == $department->id) ? 'selected' : '' }}>
-                                        {{ $department->department_name }} ({{ $department->branch->branch_name }})
+                                    <option value="{{ $department }}" {{ old('department', $employee->department) === $department ? 'selected' : '' }}>
+                                        {{ strtoupper($department) }}
                                     </option>
                                 @endforeach
                             </select>
-                            @error('department_id')
+                            @error('department')
+                                <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="division" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                Division *
+                            </label>
+                            <select name="division" id="division"
+                                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('division') border-red-500 @enderror"
+                                    required>
+                                <option value="">SELECT DIVISION</option>
+                                @foreach($divisions as $division)
+                                    <option value="{{ $division }}" {{ old('division', $employee->division) === $division ? 'selected' : '' }}>
+                                        {{ strtoupper($division) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('division')
+                                <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="group" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                Group *
+                            </label>
+                            <select name="group" id="group"
+                                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('group') border-red-500 @enderror"
+                                    required>
+                                <option value="">SELECT GROUP</option>
+                                @foreach($groups as $group)
+                                    <option value="{{ $group }}" {{ old('group', $employee->group) === $group ? 'selected' : '' }}>
+                                        {{ strtoupper($group) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('group')
                                 <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
                             @enderror
                         </div>

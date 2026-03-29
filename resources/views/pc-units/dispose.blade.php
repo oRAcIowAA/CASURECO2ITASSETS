@@ -25,6 +25,36 @@
                         </div>
                     </div>
 
+                    @if ($errors->any())
+                        <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-red-800">There were {{ $errors->count() }} errors with your submission</h3>
+                                    <div class="mt-2 text-sm text-red-700">
+                                        <ul class="list-disc pl-5 space-y-1">
+                                            @foreach ($errors->all() as $error)
+                                                <li>{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    <div class="mb-6">
+                        <h3 class="text-lg font-medium text-gray-900">Device Details</h3>
+                        <p class="mt-1 text-sm text-gray-600">
+                            Device: <strong>{{ $pcUnit->brand ?? 'Unknown' }} {{ $pcUnit->model ?? 'Unknown' }}</strong><br>
+                            Current Status: {{ ucfirst($pcUnit->status) }}
+                        </p>
+                    </div>
+
                     <form method="POST" action="{{ route('pc-units.condemn', $pcUnit) }}">
                         @csrf
                         
@@ -34,8 +64,12 @@
                                 Classification <span class="text-red-500">*</span>
                             </label>
                             <select name="status" id="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
-                                <option value="defective">Defective (Repairable/Pending Check)</option>
-                                <option value="condemned">Condemned (Beyond Repair/Disposal)</option>
+                                @if(strtolower($pcUnit->status) === 'condemned')
+                                    <option value="Disposed" selected>Disposed (Permanently Archived)</option>
+                                @else
+                                    <option value="defective">Defective (Repairable/Pending Check)</option>
+                                    <option value="condemned">Condemned (Beyond Repair/Disposal)</option>
+                                @endif
                             </select>
                         </div>
 
@@ -47,12 +81,21 @@
                             <textarea name="remarks" id="remarks" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="e.g., Motherboard failure, expensive repair cost..." required></textarea>
                         </div>
 
+                        @if(strtolower($pcUnit->status) === 'condemned')
+                        <div class="mb-6">
+                            <label for="spare_parts" class="block text-gray-700 text-sm font-medium mb-2">
+                                Spare Parts salvaged (If any)
+                            </label>
+                            <textarea name="spare_parts" id="spare_parts" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="List components that can still be used (e.g. Memory, Screen, HDD)..."></textarea>
+                        </div>
+                        @endif
+
                         <div class="flex items-center justify-between mt-6">
                             <a href="{{ route('pc-units.show', $pcUnit) }}" class="text-gray-600 hover:text-gray-800">
                                 Cancel
                             </a>
                             <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
-                                Confirm Disposal
+                                {{ strtolower($pcUnit->status) === 'condemned' ? 'Finalize Archive' : 'Confirm' }}
                             </button>
                         </div>
                     </form>
