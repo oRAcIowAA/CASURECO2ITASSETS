@@ -84,7 +84,8 @@ class NetworkDeviceController extends Controller
         $divisions = \App\Constants\Organization::DIVISIONS;
         $departments = \App\Constants\Organization::DEPARTMENTS;
         $employees = Employee::orderBy('full_name')->get();
-        return view('network-devices.create', compact('groups', 'divisions', 'departments', 'employees'));
+        $nextAssetTag = \App\Services\AssetTagService::generateNextTag(NetworkDevice::class, 'CAS-ND-');
+        return view('network-devices.create', compact('groups', 'divisions', 'departments', 'employees', 'nextAssetTag'));
     }
 
     /**
@@ -147,6 +148,7 @@ class NetworkDeviceController extends Controller
      */
     public function show(NetworkDevice $networkDevice)
     {
+        $networkDevice->load(['updatedBy']);
         $history = $networkDevice->history()->with(['employee', 'previousEmployee', 'createdBy'])->latest()->get();
         return view('network-devices.show', compact('networkDevice', 'history'));
     }
@@ -223,10 +225,15 @@ class NetworkDeviceController extends Controller
             $validated['date_assigned'] = null;
         }
 
+        $validated['updated_by'] = auth()->id();
+
         DB::transaction(function () use ($networkDevice, $validated, $oldEmployeeId, $newEmployeeId) {
             $networkDevice->update($validated);
 
-            if ($oldEmployeeId != $newEmployeeId) {
+            if ($oldEmployeeId == $newEmployeeId) {
+                // If assignment didn't change, log it as an 'edited' action
+                $this->historyService->log($networkDevice, 'edited', 'Network device details updated');
+            } else {
                 if ($newEmployeeId) {
                     $action = $oldEmployeeId ? 'transferred' : 'assigned';
                     $notes = $oldEmployeeId ? 'Device transferred' : 'Device assigned';
@@ -251,8 +258,9 @@ class NetworkDeviceController extends Controller
         $deviceType = 'Asset Tag/S.N.';
         $assetTag = $networkDevice->asset_tag ?? $networkDevice->serial_number ?? 'N/A';
         $publicUrl = $networkDevice->public_url;
+        $dateAssigned = $networkDevice->date_assigned ? \Carbon\Carbon::parse($networkDevice->date_assigned)->format('M d, Y') : 'N/A';
 
-        return view('reports.qr-sticker', compact('networkDevice', 'deviceName', 'deviceType', 'assetTag', 'publicUrl'));
+        return view('reports.qr-sticker', compact('networkDevice', 'deviceName', 'deviceType', 'assetTag', 'publicUrl', 'dateAssigned'));
     }
 
 

@@ -23,16 +23,11 @@
                     <div class="mb-4">
                         <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">ASSET TAG</label>
                         <div class="flex rounded-md shadow-sm">
-                            <span class="inline-flex items-center px-4 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-700 sm:text-sm font-semibold">
-                                CAS-ND-
-                            </span>
-                            <input type="text" name="asset_tag_number" value="{{ old('asset_tag_number') }}"
-                                   class="flex-1 min-w-0 block w-full px-4 py-2 border-gray-300 rounded-none rounded-r-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 @error('asset_tag') border-red-500 @enderror"
-                                   placeholder="001" required>
+                            <input type="text" name="asset_tag" value="{{ $nextAssetTag }}" readonly
+                                   class="flex-1 min-w-0 block w-full px-4 py-2 bg-gray-100 border-gray-300 rounded-md text-gray-600 font-bold focus:ring-0 focus:border-gray-300"
+                                   title="This tag is automatically generated">
                         </div>
-                        @error('asset_tag')
-                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                        @enderror
+                        <p class="text-xs text-gray-500 mt-1 italic">Automatically generated based on the latest record.</p>
                     </div>
 
                     <div class="mb-4">

@@ -90,13 +90,12 @@
             width: 0.7in;
             height: 0.7in;
             flex-shrink: 0;
-            background: #eee;
         }
         .qr-wrapper img {
             width: 100%;
             height: 100%;
+            display: block;
         }
-
         @media print {
             body {
                 background: white;
@@ -110,7 +109,7 @@
                 page-break-after: always;
             }
             .label {
-                border: 1px dashed #eee; /* Light cutting guide */
+                border: 1px dashed #ccc;
             }
         }
     </style>
@@ -132,11 +131,16 @@
         @foreach($pages as $pageAssets)
         <div class="page">
             @foreach($pageAssets as $index => $asset)
-            <div class="label">
-                <div class="label-content">
-                    <div class="company-name">CASURECO II IT ASSET</div>
+            <div class="label" style="position: relative;">
+                <div style="position: absolute; top: 4px; left: 8px; display: flex; align-items: center; gap: 4px;">
+                    <img src="{{ asset('images/casureco-logo.png') }}" alt="logo" style="width: 14px; height: 14px;">
+                    <div class="company-name" style="margin-bottom: 0;">CASURECO II IT ASSET</div>
+                </div>
+                
+                <div class="label-content" style="margin-top: 10px;">
                     <h2 class="asset-title">{{ $asset['deviceName'] }}</h2>
-                    <p class="asset-code">Tag: {{ $asset['assetTag'] }}</p>
+                    <p class="asset-code" style="font-weight: bold;">Tag: {{ $asset['assetTag'] }}</p>
+                    <p class="asset-code" style="font-size: 6px; margin-top: 2px;">Assigned: {{ $asset['dateAssigned'] }}</p>
                 </div>
                 <div id="qr-{{ $loop->parent->index }}-{{ $index }}" class="qr-wrapper" data-url="{{ $asset['assetTag'] }}"></div>
             </div>

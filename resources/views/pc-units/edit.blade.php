@@ -46,23 +46,11 @@
                         </div>
 
                         <!-- Asset Tag -->
-                        <div class="mb-6">
-                            <label for="asset_tag_number" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
-                                ASSET TAG <span class="text-red-500">*</span>
-                            </label>
-                            <div class="flex rounded-md shadow-sm">
-                                <span class="inline-flex items-center px-4 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-700 sm:text-sm font-semibold">
-                                    CAS-PC-
-                                </span>
-                                <input type="text" name="asset_tag_number" id="asset_tag_number" 
-                                       class="flex-1 min-w-0 block w-full px-4 py-2 rounded-none rounded-r-md border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 @error('asset_tag') border-red-500 @enderror" 
-                                       value="{{ old('asset_tag_number', Str::afterLast($pcUnit->asset_tag, '-')) }}" 
-                                       placeholder="001"
-                                       required>
-                            </div>
-                            @error('asset_tag')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
+                        <div class="mb-4">
+                            <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">ASSET TAG</label>
+                            <input type="text" name="asset_tag" value="{{ $pcUnit->asset_tag }}" readonly
+                                   class="w-full px-4 py-2 bg-gray-100 border-gray-300 rounded-md text-gray-600 font-bold focus:ring-0 focus:border-gray-300">
+                            <p class="text-xs text-gray-500 mt-1 italic">Asset tags cannot be modified once created.</p>
                         </div>
 
                         <!-- Model -->
@@ -172,13 +160,37 @@
                         <!-- Network Details -->
                         <h3 class="text-lg font-medium text-gray-900 mb-4">Network Details</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                            <div>
-                                <label for="ip_address" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
-                                    IP ADDRESS
+                            <div x-data="{ 
+                                ipType: '{{ old('ip_type', $pcUnit->ip_type ?? 'Static') }}',
+                                ipAddress: '{{ old('ip_address', $pcUnit->ip_address) }}',
+                                lastStaticIp: '{{ old('ip_address', $pcUnit->ip_address) }}',
+                                toggleIpType(type) {
+                                    if (type === 'Dynamic') {
+                                        if (this.ipAddress !== 'Dynamic') this.lastStaticIp = this.ipAddress;
+                                        this.ipAddress = 'Dynamic';
+                                    } else {
+                                        this.ipAddress = (this.lastStaticIp && this.lastStaticIp !== 'Dynamic') ? this.lastStaticIp : '';
+                                    }
+                                }
+                            }">
+                                <label class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                    IP ADDRESS / CONFIGURATION
                                 </label>
+                                <div class="flex space-x-4 mb-3">
+                                    <label class="inline-flex items-center cursor-pointer">
+                                        <input type="radio" name="ip_type" value="Static" x-model="ipType" @change="toggleIpType('Static')" class="form-radio h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
+                                        <span class="ml-2 text-sm text-gray-700 font-semibold uppercase">STATIC</span>
+                                    </label>
+                                    <label class="inline-flex items-center cursor-pointer">
+                                        <input type="radio" name="ip_type" value="Dynamic" x-model="ipType" @change="toggleIpType('Dynamic')" class="form-radio h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
+                                        <span class="ml-2 text-sm text-gray-700 font-semibold uppercase">DYNAMIC</span>
+                                    </label>
+                                </div>
                                 <input type="text" name="ip_address" id="ip_address" 
+                                       x-model="ipAddress"
+                                       :readonly="ipType === 'Dynamic'"
+                                       :class="ipType === 'Dynamic' ? 'bg-gray-100 cursor-not-allowed text-gray-500' : ''"
                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('ip_address') border-red-500 @enderror" 
-                                       value="{{ old('ip_address', $pcUnit->ip_address) }}" 
                                        placeholder="192.168.1.100">
                                 @error('ip_address')
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>

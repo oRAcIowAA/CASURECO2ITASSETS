@@ -78,13 +78,18 @@
                     <tr>
                         @foreach($row as $asset)
                             <td class="label-cell">
-                                <div class="label">
-                                    <table style="width: 100%; border: none; margin: 0; padding: 0; table-layout: fixed;">
+                                <div class="label" style="position: relative;">
+                                    <div style="position: absolute; top: 4px; left: 8px;">
+                                        <img src="{{ public_path('images/casureco-logo.png') }}" style="width: 14px; height: 14px; vertical-align: middle;">
+                                        <span class="company-name" style="vertical-align: middle; margin-left: 2px;">CASURECO II IT ASSET</span>
+                                    </div>
+                                    
+                                    <table style="width: 100%; border: none; margin-top: 16px; padding: 0; table-layout: fixed;">
                                         <tr>
                                             <td style="width: 65%; border: none; padding: 0; vertical-align: middle; overflow: hidden;">
-                                                <div class="company-name">CASURECO II IT ASSET</div>
                                                 <div class="asset-title">{{ $asset['deviceName'] }}</div>
-                                                <div class="asset-code">Tag: {{ $asset['assetTag'] }}</div>
+                                                <div class="asset-code" style="font-weight: bold;">Tag: {{ $asset['assetTag'] }}</div>
+                                                <div class="asset-code" style="font-size: 6px; margin-top: 2px;">Assigned: {{ $asset['dateAssigned'] }}</div>
                                             </td>
                                             <td style="width: 35%; border: none; padding: 0; text-align: right; vertical-align: middle;">
                                                 <img src="{{ $asset['qrBase64'] }}" style="width: 0.75in; height: 0.75in; display: block; margin-left: auto;">

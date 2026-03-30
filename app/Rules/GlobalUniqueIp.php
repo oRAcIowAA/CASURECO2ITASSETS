@@ -23,7 +23,7 @@ class GlobalUniqueIp implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (empty($value))
+        if (empty($value) || strtolower($value) === 'dynamic')
             return;
 
         // Check PC Units

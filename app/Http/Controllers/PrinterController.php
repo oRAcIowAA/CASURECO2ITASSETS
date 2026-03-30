@@ -78,7 +78,8 @@ class PrinterController extends Controller
         $divisions = \App\Constants\Organization::DIVISIONS;
         $departments = \App\Constants\Organization::DEPARTMENTS;
         $employees = Employee::orderBy('full_name')->get();
-        return view('printers.create', compact('groups', 'divisions', 'departments', 'employees'));
+        $nextAssetTag = \App\Services\AssetTagService::generateNextTag(Printer::class, 'CAS-PR-');
+        return view('printers.create', compact('groups', 'divisions', 'departments', 'employees', 'nextAssetTag'));
     }
 
     /**
@@ -126,6 +127,7 @@ class PrinterController extends Controller
      */
     public function show(Printer $printer)
     {
+        $printer->load(['employee', 'updatedBy', 'history.employee', 'history.createdBy']);
         return view('printers.show', compact('printer'));
     }
 
@@ -187,11 +189,16 @@ class PrinterController extends Controller
             $validated['date_returned'] = now();
             $validated['date_assigned'] = null;
         }
+        
+        $validated['updated_by'] = auth()->id();
 
         DB::transaction(function () use ($printer, $validated, $oldEmployeeId, $newEmployeeId) {
             $printer->update($validated);
 
-            if ($oldEmployeeId != $newEmployeeId) {
+            if ($oldEmployeeId == $newEmployeeId) {
+                // If assignment didn't change, log it as an 'edited' action
+                $this->historyService->log($printer, 'edited', 'Printer details updated');
+            } else {
                 if ($newEmployeeId) {
                     $action = $oldEmployeeId ? 'transferred' : 'assigned';
                     $notes = $oldEmployeeId ? 'Printer transferred' : 'Printer assigned';
@@ -229,8 +236,9 @@ class PrinterController extends Controller
         $deviceType = 'Asset Tag/S.N.';
         $assetTag = $printer->asset_tag ?? $printer->serial_number ?? 'N/A';
         $publicUrl = $printer->public_url;
+        $dateAssigned = $printer->date_assigned ? \Carbon\Carbon::parse($printer->date_assigned)->format('M d, Y') : 'N/A';
 
-        return view('reports.qr-sticker', compact('printer', 'deviceName', 'deviceType', 'assetTag', 'publicUrl'));
+        return view('reports.qr-sticker', compact('printer', 'deviceName', 'deviceType', 'assetTag', 'publicUrl', 'dateAssigned'));
     }
 
     /**

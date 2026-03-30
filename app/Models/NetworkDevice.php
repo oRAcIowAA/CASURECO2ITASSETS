@@ -29,15 +29,21 @@ class NetworkDevice extends Model
         'date_assigned',
         'date_returned',
         'tracking_uuid',
+        'updated_by',
     ];
 
     protected $casts = [
         'has_ip' => 'boolean',
     ];
 
-    public function employee()
+    public function employee(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    public function updatedBy(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 
     public function history()
@@ -50,6 +56,9 @@ class NetworkDevice extends Model
         static::creating(function ($model) {
             if (empty($model->tracking_uuid)) {
                 $model->tracking_uuid = (string)Str::uuid();
+            }
+            if (empty($model->asset_tag)) {
+                $model->asset_tag = \App\Services\AssetTagService::generateNextTag(self::class, 'CAS-ND-');
             }
         });
     }

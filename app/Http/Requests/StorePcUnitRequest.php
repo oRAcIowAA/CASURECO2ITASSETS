@@ -18,11 +18,7 @@ class StorePcUnitRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        if ($this->has('asset_tag_number') && $this->asset_tag_number !== null) {
-            $this->merge([
-                'asset_tag' => 'CAS-PC-' . $this->asset_tag_number,
-            ]);
-        }
+        // No longer using asset_tag_number input
     }
 
     /**
@@ -45,7 +41,12 @@ class StorePcUnitRequest extends FormRequest
             'employee_id' => 'nullable|exists:employees,id',
             'date_received' => 'nullable|date',
             'remarks' => 'nullable|string',
-            'ip_address' => ['nullable', 'ipv4', new \App\Rules\GlobalUniqueIp(null, \App\Models\PcUnit::class)],
+            'ip_type' => 'required|in:Static,Dynamic',
+            'ip_address' => [
+                'nullable',
+                Rule::when($this->ip_type === 'Static', ['ipv4']),
+                new \App\Rules\GlobalUniqueIp(null, \App\Models\PcUnit::class)
+            ],
             'mac_address' => ['nullable', 'string', 'regex:/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/', new \App\Rules\GlobalUniqueMac(null, \App\Models\PcUnit::class)],
             'network_segment' => 'nullable|string',
             'assignment_type' => 'required|in:standby,assign',

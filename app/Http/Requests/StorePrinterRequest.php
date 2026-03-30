@@ -18,11 +18,7 @@ class StorePrinterRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        if ($this->has('asset_tag_number') && $this->asset_tag_number !== null) {
-            $this->merge([
-                'asset_tag' => 'CAS-PR-' . $this->asset_tag_number,
-            ]);
-        }
+        // No longer using asset_tag_number input
     }
 
     /**

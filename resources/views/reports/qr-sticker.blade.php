@@ -224,11 +224,16 @@
 
     <div id="labels-container">
         <div class="page">
-            <div class="label">
-                <div class="label-content">
-                    <div class="company-name">CASURECO II IT ASSET</div>
+            <div class="label" style="position: relative;">
+                <div style="position: absolute; top: 8px; left: 12px; display: flex; align-items: center; gap: 6px;">
+                    <img src="{{ asset('images/casureco-logo.png') }}" alt="logo" style="width: 20px; height: 20px;">
+                    <div class="company-name" style="margin-bottom: 0;">CASURECO II IT ASSET</div>
+                </div>
+                
+                <div class="label-content" style="margin-top: 15px;">
                     <h2 class="asset-title">{{ $deviceName }}</h2>
-                    <p class="asset-code">{{ $deviceType }}: {{ $assetTag ?? 'N/A' }}</p>
+                    <p class="asset-code" style="font-weight: bold;">{{ $deviceType }}: {{ $assetTag ?? 'N/A' }}</p>
+                    <p class="asset-code" style="font-size: 8px; margin-top: 4px;">Assigned: {{ $dateAssigned }}</p>
                 </div>
                 <div id="qrcode" class="qr-code"></div>
             </div>

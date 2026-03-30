@@ -38,20 +38,60 @@ class QrAssetController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             
-            $pcQuery->whereAny(['asset_tag', 'model', 'device_type'], 'like', "%{$search}%");
+            $pcQuery->where(function ($q) use ($search) {
+                $q->whereAny(['asset_tag', 'model', 'device_type', 'ip_address'], 'like', "%{$search}%")
+                  ->orWhereHas('employee', function ($sq) use ($search) {
+                      $sq->where('full_name', 'like', "%{$search}%");
+                  });
+            });
 
-            $printerQuery->whereAny(['asset_tag', 'model', 'brand'], 'like', "%{$search}%");
+            $printerQuery->where(function ($q) use ($search) {
+                $q->whereAny(['asset_tag', 'model', 'brand', 'ip_address'], 'like', "%{$search}%")
+                  ->orWhereHas('employee', function ($sq) use ($search) {
+                      $sq->where('full_name', 'like', "%{$search}%");
+                  });
+            });
 
-            $networkQuery->whereAny(['asset_tag', 'model', 'brand', 'device_type'], 'like', "%{$search}%");
+            $networkQuery->where(function ($q) use ($search) {
+                $q->whereAny(['asset_tag', 'model', 'brand', 'device_type', 'ip_address'], 'like', "%{$search}%")
+                  ->orWhereHas('employee', function ($sq) use ($search) {
+                      $sq->where('full_name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        if ($request->filled('type')) {
+            $types = (array)$request->type;
+            
+            // Filter PC Units
+            $pcTypes = array_intersect($types, ['Desktop', 'Laptop', 'Server', 'All-in-One']);
+            if (empty($pcTypes)) {
+                $pcQuery->whereRaw('1 = 0');
+            } else {
+                $pcQuery->whereIn('device_type', $pcTypes);
+            }
+
+            // Filter Printers
+            if (!in_array('Printer', $types)) {
+                $printerQuery->whereRaw('1 = 0');
+            }
+
+            // Filter Network Devices
+            $netTypes = array_intersect($types, ['Router', 'Switch']);
+            if (empty($netTypes)) {
+                $networkQuery->whereRaw('1 = 0');
+            } else {
+                $networkQuery->whereIn('device_type', array_map('strtolower', $netTypes));
+            }
         }
 
         $applyCommonFilters($pcQuery);
         $applyCommonFilters($printerQuery);
         $applyCommonFilters($networkQuery);
 
-        $pcUnits = $pcQuery->orderBy('asset_tag')->get();
-        $printers = $printerQuery->orderBy('asset_tag')->get();
-        $networkDevices = $networkQuery->orderBy('asset_tag')->get();
+        $pcUnits = $pcQuery->with('employee')->orderBy('asset_tag')->get();
+        $printers = $printerQuery->with('employee')->orderBy('asset_tag')->get();
+        $networkDevices = $networkQuery->with('employee')->orderBy('asset_tag')->get();
 
         $groups = \App\Constants\Organization::GROUPS;
         $divisions = \App\Constants\Organization::DIVISIONS;
@@ -99,7 +139,8 @@ class QrAssetController extends Controller
                     'deviceName' => $deviceName,
                     'deviceType' => $deviceTypeLabel,
                     'assetTag' => $asset->asset_tag,
-                    'publicUrl' => $asset->public_url
+                    'publicUrl' => $asset->public_url,
+                    'dateAssigned' => $asset->date_assigned ? \Carbon\Carbon::parse($asset->date_assigned)->format('M d, Y') : 'N/A'
                 ];
             }
         }
@@ -165,7 +206,8 @@ class QrAssetController extends Controller
                     'deviceName' => $deviceName,
                     'deviceType' => $deviceTypeLabel,
                     'assetTag' => $asset->asset_tag,
-                    'qrBase64' => $qrBase64
+                    'qrBase64' => $qrBase64,
+                    'dateAssigned' => $asset->date_assigned ? \Carbon\Carbon::parse($asset->date_assigned)->format('M d, Y') : 'N/A'
                 ];
             }
         }

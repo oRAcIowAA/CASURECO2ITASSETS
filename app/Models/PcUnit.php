@@ -17,6 +17,7 @@ class PcUnit extends Model
         'ram',
         'storage',
         'status',
+        'ip_type',
         'ip_address',
         'mac_address',
         'network_segment',
@@ -29,7 +30,8 @@ class PcUnit extends Model
         'date_assigned',
         'date_returned',
         'assignment_notes',
-        'tracking_uuid'
+        'tracking_uuid',
+        'updated_by'
     ];
 
     protected $casts = [
@@ -43,6 +45,11 @@ class PcUnit extends Model
         return $this->belongsTo(Employee::class);
     }
 
+    public function updatedBy(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
     public function history(): HasMany
     {
         return $this->hasMany(PcHistory::class , 'pc_unit_id');
@@ -53,6 +60,9 @@ class PcUnit extends Model
         static::creating(function ($model) {
             if (empty($model->tracking_uuid)) {
                 $model->tracking_uuid = (string)Str::uuid();
+            }
+            if (empty($model->asset_tag)) {
+                $model->asset_tag = (new \App\Services\AssetTagService())->generateNextTag(self::class, 'CAS-PC-');
             }
         });
     }

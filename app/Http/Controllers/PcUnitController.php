@@ -94,8 +94,9 @@ class PcUnitController extends Controller
         $divisions = \App\Constants\Organization::DIVISIONS;
         $departments = \App\Constants\Organization::DEPARTMENTS;
         $employees = Employee::all();
+        $nextAssetTag = \App\Services\AssetTagService::generateNextTag(PcUnit::class, 'CAS-PC-');
 
-        return view('pc-units.create', compact('groups', 'divisions', 'departments', 'employees', 'type'));
+        return view('pc-units.create', compact('groups', 'divisions', 'departments', 'employees', 'type', 'nextAssetTag'));
     }
 
     /**
@@ -135,7 +136,7 @@ class PcUnitController extends Controller
      */
     public function show(PcUnit $pcUnit)
     {
-        $pcUnit->load(['employee', 'history.employee', 'history.createdBy']);
+        $pcUnit->load(['employee', 'updatedBy', 'history.employee', 'history.createdBy']);
 
         return view('pc-units.show', compact('pcUnit'));
     }
@@ -193,11 +194,15 @@ class PcUnitController extends Controller
             $validated['date_returned'] = now();
             $validated['date_assigned'] = null;
         }
+        $validated['updated_by'] = auth()->id();
 
         DB::transaction(function () use ($pcUnit, $validated, $oldEmployeeId, $newEmployeeId) {
             $pcUnit->update($validated);
 
-            if ($oldEmployeeId != $newEmployeeId) {
+            if ($oldEmployeeId == $newEmployeeId) {
+                // If assignment didn't change, log it as an 'edited' action
+                $this->historyService->log($pcUnit, 'edited', 'PC unit details updated');
+            } else {
                 if ($newEmployeeId) {
                     // Assigned or Transferred
                     $action = $oldEmployeeId ? 'transferred' : 'assigned';
@@ -237,8 +242,9 @@ class PcUnitController extends Controller
         $deviceType = 'Asset Tag';
         $assetTag = $pcUnit->asset_tag;
         $publicUrl = $pcUnit->public_url;
+        $dateAssigned = $pcUnit->date_assigned ? \Carbon\Carbon::parse($pcUnit->date_assigned)->format('M d, Y') : 'N/A';
 
-        return view('reports.qr-sticker', compact('pcUnit', 'deviceName', 'deviceType', 'assetTag', 'publicUrl'));
+        return view('reports.qr-sticker', compact('pcUnit', 'deviceName', 'deviceType', 'assetTag', 'publicUrl', 'dateAssigned'));
     }
 
     /**

@@ -40,6 +40,12 @@
                             <div>
                                 <h1 class="text-2xl font-bold text-gray-900">{{ $pcUnit->asset_tag }}</h1>
                                 <p class="text-gray-600 font-bold tracking-wide">{{ strtoupper($pcUnit->model) }}</p>
+
+                                @if($pcUnit->updatedBy)
+                                    <div class="mt-1 text-xs text-gray-500">
+                                        <span class="font-medium text-gray-700">Last updated by:</span> {{ $pcUnit->updatedBy->name }}
+                                    </div>
+                                @endif
                                 
                                 <!-- Status Badge -->
                                 <div class="mt-3">
@@ -324,6 +330,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Updated By</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
                             </tr>
                         </thead>
@@ -361,6 +368,9 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     {{ $history->employee->full_name ?? 'N/A' }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ $history->createdBy->name ?? 'System' }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ $history->notes ?? 'N/A' }}

@@ -18,11 +18,7 @@ class UpdatePcUnitRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        if ($this->has('asset_tag_number') && $this->asset_tag_number !== null) {
-            $this->merge([
-                'asset_tag' => 'CAS-PC-' . $this->asset_tag_number,
-            ]);
-        }
+        // No longer using asset_tag_number input
     }
 
     /**
@@ -49,9 +45,10 @@ class UpdatePcUnitRequest extends FormRequest
             'employee_id' => 'nullable|exists:employees,id',
             'date_received' => 'nullable|date',
             'remarks' => 'nullable|string',
+            'ip_type' => 'required|in:Static,Dynamic',
             'ip_address' => [
                 'nullable',
-                'ipv4',
+                Rule::when($this->ip_type === 'Static', ['ipv4']),
                 new \App\Rules\GlobalUniqueIp($this->route('pc_unit') ? $this->route('pc_unit')->id : null, \App\Models\PcUnit::class),
             ],
             'mac_address' => [
