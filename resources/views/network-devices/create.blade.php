@@ -18,7 +18,15 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('network-devices.store') }}">
+                <form method="POST" action="{{ route('network-devices.store') }}" 
+                      x-data="{ 
+                          deviceType: '{{ old('device_type', 'router') }}',
+                          switchType: '{{ old('switch_type', 'managed') }}',
+                          hasIp: '{{ old('has_ip', '1') }}',
+                          assignmentType: '{{ old('assignment_type', 'standby') }}'
+                      }"
+                      x-init="$watch('switchType', (val) => { if(deviceType === 'switch') hasIp = (val === 'managed' ? '1' : '0') }); 
+                             $watch('deviceType', (val) => { if(val === 'switch') hasIp = (switchType === 'managed' ? '1' : '0') })">
                     @csrf
                     <div class="mb-4">
                         <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">ASSET TAG</label>
@@ -34,10 +42,10 @@
                         <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">
                             DEVICE TYPE
                         </label>
-                        <select name="device_type"
-                                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="router" {{ old('device_type') === 'router' ? 'selected' : '' }}>Router</option>
-                            <option value="switch" {{ old('device_type') === 'switch' ? 'selected' : '' }}>Switch</option>
+                        <select name="device_type" x-model="deviceType"
+                                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 uppercase">
+                            <option value="router">ROUTER</option>
+                            <option value="switch">SWITCH</option>
                         </select>
                     </div>
 
@@ -46,12 +54,14 @@
                             <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">BRAND</label>
                             <input type="text" name="brand" value="{{ old('brand') }}"
                                    class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                   placeholder="e.g. TP-LINK, CISCO, ASUS"
                                    required>
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">MODEL</label>
                             <input type="text" name="model" value="{{ old('model') }}"
                                    class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                   placeholder="e.g. TL-WR840N, WS-C2960-24TC-L"
                                    required>
                         </div>
                     </div>
@@ -65,6 +75,7 @@
                                 <option value="8" {{ old('network_ports') == 8 ? 'selected' : '' }}>8</option>
                                 <option value="16" {{ old('network_ports') == 16 ? 'selected' : '' }}>16 (Switch)</option>
                                 <option value="24" {{ old('network_ports') == 24 ? 'selected' : '' }}>24 (Switch)</option>
+                                <option value="48" {{ old('network_ports') == 48 ? 'selected' : '' }}>48 (Switch)</option>
                             </select>
                         </div>
                         <div>
@@ -77,15 +88,14 @@
                         </div>
                     </div>
 
-                    <div class="mb-4">
+                    <div class="mb-4" x-show="deviceType === 'switch'" x-transition>
                         <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">
-                            TYPE OF SWITCH (FOR SWITCHES)
+                            TYPE OF SWITCH
                         </label>
-                        <select name="switch_type"
-                                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="" {{ old('switch_type') === null ? 'selected' : '' }}>N/A (Router)</option>
-                            <option value="managed" {{ old('switch_type') === 'managed' ? 'selected' : '' }}>Managed (has IP)</option>
-                            <option value="unmanaged" {{ old('switch_type') === 'unmanaged' ? 'selected' : '' }}>Unmanaged (no IP)</option>
+                        <select name="switch_type" x-model="switchType"
+                                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 uppercase">
+                            <option value="managed">MANAGED (HAS IP)</option>
+                            <option value="unmanaged">UNMANAGED (NO IP)</option>
                         </select>
                         <p class="mt-1 text-xs text-gray-500">
                             Unmanaged switches: no IP address (Layer 2 forwarding only). Managed switches: have IP for management interface.
@@ -123,22 +133,23 @@
                         </div>
                     </div>
 
-                    <div class="mb-4" x-data="{ hasIp: '{{ old('has_ip', '1') }}' }">
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">
                             IP ADDRESS
                         </label>
                         <div class="flex items-center space-x-4 mb-2">
-                            <label class="inline-flex items-center">
+                            <label class="inline-flex items-center" :class="deviceType === 'switch' ? 'opacity-50 cursor-not-allowed' : ''">
                                 <input type="radio" name="has_ip" value="1"
                                        class="border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                        x-model="hasIp"
-                                       {{ old('has_ip', '1') == '1' ? 'checked' : '' }}>
+                                       :disabled="deviceType === 'switch'">
                                 <span class="ml-2 text-sm text-gray-700">Yes</span>
                             </label>
-                            <label class="inline-flex items-center">
+                            <label class="inline-flex items-center" :class="deviceType === 'switch' ? 'opacity-50 cursor-not-allowed' : ''">
                                 <input type="radio" name="has_ip" value="0"
                                        class="border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                        x-model="hasIp"
-                                       {{ old('has_ip') == '0' ? 'checked' : '' }}>
+                                       :disabled="deviceType === 'switch'">
                                 <span class="ml-2 text-sm text-gray-700">No</span>
                             </label>
                         </div>
@@ -146,14 +157,17 @@
                             <input type="text" name="ip_address" value="{{ old('ip_address') }}"
                                    class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                    placeholder="192.168.1.1">
-                            <p class="mt-1 text-xs text-gray-500">
-                                For routers and managed switches, set an IP so you can manage the device.
+                            <p class="mt-1 text-xs text-gray-500" x-show="deviceType === 'router'">
+                                For routers, set an IP so you can manage the device.
+                            </p>
+                            <p class="mt-1 text-xs text-gray-500" x-show="deviceType === 'switch'">
+                                For managed switches, set an IP so you can manage the device.
                             </p>
                         </div>
                     </div>
 
                     <!-- Assignment Section -->
-                    <div class="mb-6 border-t pt-4" x-data="{ assignmentType: '{{ old('assignment_type', 'standby') }}' }">
+                    <div class="mb-6 border-t pt-4">
                         <label class="block text-lg font-bold text-gray-900 mb-2 uppercase tracking-wide">ASSIGNMENT</label>
                         
                         <div class="flex space-x-6 mb-4">
