@@ -125,7 +125,7 @@
     <div id="labels-container">
         @php
             $assetsPerPage = 24; // 3 columns * 8 rows
-            $pages = array_chunk($assets, $assetsPerPage);
+            $pages = array_chunk(collect($assets)->toArray(), $assetsPerPage);
         @endphp
 
         @foreach($pages as $pageAssets)
@@ -149,7 +149,7 @@
         @endforeach
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="{{ asset('js/qrcode.min.js') }}"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const wrappers = document.querySelectorAll('.qr-wrapper');

@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 
 // Public Routes
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 Route::get('/scan/{uuid}', [\App\Http\Controllers\PublicAssetController::class , 'show'])->name('public.asset.show');
