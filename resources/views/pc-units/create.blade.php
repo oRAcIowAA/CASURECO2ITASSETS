@@ -22,7 +22,7 @@
             <!-- Form Card -->
             <div class="bg-white rounded-xl shadow-md overflow-hidden">
                 <div class="p-6">
-                    <form method="POST" action="{{ route('pc-units.store') }}">
+                    <form method="POST" action="{{ route('pc-units.store') }}" x-data="{ deviceType: '{{ old('device_type', $type ?? 'Desktop') }}' }">
                         @csrf
                         
                         @php
@@ -37,6 +37,7 @@
                             <select
                                 id="device_type"
                                 name="device_type"
+                                x-model="deviceType"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 uppercase"
                                 required
                             >
@@ -64,17 +65,61 @@
                                 MODEL <span class="text-red-500">*</span>
                             </label>
                             <input type="text" name="model" id="model" 
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('model') border-red-500 @enderror" 
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 uppercase @error('model') border-red-500 @enderror" 
                                    value="{{ old('model') }}" 
                                    placeholder="Dell OptiPlex 7010" 
+                                   oninput="this.value = this.value.toUpperCase()"
                                    required>
                             @error('model')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
+                        <!-- Serial Number -->
+                        <div class="mb-6">
+                            <label for="serial_number" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                SERIAL NUMBER
+                            </label>
+                            <input type="text" name="serial_number" id="serial_number" 
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 uppercase @error('serial_number') border-red-500 @enderror" 
+                                   value="{{ old('serial_number') }}" 
+                                   placeholder="ENTER SERIAL NUMBER" 
+                                   oninput="this.value = this.value.toUpperCase()">
+                            @error('serial_number')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
 
                         <!-- Hardware Specs -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                            <!-- Operating System -->
+                            <div x-data="{ osType: '{{ old('os_version') }}', customOs: '' }">
+                                <label for="os_select" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                    OPERATING SYSTEM
+                                </label>
+                                @php
+                                    $osOptions = ['Windows 11', 'Windows 10', 'Windows 7', 'Linux', 'macOS'];
+                                    $oldOs = old('os_version');
+                                    $isCustomOs = $oldOs && !in_array($oldOs, $osOptions);
+                                @endphp
+                                <select x-model="osType" id="os_select"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 mb-2 uppercase"
+                                        @change="if(osType !== 'Other') { customOs = ''; $refs.hiddenOs.value = osType } else { $refs.hiddenOs.value = customOs }">
+                                    <option value="">SELECT OS</option>
+                                    @foreach($osOptions as $opt)
+                                        <option value="{{ $opt }}" {{ $oldOs === $opt ? 'selected' : '' }}>{{ strtoupper($opt) }}</option>
+                                    @endforeach
+                                    <option value="Other" {{ $isCustomOs ? 'selected' : '' }}>OTHER...</option>
+                                </select>
+                                
+                                <div x-show="osType === 'Other'" style="display: none;">
+                                    <input type="text" x-model="customOs" @input="$refs.hiddenOs.value = customOs.toUpperCase(); customOs = customOs.toUpperCase()"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 uppercase"
+                                           placeholder="Specify OS"
+                                           x-init="if('{{ $isCustomOs }}' == '1') { customOs = '{{ $oldOs }}'; }">
+                                </div>
+                                <input type="hidden" name="os_version" x-ref="hiddenOs" value="{{ old('os_version') }}">
+                            </div>
+
                             <!-- Processor -->
                             <div x-data="{ procType: '{{ old('processor') }}', customProc: '' }">
                                 <label for="processor_select" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
@@ -96,8 +141,8 @@
                                 </select>
                                 
                                 <div x-show="procType === 'Other'" style="display: none;">
-                                    <input type="text" x-model="customProc" @input="$refs.hiddenProc.value = customProc"
-                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    <input type="text" x-model="customProc" @input="$refs.hiddenProc.value = customProc.toUpperCase(); customProc = customProc.toUpperCase()"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 uppercase"
                                            placeholder="Specify Processor"
                                            x-init="if('{{ $isCustomProc }}' == '1') { customProc = '{{ $oldProc }}'; }">
                                 </div>
@@ -125,8 +170,8 @@
                                 </select>
                                 
                                 <div x-show="ramType === 'Other'" style="display: none;">
-                                    <input type="text" x-model="customRam" @input="$refs.hiddenRam.value = customRam"
-                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    <input type="text" x-model="customRam" @input="$refs.hiddenRam.value = customRam.toUpperCase(); customRam = customRam.toUpperCase()"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 uppercase"
                                            placeholder="Specify RAM"
                                            x-init="if('{{ $isCustomRam }}' == '1') { customRam = '{{ $oldRam }}'; }">
                                 </div>
@@ -154,12 +199,55 @@
                                 </select>
                                 
                                 <div x-show="storageType === 'Other'" style="display: none;">
-                                    <input type="text" x-model="customStorage" @input="$refs.hiddenStorage.value = customStorage"
-                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    <input type="text" x-model="customStorage" @input="$refs.hiddenStorage.value = customStorage.toUpperCase(); customStorage = customStorage.toUpperCase()"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 uppercase"
                                            placeholder="Specify Storage"
                                            x-init="if('{{ $isCustomStorage }}' == '1') { customStorage = '{{ $oldStorage }}'; }">
                                 </div>
-                                <input type="hidden" name="storage" x-ref="hiddenStorage" value="{{ old('storage') }}">
+
+                                <!-- Secondary Storage (if Hybrid) -->
+                                <div x-show="storageType === 'Hybrid'" class="mt-2" style="display: none;">
+                                    <label class="block text-gray-600 text-[10px] font-bold mb-1 uppercase tracking-tighter">SECOND STORAGE DEVICE</label>
+                                    <input type="text" name="storage_secondary" value="{{ old('storage_secondary') }}"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 uppercase"
+                                           placeholder="e.g. 1TB HDD"
+                                           oninput="this.value = this.value.toUpperCase()">
+                                </div>
+
+                            <input type="hidden" name="storage" x-ref="hiddenStorage" value="{{ old('storage') }}">
+                            </div>
+                        </div>
+
+                        <!-- Monitor Information -->
+                        <div x-show="deviceType !== 'Laptop' && deviceType !== 'All-in-One'" style="display: none;">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4 uppercase tracking-tighter font-bold">Monitor Information</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label for="monitor_brand" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                        MONITOR BRAND <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" name="monitor_brand" id="monitor_brand" 
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 uppercase @error('monitor_brand') border-red-500 @enderror" 
+                                           value="{{ old('monitor_brand') }}" 
+                                           placeholder="e.g. DELL, SAMSUNG, LG"
+                                           oninput="this.value = this.value.toUpperCase()">
+                                    @error('monitor_brand')
+                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <label for="monitor_serial" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                        MONITOR SERIAL NUMBER
+                                    </label>
+                                    <input type="text" name="monitor_serial" id="monitor_serial" 
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 uppercase @error('monitor_serial') border-red-500 @enderror" 
+                                           value="{{ old('monitor_serial') }}" 
+                                           placeholder="SERIAL NUMBER"
+                                           oninput="this.value = this.value.toUpperCase()">
+                                    @error('monitor_serial')
+                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
 
@@ -234,60 +322,65 @@
                                     NETWORK SEGMENT
                                 </label>
                                 <input type="text" name="network_segment" id="network_segment" 
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 uppercase" 
                                        value="{{ old('network_segment') }}" 
-                                       placeholder="VLAN 10 / Backend">
+                                       placeholder="VLAN 10 / Backend"
+                                       oninput="this.value = this.value.toUpperCase()">
                             </div>
                         </div>
 
-                        <!-- Department -->
-                        <div class="mb-6">
-                            <label for="department" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
-                                Department <span class="text-red-500">*</span>
-                            </label>
-                            <select name="department" id="department"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('department') border-red-500 @enderror"
-                                    required>
-                                <option value="">SELECT DEPARTMENT</option>
-                                @foreach($departments as $department)
-                                    <option value="{{ $department }}" {{ old('department') === $department ? 'selected' : '' }}>
-                                        {{ strtoupper($department) }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('department')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
+                        <!-- MS Office Details -->
+                        <h3 class="text-lg font-medium text-gray-900 mb-4 uppercase tracking-tighter font-bold">MS Office Details</h3>
+                        <div x-data="{ officeType: '{{ old('ms_office_licensed', 'UNLICENSED') }}' }" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                    LICENSING
+                                </label>
+                                <select name="ms_office_licensed" x-model="officeType"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 uppercase">
+                                    <option value="LICENSED" {{ old('ms_office_licensed') === 'LICENSED' ? 'selected' : '' }}>LICENSED</option>
+                                    <option value="UNLICENSED" {{ old('ms_office_licensed', 'UNLICENSED') === 'UNLICENSED' ? 'selected' : '' }}>UNLICENSED</option>
+                                </select>
+                            </div>
 
-                        <!-- Division -->
-                        <div class="mb-6">
-                            <label for="division" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
-                                Division
-                            </label>
-                            <select name="division" id="division"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('division') border-red-500 @enderror">
-                                <option value="">SELECT DIVISION</option>
-                                @foreach($divisions as $division)
-                                    <option value="{{ $division }}" {{ old('division') === $division ? 'selected' : '' }}>
-                                        {{ strtoupper($division) }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('division')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                    MS Office Version
+                                </label>
+                                <input type="text" name="ms_office_version" value="{{ old('ms_office_version') }}"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 uppercase"
+                                       placeholder="e.g. MS Office 2021"
+                                       oninput="this.value = this.value.toUpperCase()">
+                            </div>
+
+                            <div x-show="officeType === 'LICENSED'" style="display: none;">
+                                <label class="block text-gray-700 text-sm font-bold mb-2 uppercase font-bold text-indigo-600">
+                                    MS OFFICE Email
+                                </label>
+                                <input type="text" name="ms_office_email" value="{{ old('ms_office_email') }}"
+                                       class="w-full px-4 py-2 border border-indigo-200 bg-indigo-50 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                       placeholder="account@email.com">
+                            </div>
+
+                            <div x-show="officeType === 'LICENSED'" style="display: none;">
+                                <label class="block text-gray-700 text-sm font-bold mb-2 uppercase font-bold text-indigo-600">
+                                    MS OFFICE Password
+                                </label>
+                                <input type="text" name="ms_office_password" value="{{ old('ms_office_password') }}"
+                                       class="w-full px-4 py-2 border border-indigo-200 bg-indigo-50 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                       placeholder="PASSWORD">
+                            </div>
                         </div>
 
                         <!-- Group -->
                         <div class="mb-6">
                             <label for="group" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
-                                Group <span class="text-red-500">*</span>
+                                Location <span class="text-red-500">*</span>
                             </label>
                             <select name="group" id="group"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('group') border-red-500 @enderror"
                                     required>
-                                <option value="">SELECT GROUP</option>
+                                <option value="">SELECT LOCATION</option>
                                 @foreach($groups as $group)
                                     <option value="{{ $group }}" {{ old('group') === $group ? 'selected' : '' }}>
                                         {{ strtoupper($group) }}
@@ -308,13 +401,13 @@
                                     <input type="radio" name="assignment_type" value="standby" 
                                            class="border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                            x-model="assignmentType">
-                                    <span class="ml-2 text-gray-700 uppercase font-bold">STANDBY (AVAILABLE)</span>
+                                    <span class="ml-2 text-gray-700 uppercase font-bold">STORAGE AVAILABLE</span>
                                 </label>
                                 <label class="inline-flex items-center">
                                     <input type="radio" name="assignment_type" value="assign" 
                                            class="border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                            x-model="assignmentType">
-                                    <span class="ml-2 text-gray-700 uppercase font-bold">ASSIGN TO EMPLOYEE</span>
+                                    <span class="ml-2 text-gray-700 uppercase font-bold">DEPLOYMENT</span>
                                 </label>
                             </div>
 
@@ -334,14 +427,14 @@
                             <input type="hidden" name="status" value="available">
                         </div>
 
-                        <!-- Date Received -->
+                        <!-- Date Issued -->
                         <div class="mb-6">
-                            <label for="date_received" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
-                                DATE RECEIVED
+                            <label for="date_issued" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                DATE ISSUED
                             </label>
-                            <input type="date" name="date_received" id="date_received" 
+                            <input type="date" name="date_issued" id="date_issued" 
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
-                                   value="{{ old('date_received') }}">
+                                   value="{{ old('date_issued') }}">
                         </div>
 
                         <!-- Remarks -->
@@ -350,9 +443,10 @@
                                 REMARKS
                             </label>
                             <textarea name="remarks" id="remarks" 
-                                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 uppercase" 
                                       rows="3" 
-                                      placeholder="Additional notes about this PC unit">{{ old('remarks') }}</textarea>
+                                      placeholder="Additional notes about this PC unit"
+                                      oninput="this.value = this.value.toUpperCase()">{{ old('remarks') }}</textarea>
                         </div>
 
                         <!-- Form Actions -->

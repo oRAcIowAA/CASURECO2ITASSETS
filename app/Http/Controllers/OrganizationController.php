@@ -10,16 +10,16 @@ class OrganizationController extends Controller
 {
     public function index()
     {
-        $groupsConst = \App\Constants\Organization::GROUPS;
+        $groupsConst = \App\Constants\Organization::LOCATIONS;
 
-        // Fetch all employees with PC Units, Printers, and Network Devices, ordered by name
-        $allEmployees = Employee::with(['pcUnits', 'printers', 'networkDevices'])->orderBy('full_name')->get();
+        // Fetch all employees with PC Units, Printers, Network Devices, Power Utilities, and Mobile Devices, ordered by name
+        $allEmployees = Employee::with(['pcUnits', 'printers', 'networkDevices', 'powerUtilities', 'mobileDevices'])->orderBy('full_name')->get();
 
         $groups = collect();
 
         foreach ($groupsConst as $groupName) {
             $empsInGroup = $allEmployees->filter(function ($employee) use ($groupName) {
-                return $employee->group == $groupName;
+                return trim($employee->group) == trim($groupName);
             });
 
             if ($empsInGroup->isEmpty())
@@ -28,14 +28,14 @@ class OrganizationController extends Controller
             $groupDepts = collect();
 
             $groupedByDept = $empsInGroup->groupBy(function ($emp) {
-                return $emp->department ?: 'Other Departments';
+                return $emp->department ? trim($emp->department) : 'NO DEPARTMENT';
             });
 
             foreach ($groupedByDept as $deptName => $deptEmployees) {
                 $deptDivisions = collect();
 
                 $groupedByDivision = $deptEmployees->groupBy(function ($emp) {
-                    return $emp->division ?: 'Other Divisions';
+                    return $emp->division ? trim($emp->division) : 'NO DIVISION';
                 });
 
                 foreach ($groupedByDivision as $divisionName => $divEmployees) {

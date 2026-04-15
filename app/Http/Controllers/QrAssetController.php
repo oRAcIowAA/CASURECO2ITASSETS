@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\PcUnit;
 use App\Models\Printer;
 use App\Models\NetworkDevice;
+use App\Models\PowerUtility;
+use App\Models\MobileDevice;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -15,19 +17,39 @@ class QrAssetController extends Controller
         $pcQuery = PcUnit::query();
         $printerQuery = Printer::query();
         $networkQuery = NetworkDevice::query();
+        $powerQuery = PowerUtility::query();
+        $mobileQuery = MobileDevice::query();
 
         // Apply filters
         $applyCommonFilters = function($query) use ($request) {
             if ($request->filled('group')) {
-                $query->where('group', $request->group);
+                $query->where(function ($q) use ($request) {
+                    $q->where(function ($sub) use ($request) {
+                        $sub->whereNull('employee_id')->where('group', $request->group);
+                    })->orWhereHas('employee', function ($eq) use ($request) {
+                        $eq->where('group', $request->group);
+                    });
+                });
             }
 
             if ($request->filled('division')) {
-                $query->where('division', $request->division);
+                $query->where(function ($q) use ($request) {
+                    $q->where(function ($sub) use ($request) {
+                        $sub->whereNull('employee_id')->where('division', $request->division);
+                    })->orWhereHas('employee', function ($eq) use ($request) {
+                        $eq->where('division', $request->division);
+                    });
+                });
             }
 
             if ($request->filled('department')) {
-                $query->where('department', $request->department);
+                $query->where(function ($q) use ($request) {
+                    $q->where(function ($sub) use ($request) {
+                        $sub->whereNull('employee_id')->where('department', $request->department);
+                    })->orWhereHas('employee', function ($eq) use ($request) {
+                        $eq->where('department', $request->department);
+                    });
+                });
             }
 
             if ($request->filled('status')) {
@@ -58,6 +80,20 @@ class QrAssetController extends Controller
                       $sq->where('full_name', 'like', "%{$search}%");
                   });
             });
+
+            $powerQuery->where(function ($q) use ($search) {
+                $q->whereAny(['asset_tag', 'model', 'brand', 'type'], 'like', "%{$search}%")
+                  ->orWhereHas('employee', function ($sq) use ($search) {
+                      $sq->where('full_name', 'like', "%{$search}%");
+                  });
+            });
+
+            $mobileQuery->where(function ($q) use ($search) {
+                $q->whereAny(['asset_tag', 'model', 'brand', 'type', 'serial_number'], 'like', "%{$search}%")
+                  ->orWhereHas('employee', function ($sq) use ($search) {
+                      $sq->where('full_name', 'like', "%{$search}%");
+                  });
+            });
         }
 
         if ($request->filled('type')) {
@@ -72,8 +108,12 @@ class QrAssetController extends Controller
             }
 
             // Filter Printers
-            if (!in_array('Printer', $types)) {
+            $validPrinterTypes = ['Printer', 'Scanner', 'Portable Printer'];
+            $selectedPrinterTypes = array_intersect($types, $validPrinterTypes);
+            if (empty($selectedPrinterTypes)) {
                 $printerQuery->whereRaw('1 = 0');
+            } else {
+                $printerQuery->whereIn('type', array_map('strtoupper', $selectedPrinterTypes));
             }
 
             // Filter Network Devices
@@ -83,21 +123,42 @@ class QrAssetController extends Controller
             } else {
                 $networkQuery->whereIn('device_type', array_map('strtolower', $netTypes));
             }
+
+            // Filter Power Utilities
+            $powerTypes = array_intersect($types, ['UPS', 'AVR']);
+            if (empty($powerTypes)) {
+                $powerQuery->whereRaw('1 = 0');
+            } else {
+                $powerQuery->whereIn('type', $powerTypes);
+            }
+
+            // Filter Mobile Devices
+            $mobileTypes = array_intersect($types, ['Cellphone']);
+            if (empty($mobileTypes)) {
+                $mobileQuery->whereRaw('1 = 0');
+            } else {
+                $mobileQuery->whereIn('type', array_map('strtoupper', $mobileTypes));
+            }
         }
 
         $applyCommonFilters($pcQuery);
         $applyCommonFilters($printerQuery);
         $applyCommonFilters($networkQuery);
+        $applyCommonFilters($powerQuery);
+        $applyCommonFilters($mobileQuery);
 
         $pcUnits = $pcQuery->with('employee')->orderBy('asset_tag')->get();
         $printers = $printerQuery->with('employee')->orderBy('asset_tag')->get();
         $networkDevices = $networkQuery->with('employee')->orderBy('asset_tag')->get();
+        $powerUtilities = $powerQuery->with('employee')->orderBy('asset_tag')->get();
+        $mobileDevices = $mobileQuery->with('employee')->orderBy('asset_tag')->get();
 
-        $groups = \App\Constants\Organization::GROUPS;
+        $groups = \App\Constants\Organization::LOCATIONS;
         $divisions = \App\Constants\Organization::DIVISIONS;
         $departments = \App\Constants\Organization::DEPARTMENTS;
+        $deptDivisions = \App\Constants\Organization::DEPT_DIVISIONS;
 
-        return view('qr-assets.index', compact('pcUnits', 'printers', 'networkDevices', 'groups', 'divisions', 'departments'));
+        return view('qr-assets.index', compact('pcUnits', 'printers', 'networkDevices', 'powerUtilities', 'mobileDevices', 'groups', 'divisions', 'departments', 'deptDivisions'));
     }
 
     public function printLabels(Request $request)
@@ -124,11 +185,19 @@ class QrAssetController extends Controller
                     break;
                 case 'printer':
                     $asset = Printer::find($id);
-                    $deviceName = 'Printer (' . $asset->brand . ')';
+                    $deviceName = ucfirst(strtolower($asset->type)) . ' (' . $asset->brand . ')';
                     break;
                 case 'network':
                     $asset = NetworkDevice::find($id);
                     $deviceName = $asset->device_type ?? 'Network Device';
+                    break;
+                case 'power_utility':
+                    $asset = PowerUtility::find($id);
+                    $deviceName = $asset->type . ' (' . $asset->brand . ')';
+                    break;
+                case 'mobile_device':
+                    $asset = MobileDevice::find($id);
+                    $deviceName = $asset->type . ' (' . $asset->brand . ')';
                     break;
             }
 
@@ -172,11 +241,19 @@ class QrAssetController extends Controller
                     break;
                 case 'printer':
                     $asset = Printer::find($id);
-                    $deviceName = 'Printer (' . $asset->brand . ')';
+                    $deviceName = ucfirst(strtolower($asset->type)) . ' (' . $asset->brand . ')';
                     break;
                 case 'network':
                     $asset = NetworkDevice::find($id);
                     $deviceName = $asset->device_type ?? 'Network Device';
+                    break;
+                case 'power_utility':
+                    $asset = \App\Models\PowerUtility::find($id);
+                    $deviceName = $asset->type . ' (' . $asset->brand . ')';
+                    break;
+                case 'mobile_device':
+                    $asset = \App\Models\MobileDevice::find($id);
+                    $deviceName = $asset->type . ' (' . $asset->brand . ')';
                     break;
             }
 

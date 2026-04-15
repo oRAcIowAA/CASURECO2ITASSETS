@@ -89,9 +89,9 @@
                 IT Technician
             </div>
             <div style="float: right; width: 50%; text-align: right; line-height: 1.4;">
-                Approved by:<br><br>
-                <strong>ROMEL JOHN Z. ROADEL</strong><br>
-                IT Division Supervisor
+                Noted by:<br><br>
+                <strong>ELMER CLARETE</strong><br>
+                OIC IT Supervisor
             </div>
         </div>
         <div class="clearfix" style="border-top: 1px solid #000; padding-top: 2px;">

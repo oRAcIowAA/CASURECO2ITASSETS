@@ -32,7 +32,15 @@
 
                 <!-- Search & Filters -->
                 <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <form method="GET" action="{{ route('pc-units.index') }}" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <form method="GET" action="{{ route('pc-units.index') }}" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4"
+                          x-data="{ 
+                              department: '{{ request('department') }}', 
+                              division: '{{ request('division') }}',
+                              deptDivisions: @js($deptDivisions),
+                              get filteredDivisions() {
+                                  return this.department ? (this.deptDivisions[this.department] || []) : [];
+                              }
+                          }">
                         <div class="col-span-1 md:col-span-2 lg:col-span-1">
                              <div class="relative">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -47,33 +55,34 @@
                         </div>
 
                         <div>
-                            <select name="group" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900">
-                                <option value="">ALL GROUPS</option>
+                            <select name="group" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-semibold text-xs h-10">
+                                <option value="">ALL LOCATIONS</option>
                                 @foreach($groups as $group)
                                     <option value="{{ $group }}" {{ request('group') == $group ? 'selected' : '' }}>{{ strtoupper($group) }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div>
-                            <select name="division" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900">
-                                <option value="">ALL DIVISIONS</option>
-                                @foreach($divisions as $division)
-                                    <option value="{{ $division }}" {{ request('division') == $division ? 'selected' : '' }}>{{ strtoupper($division) }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div>
-                            <select name="department" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900">
+                            <select name="department" x-model="department" @change="division = ''"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-semibold text-xs h-10">
                                 <option value="">ALL DEPARTMENTS</option>
                                 @foreach($departments as $department)
-                                    <option value="{{ $department }}" {{ request('department') == $department ? 'selected' : '' }}>{{ strtoupper($department) }}</option>
+                                    <option value="{{ $department }}">{{ strtoupper($department) }}</option>
                                 @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <select name="division" x-model="division" :disabled="!department"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 disabled:bg-gray-100 disabled:text-gray-400 font-semibold text-xs h-10">
+                                <option value="">ALL DIVISIONS</option>
+                                <template x-for="div in filteredDivisions" :key="div">
+                                    <option :value="div" x-text="div.toUpperCase()" :selected="division === div"></option>
+                                </template>
                             </select>
                         </div>
 
                         <div>
-                            <select name="type" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900">
+                            <select name="type" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-semibold text-xs h-10">
                                 <option value="">ALL TYPES</option>
                                 <option value="Desktop" {{ request('type') == 'Desktop' ? 'selected' : '' }}>DESKTOP</option>
                                 <option value="All-in-One" {{ request('type') == 'All-in-One' ? 'selected' : '' }}>ALL-IN-ONE</option>
@@ -83,7 +92,7 @@
                         </div>
 
                         <div>
-                            <select name="status" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900">
+                            <select name="status" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-semibold text-xs h-10">
                                 <option value="">ALL STATUSES</option>
                                 <option value="Assigned" {{ request('status') == 'Assigned' ? 'selected' : '' }}>ASSIGNED</option>
                                 <option value="Available" {{ request('status') == 'Available' ? 'selected' : '' }}>AVAILABLE</option>
@@ -140,10 +149,13 @@
                                             @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">{{ strtoupper($pcUnit->group ?? 'N/A') }}</div>
+                                            <div class="text-sm text-gray-900">
+                                                {{ strtoupper(($pcUnit->employee ? $pcUnit->employee->group : $pcUnit->group) ?? 'N/A') }}
+                                            </div>
                                             <div class="text-xs text-gray-500">
                                                 @php
-                                                    $locParts = array_filter([$pcUnit->department, $pcUnit->division]);
+                                                    $source = $pcUnit->employee ?: $pcUnit;
+                                                    $locParts = array_filter([$source->department, $source->division]);
                                                     echo strtoupper(implode(' / ', $locParts)) ?: 'N/A';
                                                 @endphp
                                             </div>

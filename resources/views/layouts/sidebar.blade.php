@@ -56,6 +56,22 @@
                 <span class="font-medium">Networking</span>
             </a>
 
+            <!-- Power Utility -->
+            <a href="{{ route('power-utilities.index') }}" class="flex items-center px-4 py-3 text-gray-100 transition-colors rounded-lg hover:bg-blue-800 hover:text-yellow-400 {{ request()->routeIs('power-utilities.*') ? 'bg-blue-800 shadow-lg text-yellow-400' : '' }}">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+                <span class="font-medium">Power Utility</span>
+            </a>
+
+            <!-- Mobile Devices -->
+            <a href="{{ route('mobile-devices.index') }}" class="flex items-center px-4 py-3 text-gray-100 transition-colors rounded-lg hover:bg-blue-800 hover:text-yellow-400 {{ request()->routeIs('mobile-devices.*') ? 'bg-blue-800 shadow-lg text-yellow-400' : '' }}">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                </svg>
+                <span class="font-medium">Mobile Devices</span>
+            </a>
+
             <!-- Parts Management (Disposed Units) -->
             <a href="{{ route('parts.index') }}" class="flex items-center px-4 py-3 text-gray-100 transition-colors rounded-lg hover:bg-blue-800 hover:text-yellow-400 {{ request()->routeIs('parts.*') ? 'bg-blue-800 shadow-lg text-yellow-400' : '' }}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

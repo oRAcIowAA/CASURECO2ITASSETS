@@ -10,7 +10,16 @@
             
             <!-- Search & Filters -->
             <div class="mb-6 p-6 bg-white rounded-lg border border-gray-200 shadow-sm print:hidden">
-                <form method="GET" action="{{ route('qr-assets.index') }}" class="space-y-6">
+                <form method="GET" action="{{ route('qr-assets.index') }}" 
+                      class="mb-0"
+                      x-data="{ 
+                          department: '{{ request('department') }}', 
+                          division: '{{ request('division') }}',
+                          deptDivisions: @js($deptDivisions),
+                          get filteredDivisions() {
+                              return this.department ? (this.deptDivisions[this.department] || []) : [];
+                          }
+                      }">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                         
                         <!-- Type Filter -->
@@ -19,7 +28,10 @@
                                 selectedTypes: {{ json_encode((array)request('type', [])) }},
                                 pcTypes: ['Desktop', 'Laptop', 'Server', 'All-in-One'],
                                 netTypes: ['Router', 'Switch'],
-                                get allTypes() { return [...this.pcTypes, ...this.netTypes, 'Printer']; },
+                                printerTypes: ['Printer', 'Scanner', 'Portable Printer'],
+                                powerTypes: ['UPS', 'AVR'],
+                                mobileTypes: ['Cellphone'],
+                                get allTypes() { return [...this.pcTypes, ...this.netTypes, ...this.printerTypes, ...this.powerTypes, ...this.mobileTypes]; },
                                 toggleType(type) {
                                     if (this.selectedTypes.includes(type)) {
                                         this.selectedTypes = this.selectedTypes.filter(t => t !== type);
@@ -110,9 +122,53 @@
                                 </div>
 
                                 <div class="px-3 py-2">
-                                    <div @click="toggleType('Printer')" class="flex items-center justify-between font-bold text-gray-900 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                                    <div @click="toggleCategory(printerTypes)" class="flex items-center justify-between font-bold text-gray-900 cursor-pointer hover:bg-gray-50 p-1 rounded">
                                         <span>PRINTERS</span>
-                                        <input type="checkbox" :checked="isTypeSelected('Printer')" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                                        <div class="h-4 w-4 border border-gray-300 rounded flex items-center justify-center" :class="isCategorySelected(printerTypes) ? 'bg-indigo-600 border-indigo-600' : ''">
+                                            <svg x-show="isCategorySelected(printerTypes)" class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4 mt-1 space-y-1">
+                                        <template x-for="type in printerTypes">
+                                            <div @click="toggleType(type)" class="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded transition-colors">
+                                                <input type="checkbox" :checked="isTypeSelected(type)" class="h-3.5 w-3.5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-2">
+                                                <span x-text="type.toUpperCase()" class="text-gray-600 font-medium"></span>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <div class="px-3 py-2">
+                                    <div @click="toggleCategory(powerTypes)" class="flex items-center justify-between font-bold text-gray-900 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                                        <span>POWER UTILITIES</span>
+                                        <div class="h-4 w-4 border border-gray-300 rounded flex items-center justify-center" :class="isCategorySelected(powerTypes) ? 'bg-indigo-600 border-indigo-600' : ''">
+                                            <svg x-show="isCategorySelected(powerTypes)" class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4 mt-1 space-y-1">
+                                        <template x-for="type in powerTypes">
+                                            <div @click="toggleType(type)" class="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded transition-colors">
+                                                <input type="checkbox" :checked="isTypeSelected(type)" class="h-3.5 w-3.5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-2">
+                                                <span x-text="type.toUpperCase()" class="text-gray-600 font-medium"></span>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <div class="px-3 py-2">
+                                    <div @click="toggleCategory(mobileTypes)" class="flex items-center justify-between font-bold text-gray-900 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                                        <span>MOBILE DEVICES</span>
+                                        <div class="h-4 w-4 border border-gray-300 rounded flex items-center justify-center" :class="isCategorySelected(mobileTypes) ? 'bg-indigo-600 border-indigo-600' : ''">
+                                            <svg x-show="isCategorySelected(mobileTypes)" class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4 mt-1 space-y-1">
+                                        <template x-for="type in mobileTypes">
+                                            <div @click="toggleType(type)" class="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded transition-colors">
+                                                <input type="checkbox" :checked="isTypeSelected(type)" class="h-3.5 w-3.5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-2">
+                                                <span x-text="type.toUpperCase()" class="text-gray-600 font-medium"></span>
+                                            </div>
+                                        </template>
                                     </div>
                                 </div>
                             </div>
@@ -139,9 +195,9 @@
  
                         <!-- Group -->
                         <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">GROUP</label>
+                            <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">LOCATION</label>
                             <select name="group" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-semibold text-xs h-10">
-                                <option value="">ALL GROUPS</option>
+                                <option value="">ALL LOCATIONS</option>
                                 @foreach($groups ?? [] as $group)
                                     <option value="{{ $group }}" {{ request('group') == $group ? 'selected' : '' }}>{{ strtoupper($group) }}</option>
                                 @endforeach
@@ -151,23 +207,29 @@
                         <!-- Department -->
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">DEPARTMENT</label>
-                            <select name="department" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-semibold text-xs h-10">
-                                <option value="">ALL DEPARTMENTS</option>
-                                @foreach($departments ?? [] as $department)
-                                    <option value="{{ $department }}" {{ request('department') == $department ? 'selected' : '' }}>{{ strtoupper($department) }}</option>
-                                @endforeach
-                            </select>
+                            <div>
+                                <select name="department" x-model="department" @change="division = ''"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900">
+                                    <option value="">ALL DEPARTMENTS</option>
+                                    @foreach($departments as $department)
+                                        <option value="{{ $department }}">{{ strtoupper($department) }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
 
                         <!-- Division -->
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">DIVISION</label>
-                            <select name="division" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-semibold text-xs h-10">
-                                <option value="">ALL DIVISIONS</option>
-                                @foreach($divisions ?? [] as $division)
-                                    <option value="{{ $division }}" {{ request('division') == $division ? 'selected' : '' }}>{{ strtoupper($division) }}</option>
-                                @endforeach
-                            </select>
+                            <div>
+                                <select name="division" x-model="division" :disabled="!department"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 disabled:bg-gray-100 disabled:text-gray-400">
+                                    <option value="">ALL DIVISIONS</option>
+                                    <template x-for="div in filteredDivisions" :key="div">
+                                        <option :value="div" x-text="div.toUpperCase()" :selected="division === div"></option>
+                                    </template>
+                                </select>
+                            </div>
                         </div>
  
                         <!-- Status -->
@@ -254,7 +316,10 @@
                                                         <span class="text-sm text-gray-600">{{ $unit->device_type }} - {{ $unit->model }}</span>
                                                     </td>
                                                     <td class="px-6 py-3 whitespace-nowrap text-xs font-mono text-gray-400 italic">
-                                                        {{ strtoupper($unit->group ?? 'N/A') }} / {{ strtoupper($unit->department ?? 'N/A') }} / {{ strtoupper($unit->division ?? 'N/A') }}
+                                                        {{ $unit->employee_id 
+                                                            ? strtoupper(implode(' / ', array_filter([$unit->employee->group, $unit->employee->department, $unit->employee->division])))
+                                                            : strtoupper(implode(' / ', array_filter([$unit->group, $unit->department, $unit->division]))) 
+                                                        }}
                                                     </td>
                                                 </tr>
                                                 @endforeach
@@ -294,7 +359,10 @@
                                                         <span class="text-sm text-gray-600">{{ $unit->brand }} {{ $unit->model }}</span>
                                                     </td>
                                                     <td class="px-6 py-3 whitespace-nowrap text-xs font-mono text-gray-400 italic">
-                                                        {{ strtoupper($unit->group ?? 'N/A') }} / {{ strtoupper($unit->department ?? 'N/A') }} / {{ strtoupper($unit->division ?? 'N/A') }}
+                                                        {{ $unit->employee_id 
+                                                            ? strtoupper(implode(' / ', array_filter([$unit->employee->group, $unit->employee->department, $unit->employee->division])))
+                                                            : strtoupper(implode(' / ', array_filter([$unit->group, $unit->department, $unit->division]))) 
+                                                        }}
                                                     </td>
                                                 </tr>
                                                 @endforeach
@@ -303,19 +371,18 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Networking Group -->
+                            <!-- Networking Devices Group -->
                             <div>
-                                <div class="flex items-center justify-between bg-purple-50 p-4 rounded-t-lg border-x border-t border-purple-200">
-                                    <h4 class="text-purple-900 font-bold uppercase tracking-wider flex items-center">
+                                <div class="flex items-center justify-between bg-emerald-50 p-4 rounded-t-lg border-x border-t border-emerald-200">
+                                    <h4 class="text-emerald-900 font-bold uppercase tracking-wider flex items-center">
                                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"></path>
                                         </svg>
                                         Networking Devices ({{ count($networkDevices) }})
                                     </h4>
                                     <label class="inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" class="rounded border-gray-300 text-purple-600 shadow-sm focus:ring-purple-500 select-all-group" data-target="network-checkbox">
-                                        <span class="ml-2 text-sm font-medium text-purple-800">Select All Networking</span>
+                                        <input type="checkbox" class="rounded border-gray-300 text-emerald-600 shadow-sm focus:ring-emerald-500 select-all-group" data-target="network-checkbox">
+                                        <span class="ml-2 text-sm font-medium text-emerald-800">Select All Network Devices</span>
                                     </label>
                                 </div>
                                 <div class="border border-gray-200 rounded-b-lg overflow-hidden">
@@ -325,16 +392,105 @@
                                                 @foreach($networkDevices as $unit)
                                                 <tr class="hover:bg-gray-50">
                                                     <td class="px-6 py-3 whitespace-nowrap w-10">
-                                                        <input type="checkbox" name="selected_assets[]" value="network:{{ $unit->id }}" class="network-checkbox rounded border-gray-300 text-purple-600 shadow-sm focus:ring-purple-500">
+                                                        <input type="checkbox" name="selected_assets[]" value="network:{{ $unit->id }}" class="network-checkbox rounded border-gray-300 text-emerald-600 shadow-sm focus:ring-emerald-500">
                                                     </td>
                                                     <td class="px-6 py-3 whitespace-nowrap">
                                                         <span class="text-sm font-bold text-gray-900">{{ $unit->asset_tag }}</span>
                                                     </td>
                                                     <td class="px-6 py-3 whitespace-nowrap">
-                                                        <span class="text-sm text-gray-600">{{ $unit->device_type }} - {{ $unit->brand }} {{ $unit->model }}</span>
+                                                        <span class="text-sm text-gray-600">{{ $unit->brand }} {{ $unit->model }} ({{ $unit->device_type }})</span>
                                                     </td>
                                                     <td class="px-6 py-3 whitespace-nowrap text-xs font-mono text-gray-400 italic">
-                                                        {{ strtoupper($unit->group ?? 'N/A') }} / {{ strtoupper($unit->department ?? 'N/A') }} / {{ strtoupper($unit->division ?? 'N/A') }}
+                                                        {{ $unit->employee_id 
+                                                            ? strtoupper(implode(' / ', array_filter([$unit->employee->group, $unit->employee->department, $unit->employee->division])))
+                                                            : strtoupper(implode(' / ', array_filter([$unit->group, $unit->department, $unit->division]))) 
+                                                        }}
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Power Utilities Group -->
+                            <div>
+                                <div class="flex items-center justify-between bg-indigo-50 p-4 rounded-t-lg border-x border-t border-indigo-200">
+                                    <h4 class="text-indigo-900 font-bold uppercase tracking-wider flex items-center">
+                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                        </svg>
+                                        Power Utilities ({{ count($powerUtilities) }})
+                                    </h4>
+                                    <label class="inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 select-all-group" data-target="power-checkbox">
+                                        <span class="ml-2 text-sm font-medium text-indigo-800">Select All Power Utilities</span>
+                                    </label>
+                                </div>
+                                <div class="border border-gray-200 rounded-b-lg overflow-hidden">
+                                    <div class="max-h-60 overflow-y-auto">
+                                        <table class="min-w-full divide-y divide-gray-200">
+                                            <tbody class="bg-white divide-y divide-gray-200">
+                                                @foreach($powerUtilities as $unit)
+                                                <tr class="hover:bg-gray-50">
+                                                    <td class="px-6 py-3 whitespace-nowrap w-10">
+                                                        <input type="checkbox" name="selected_assets[]" value="power_utility:{{ $unit->id }}" class="power-checkbox rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
+                                                    </td>
+                                                    <td class="px-6 py-3 whitespace-nowrap">
+                                                        <span class="text-sm font-bold text-gray-900">{{ $unit->asset_tag }}</span>
+                                                    </td>
+                                                    <td class="px-6 py-3 whitespace-nowrap">
+                                                        <span class="text-sm text-gray-600">{{ $unit->type }} - {{ $unit->brand }} {{ $unit->model }}</span>
+                                                    </td>
+                                                    <td class="px-6 py-3 whitespace-nowrap text-xs font-mono text-gray-400 italic">
+                                                        {{ $unit->employee_id 
+                                                            ? strtoupper(implode(' / ', array_filter([$unit->employee->group, $unit->employee->department, $unit->employee->division])))
+                                                            : strtoupper(implode(' / ', array_filter([$unit->group, $unit->department, $unit->division]))) 
+                                                        }}
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Mobile Devices Group -->
+                            <div>
+                                <div class="flex items-center justify-between bg-teal-50 p-4 rounded-t-lg border-x border-t border-teal-200">
+                                    <h4 class="text-teal-900 font-bold uppercase tracking-wider flex items-center">
+                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                        </svg>
+                                        Mobile Devices ({{ count($mobileDevices) }})
+                                    </h4>
+                                    <label class="inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="rounded border-gray-300 text-teal-600 shadow-sm focus:ring-teal-500 select-all-group" data-target="mobile-checkbox">
+                                        <span class="ml-2 text-sm font-medium text-teal-800">Select All Mobile Devices</span>
+                                    </label>
+                                </div>
+                                <div class="border border-gray-200 rounded-b-lg overflow-hidden">
+                                    <div class="max-h-60 overflow-y-auto">
+                                        <table class="min-w-full divide-y divide-gray-200">
+                                            <tbody class="bg-white divide-y divide-gray-200">
+                                                @foreach($mobileDevices as $unit)
+                                                <tr class="hover:bg-gray-50">
+                                                    <td class="px-6 py-3 whitespace-nowrap w-10">
+                                                        <input type="checkbox" name="selected_assets[]" value="mobile_device:{{ $unit->id }}" class="mobile-checkbox rounded border-gray-300 text-teal-600 shadow-sm focus:ring-teal-500">
+                                                    </td>
+                                                    <td class="px-6 py-3 whitespace-nowrap">
+                                                        <span class="text-sm font-bold text-gray-900">{{ $unit->asset_tag }}</span>
+                                                    </td>
+                                                    <td class="px-6 py-3 whitespace-nowrap">
+                                                        <span class="text-sm text-gray-600">{{ $unit->type }} - {{ $unit->brand }} {{ $unit->model }}</span>
+                                                    </td>
+                                                    <td class="px-6 py-3 whitespace-nowrap text-xs font-mono text-gray-400 italic">
+                                                        {{ $unit->employee_id 
+                                                            ? strtoupper(implode(' / ', array_filter([$unit->employee->group, $unit->employee->department, $unit->employee->division])))
+                                                            : strtoupper(implode(' / ', array_filter([$unit->group, $unit->department, $unit->division]))) 
+                                                        }}
                                                     </td>
                                                 </tr>
                                                 @endforeach

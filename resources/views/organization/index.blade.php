@@ -74,7 +74,14 @@
                                                     @if($division->employees->count() > 0)
                                                         <ul class="divide-y divide-gray-100">
                                                             @foreach($division->employees as $employee)
-                                                                @php
+                                                                    @php
+                                                                    $totalUnits = $employee->pcUnits->count() + $employee->printers->count() + $employee->networkDevices->count() + $employee->powerUtilities->count() + $employee->mobileDevices->count();
+                                                                    $isManyUnits = $totalUnits > 4; // Lowered threshold for shrinking
+                                                                    
+                                                                    $badgeBaseClass = "js-unit-badge inline-flex items-center rounded-md font-bold transition-all flex-shrink-0 border border-transparent";
+                                                                    $badgeSizeClass = $isManyUnits ? "px-1.5 py-0.5 text-[9px]" : "px-2 py-0.5 text-[10.5px]";
+                                                                    $iconSizeClass = $isManyUnits ? "h-2 w-2 mr-1" : "h-2.5 w-2.5 mr-1";
+
                                                                     $searchTerms = [
                                                                         $employee->full_name,
                                                                         $employee->position,
@@ -83,52 +90,73 @@
                                                                         $searchTerms[] = $unit->asset_tag;
                                                                         $searchTerms[] = $unit->model;
                                                                         $searchTerms[] = $unit->device_type;
+                                                                        $searchTerms[] = $unit->ip_address;
+                                                                        $searchTerms[] = $unit->mac_address;
                                                                     }
                                                                     foreach($employee->printers as $printer) {
+                                                                        $searchTerms[] = $printer->asset_tag;
                                                                         $searchTerms[] = $printer->brand;
                                                                         $searchTerms[] = $printer->model;
+                                                                        $searchTerms[] = $printer->ip_address;
+                                                                        $searchTerms[] = $printer->mac_address;
                                                                     }
                                                                     foreach($employee->networkDevices as $device) {
+                                                                        $searchTerms[] = $device->asset_tag;
                                                                         $searchTerms[] = $device->brand;
                                                                         $searchTerms[] = $device->model;
                                                                         $searchTerms[] = $device->device_type;
+                                                                        $searchTerms[] = $device->ip_address;
                                                                     }
-                                                                    $searchString = strtolower(implode(' ', $searchTerms));
+                                                                    foreach($employee->powerUtilities as $power) {
+                                                                        $searchTerms[] = $power->asset_tag;
+                                                                        $searchTerms[] = $power->brand;
+                                                                        $searchTerms[] = $power->model;
+                                                                        $searchTerms[] = $power->type;
+                                                                    }
+                                                                    foreach($employee->mobileDevices as $mobile) {
+                                                                        $searchTerms[] = $mobile->asset_tag;
+                                                                        $searchTerms[] = $mobile->brand;
+                                                                        $searchTerms[] = $mobile->model;
+                                                                        $searchTerms[] = $mobile->type;
+                                                                        $searchTerms[] = $mobile->serial_number;
+                                                                    }
+                                                                    $searchString = strtolower(implode(' ', array_filter($searchTerms)));
                                                                 @endphp
                                                                 <li class="px-6 py-4 flex items-center hover:bg-gray-100 transition-colors js-employee" data-search="{{ htmlspecialchars($searchString) }}">
                                                                     <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
                                                                         {{ substr($employee->full_name, 0, 1) }}
                                                                     </div>
                                                                     <div class="ml-4 flex-1 min-w-0">
-                                                                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                                                                            <div class="min-w-0">
-                                                                                <div class="text-sm font-medium text-gray-900 truncate">
+                                                                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                                                            <div class="min-w-[180px] flex-shrink-0">
+                                                                                <div class="text-sm font-bold text-gray-900 truncate">
                                                                                     <a href="{{ route('employees.show', $employee) }}" class="hover:text-blue-600 hover:underline">
                                                                                         {{ $employee->full_name }}
                                                                                     </a>
                                                                                 </div>
-                                                                                <div class="text-sm text-gray-500 truncate">{{ $employee->position }}</div>
+                                                                                <div class="text-xs text-gray-500 truncate">{{ $employee->position }}</div>
                                                                             </div>
                                                                             
                                                                             <!-- Assigned Units -->
-                                                                            <div class="flex space-x-2 overflow-x-auto pb-1 max-w-full">
-                                                                                @forelse($employee->pcUnits as $unit)
+                                                                            <div class="flex flex-wrap gap-1.5 flex-grow justify-start md:justify-end">
+                                                                                @foreach($employee->pcUnits as $unit)
                                                                                     <a href="{{ route('pc-units.show', $unit) }}" 
-                                                                                       class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors flex-shrink-0"
-                                                                                       title="{{ $unit->device_type }} - {{ $unit->model }}">
-                                                                                        <svg class="mr-1.5 h-3 w-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                       class="{{ $badgeBaseClass }} {{ $badgeSizeClass }} bg-blue-50 text-blue-700 border-blue-100 hover:bg-blue-100"
+                                                                                       data-unit-search="{{ strtolower($unit->asset_tag . ' ' . $unit->model . ' ' . $unit->ip_address . ' ' . $unit->mac_address) }}"
+                                                                                       title="{{ $unit->device_type }} - {{ $unit->model }} {{ $unit->ip_address ? '('.$unit->ip_address.')' : '' }}">
+                                                                                        <svg class="{{ $iconSizeClass }} text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                                                                                         </svg>
                                                                                         {{ $unit->asset_tag }}
                                                                                     </a>
-                                                                                @empty
-                                                                                @endforelse
+                                                                                @endforeach
  
                                                                                  @foreach($employee->printers as $printer)
                                                                                     <a href="{{ route('printers.show', $printer) }}" 
-                                                                                       class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 hover:bg-purple-200 transition-colors flex-shrink-0"
-                                                                                       title="Printer - {{ $printer->brand }} {{ $printer->model }}">
-                                                                                        <svg class="mr-1.5 h-3 w-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                       class="{{ $badgeBaseClass }} {{ $badgeSizeClass }} bg-purple-50 text-purple-700 border-purple-100 hover:bg-purple-100"
+                                                                                       data-unit-search="{{ strtolower($printer->asset_tag . ' ' . $printer->brand . ' ' . $printer->model . ' ' . $printer->ip_address . ' ' . $printer->mac_address) }}"
+                                                                                       title="Printer - {{ $printer->brand }} {{ $printer->model }} {{ $printer->ip_address ? '('.$printer->ip_address.')' : '' }}">
+                                                                                        <svg class="{{ $iconSizeClass }} text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
                                                                                         </svg>
                                                                                         {{ $printer->asset_tag }}
@@ -137,17 +165,42 @@
  
                                                                                  @foreach($employee->networkDevices as $device)
                                                                                     <a href="{{ route('network-devices.show', $device) }}" 
-                                                                                       class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 hover:bg-green-200 transition-colors flex-shrink-0"
-                                                                                       title="Network - {{ $device->brand }} {{ $device->model }}">
-                                                                                        <svg class="mr-1.5 h-3 w-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 01-2 2v4a2 2 0 012 2h14a2 2 0 012-2v-4a2 2 0 01-2-2m-2-4h.01M17 16h.01"></path>
+                                                                                       class="{{ $badgeBaseClass }} {{ $badgeSizeClass }} bg-green-50 text-green-700 border-green-100 hover:bg-green-100"
+                                                                                       data-unit-search="{{ strtolower($device->asset_tag . ' ' . $device->brand . ' ' . $device->model . ' ' . $device->device_type . ' ' . $device->ip_address) }}"
+                                                                                       title="Network - {{ $device->brand }} {{ $device->model }} {{ $device->ip_address ? '('.$device->ip_address.')' : '' }}">
+                                                                                        <svg class="{{ $iconSizeClass }} text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 01-2-2v4a2 2 0 012 2h14a2 2 0 012-2v-4a2 2 0 01-2-2m-2-4h.01M17 16h.01"></path>
                                                                                         </svg>
                                                                                         {{ $device->asset_tag }}
                                                                                     </a>
                                                                                 @endforeach
+
+                                                                                @foreach($employee->powerUtilities as $power)
+                                                                                    <a href="{{ route('power-utilities.show', $power) }}" 
+                                                                                       class="{{ $badgeBaseClass }} {{ $badgeSizeClass }} bg-indigo-50 text-indigo-700 border-indigo-100 hover:bg-indigo-100"
+                                                                                       data-unit-search="{{ strtolower($power->asset_tag . ' ' . $power->brand . ' ' . $power->model . ' ' . $power->type) }}"
+                                                                                       title="Power Utility - {{ $power->type }} - {{ $power->brand }} {{ $power->model }}">
+                                                                                        <svg class="{{ $iconSizeClass }} text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                                                                        </svg>
+                                                                                        {{ $power->asset_tag }}
+                                                                                    </a>
+                                                                                @endforeach
+
+                                                                                @foreach($employee->mobileDevices as $mobile)
+                                                                                    <a href="{{ route('mobile-devices.show', $mobile) }}" 
+                                                                                       class="{{ $badgeBaseClass }} {{ $badgeSizeClass }} bg-teal-50 text-teal-700 border-teal-100 hover:bg-teal-100"
+                                                                                       data-unit-search="{{ strtolower($mobile->asset_tag . ' ' . $mobile->brand . ' ' . $mobile->model . ' ' . $mobile->type . ' ' . $mobile->serial_number) }}"
+                                                                                       title="Mobile Device - {{ $mobile->type }} - {{ $mobile->brand }} {{ $mobile->model }}">
+                                                                                        <svg class="{{ $iconSizeClass }} text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                                                                        </svg>
+                                                                                        {{ $mobile->asset_tag }}
+                                                                                    </a>
+                                                                                @endforeach
  
-                                                                                @if($employee->pcUnits->isEmpty() && $employee->printers->isEmpty() && $employee->networkDevices->isEmpty())
-                                                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 flex-shrink-0">
+                                                                                @if($totalUnits === 0)
+                                                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium bg-gray-50 text-gray-500 border border-gray-100 flex-shrink-0">
                                                                                         No Devices
                                                                                     </span>
                                                                                 @endif
@@ -180,6 +233,21 @@
 
     </div>
 
+    <style>
+        .unit-badge-highlight {
+            box-shadow: 0 0 12px rgba(234, 179, 8, 0.8), 0 0 4px rgba(0,0,0,0.1);
+            border: 1.5px solid #eab308 !important;
+            transform: scale(1.15);
+            z-index: 50;
+            background-color: #fefce8 !important;
+            color: #854d0e !important;
+            position: relative;
+        }
+        .js-unit-badge {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('orgSearch');
@@ -202,6 +270,16 @@
                                 let empSearchText = (emp.dataset.search || '').toLowerCase();
                                 
                                 if (empSearchText.includes(query)) empMatch = true;
+
+                                // Individual Unit Highlighting
+                                emp.querySelectorAll('.js-unit-badge').forEach(badge => {
+                                    let badgeSearch = (badge.dataset.unitSearch || '').toLowerCase();
+                                    if (query !== '' && badgeSearch.includes(query)) {
+                                        badge.classList.add('unit-badge-highlight');
+                                    } else {
+                                        badge.classList.remove('unit-badge-highlight');
+                                    }
+                                });
 
                                 if (query === '') {
                                     emp.style.display = '';

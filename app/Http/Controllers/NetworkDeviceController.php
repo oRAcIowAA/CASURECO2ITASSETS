@@ -68,11 +68,12 @@ class NetworkDeviceController extends Controller
         }
 
         $networkDevices = $query->latest()->paginate(15)->withQueryString();
-        $groups = \App\Constants\Organization::GROUPS;
+        $groups = \App\Constants\Organization::LOCATIONS;
         $divisions = \App\Constants\Organization::DIVISIONS;
         $departments = \App\Constants\Organization::DEPARTMENTS;
+        $deptDivisions = \App\Constants\Organization::DEPT_DIVISIONS;
 
-        return view('network-devices.index', compact('networkDevices', 'groups', 'divisions', 'departments'));
+        return view('network-devices.index', compact('networkDevices', 'groups', 'divisions', 'departments', 'deptDivisions'));
     }
 
     /**
@@ -80,12 +81,10 @@ class NetworkDeviceController extends Controller
      */
     public function create()
     {
-        $groups = \App\Constants\Organization::GROUPS;
-        $divisions = \App\Constants\Organization::DIVISIONS;
-        $departments = \App\Constants\Organization::DEPARTMENTS;
+        $groups = \App\Constants\Organization::LOCATIONS;
         $employees = Employee::orderBy('full_name')->get();
         $nextAssetTag = \App\Services\AssetTagService::generateNextTag(NetworkDevice::class, 'CAS-ND-');
-        return view('network-devices.create', compact('groups', 'divisions', 'departments', 'employees', 'nextAssetTag'));
+        return view('network-devices.create', compact('groups', 'employees', 'nextAssetTag'));
     }
 
     /**
@@ -119,7 +118,7 @@ class NetworkDeviceController extends Controller
         }
 
         // Handle Assignment & Status
-        if ($request->assignment_type === 'assign') {
+        if ($request->assignment_type === 'ASSIGN') {
             if (empty($validated['employee_id'])) {
                 return back()->withErrors(['employee_id' => 'Please select an employee.'])->withInput();
             }
@@ -158,11 +157,9 @@ class NetworkDeviceController extends Controller
      */
     public function edit(NetworkDevice $networkDevice)
     {
-        $groups = \App\Constants\Organization::GROUPS;
-        $divisions = \App\Constants\Organization::DIVISIONS;
-        $departments = \App\Constants\Organization::DEPARTMENTS;
+        $groups = \App\Constants\Organization::LOCATIONS;
         $employees = Employee::orderBy('full_name')->get();
-        return view('network-devices.edit', compact('networkDevice', 'groups', 'divisions', 'departments', 'employees'));
+        return view('network-devices.edit', compact('networkDevice', 'groups', 'employees'));
     }
 
     /**
@@ -202,7 +199,7 @@ class NetworkDeviceController extends Controller
             $validated['status'] = $networkDevice->status;
             $validated['employee_id'] = null;
         } else {
-            if ($request->assignment_type === 'assign') {
+            if ($request->assignment_type === 'ASSIGN') {
                 if (empty($validated['employee_id'])) {
                     return back()->withErrors(['employee_id' => 'Please select an employee.'])->withInput();
                 }
@@ -228,19 +225,32 @@ class NetworkDeviceController extends Controller
         $validated['updated_by'] = auth()->id();
 
         DB::transaction(function () use ($networkDevice, $validated, $oldEmployeeId, $newEmployeeId) {
-            $networkDevice->update($validated);
+            $networkDevice->fill($validated);
+            $changeSummary = $this->historyService->generateChangesSummary($networkDevice);
+            $networkDevice->save();
 
             if ($oldEmployeeId == $newEmployeeId) {
-                // If assignment didn't change, log it as an 'edited' action
-                $this->historyService->log($networkDevice, 'edited', 'Network device details updated');
+                // If assignment didn't change, log it as an 'edited' action with details
+                if ($changeSummary) {
+                    $this->historyService->log($networkDevice, 'edited', $changeSummary);
+                }
             } else {
                 if ($newEmployeeId) {
                     $action = $oldEmployeeId ? 'transferred' : 'assigned';
                     $notes = $oldEmployeeId ? 'Device transferred' : 'Device assigned';
+                    
+                    if ($changeSummary) {
+                        $notes .= " | " . $changeSummary;
+                    }
+                    
                     $this->historyService->log($networkDevice, $action, $notes, $oldEmployeeId);
                 }
                 else {
-                    $this->historyService->log($networkDevice, 'returned', 'Device returned/unassigned', $oldEmployeeId);
+                    $notes = 'Device returned/unassigned';
+                    if ($changeSummary) {
+                        $notes .= " | " . $changeSummary;
+                    }
+                    $this->historyService->log($networkDevice, 'returned', $notes, $oldEmployeeId);
                 }
             }
         });

@@ -5,6 +5,10 @@ namespace App\Services;
 use App\Models\PcHistory;
 use App\Models\PrinterHistory;
 use App\Models\NetworkDeviceHistory;
+use App\Models\PowerUtilityHistory;
+use App\Models\MobileDeviceHistory;
+use App\Models\EmployeeHistory;
+use App\Models\Employee;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 
@@ -37,6 +41,14 @@ class DeviceHistoryService
             $historyModel = NetworkDeviceHistory::class;
             $foreignKey = 'network_device_id';
         }
+        elseif ($device instanceof \App\Models\PowerUtility) {
+            $historyModel = PowerUtilityHistory::class;
+            $foreignKey = 'power_utility_id';
+        }
+        elseif ($device instanceof \App\Models\MobileDevice) {
+            $historyModel = MobileDeviceHistory::class;
+            $foreignKey = 'mobile_device_id';
+        }
         else {
             throw new \InvalidArgumentException("Unsupported device type for history logging.");
         }
@@ -53,7 +65,53 @@ class DeviceHistoryService
             'returned_date' => $returnedDate,
             'action' => $action,
             'notes' => $notes,
-            'created_by' => Auth::id() ?? 1, // Fallback to 1 (usually admin) if no auth, though auth should be present
+            'created_by' => Auth::id() ?? 1, // Fallback to 1 (usually admin) if no auth
         ]);
+    }
+
+    /**
+     * Log a history record for an employee.
+     */
+    public function logEmployeeAction(Employee $employee, string $action, ?string $notes = null)
+    {
+        return EmployeeHistory::create([
+            'employee_id' => $employee->id,
+            'action' => $action,
+            'notes' => $notes,
+            'created_by' => Auth::id() ?? 1,
+        ]);
+    }
+
+    /**
+     * Generate a summary of changes for a model.
+     *
+     * @param Model $model
+     * @return string|null
+     */
+    public function generateChangesSummary(Model $model)
+    {
+        if (!$model->isDirty()) {
+            return null;
+        }
+
+        $changes = [];
+        $dirty = $model->getDirty();
+        
+        // Skip timestamp fields and internal fields
+        $skippedFields = ['updated_at', 'created_at', 'updated_by'];
+
+        foreach ($dirty as $field => $newValue) {
+            if (in_array($field, $skippedFields)) continue;
+
+            $oldValue = $model->getOriginal($field);
+            
+            $fieldName = strtoupper(str_replace('_', ' ', $field));
+            $oldDisplay = $oldValue ?: 'N/A';
+            $newDisplay = $newValue ?: 'N/A';
+
+            $changes[] = "{$fieldName}: [{$oldDisplay} -> {$newDisplay}]";
+        }
+
+        return !empty($changes) ? "EDITED RECORD DETAILS: " . implode(", ", $changes) : null;
     }
 }

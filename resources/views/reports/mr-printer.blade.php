@@ -49,7 +49,7 @@
     <table class="meta-table">
         <tr>
             <td class="label">Date Issued:</td>
-            <td>{{ date('F d, Y') }}</td>
+            <td>{{ ($printer->date_issued ?? now())->format('F d, Y') }}</td>
             <td class="label">Branch:</td>
             <td>{{ $branch }}</td>
         </tr>
@@ -86,7 +86,7 @@
                 <td>Unit</td>
                 <td>
                     <b>{{ $printer->brand }} {{ $printer->model }}</b><br>
-                    Type: Printer/Scanner<br>
+                    Type: {{ strtoupper($printer->type) }}<br>
                     @if($printer->ip_address)
                         Network: IP {{ $printer->ip_address }}<br>
                     @endif

@@ -53,15 +53,17 @@
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">BRAND</label>
                             <input type="text" name="brand" value="{{ old('brand') }}"
-                                   class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                   class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 uppercase"
                                    placeholder="e.g. TP-LINK, CISCO, ASUS"
+                                   oninput="this.value = this.value.toUpperCase()"
                                    required>
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">MODEL</label>
                             <input type="text" name="model" value="{{ old('model') }}"
-                                   class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                   class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 uppercase"
                                    placeholder="e.g. TL-WR840N, WS-C2960-24TC-L"
+                                   oninput="this.value = this.value.toUpperCase()"
                                    required>
                         </div>
                     </div>
@@ -69,14 +71,11 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">NETWORK PORTS</label>
-                            <select name="network_ports"
-                                    class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                                <option value="4" {{ old('network_ports') == 4 ? 'selected' : '' }}>4</option>
-                                <option value="8" {{ old('network_ports') == 8 ? 'selected' : '' }}>8</option>
-                                <option value="16" {{ old('network_ports') == 16 ? 'selected' : '' }}>16 (Switch)</option>
-                                <option value="24" {{ old('network_ports') == 24 ? 'selected' : '' }}>24 (Switch)</option>
-                                <option value="48" {{ old('network_ports') == 48 ? 'selected' : '' }}>48 (Switch)</option>
-                            </select>
+                            <input type="number" name="network_ports" value="{{ old('network_ports') }}"
+                                   class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                   placeholder="e.g. 4, 8, 16, 24, 48"
+                                   min="1"
+                                   required>
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">NETWORK SPEED</label>
@@ -102,34 +101,21 @@
                         </p>
                     </div>
 
-                    <!-- Location -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <!-- Location & Date -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">Department</label>
-                            <select name="department" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 uppercase" required>
-                                <option value="">SELECT DEPARTMENT</option>
-                                @foreach($departments as $dept)
-                                    <option value="{{ $dept }}" {{ old('department') == $dept ? 'selected' : '' }}>{{ strtoupper($dept) }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">Division</label>
-                            <select name="division" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 uppercase">
-                                <option value="">SELECT DIVISION</option>
-                                @foreach($divisions as $division)
-                                    <option value="{{ $division }}" {{ old('division') == $division ? 'selected' : '' }}>{{ strtoupper($division) }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">Group</label>
+                            <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">Location</label>
                             <select name="group" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 uppercase" required>
-                                <option value="">SELECT GROUP</option>
+                                <option value="">SELECT LOCATION</option>
                                 @foreach($groups as $group)
                                     <option value="{{ $group }}" {{ old('group') == $group ? 'selected' : '' }}>{{ strtoupper($group) }}</option>
                                 @endforeach
                             </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">DATE ISSUED</label>
+                            <input type="date" name="date_issued" value="{{ old('date_issued') }}"
+                                   class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
                     </div>
 
@@ -175,13 +161,13 @@
                                 <input type="radio" name="assignment_type" value="standby" 
                                        class="border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                        x-model="assignmentType">
-                                <span class="ml-2 text-gray-700 uppercase font-bold">STANDBY (AVAILABLE)</span>
+                                <span class="ml-2 text-gray-700 uppercase font-bold">STORAGE AVAILABLE</span>
                             </label>
                             <label class="inline-flex items-center">
                                 <input type="radio" name="assignment_type" value="assign" 
                                        class="border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                        x-model="assignmentType">
-                                <span class="ml-2 text-gray-700 uppercase font-bold">ASSIGN TO EMPLOYEE</span>
+                                <span class="ml-2 text-gray-700 uppercase font-bold">DEPLOYMENT</span>
                             </label>
                         </div>
 

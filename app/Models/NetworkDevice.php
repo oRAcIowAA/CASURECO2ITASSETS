@@ -26,6 +26,7 @@ class NetworkDevice extends Model
         'employee_id',
         'status',
         'spare_parts',
+        'date_issued',
         'date_assigned',
         'date_returned',
         'tracking_uuid',
@@ -34,6 +35,9 @@ class NetworkDevice extends Model
 
     protected $casts = [
         'has_ip' => 'boolean',
+        'date_issued' => 'date',
+        'date_assigned' => 'date',
+        'date_returned' => 'date',
     ];
 
     public function employee(): \Illuminate\Database\Eloquent\Relations\BelongsTo

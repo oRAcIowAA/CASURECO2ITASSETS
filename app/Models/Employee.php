@@ -36,4 +36,19 @@ class Employee extends Model
     {
         return $this->hasMany(NetworkDevice::class , 'employee_id');
     }
+
+    public function employeeHistory(): HasMany
+    {
+        return $this->hasMany(EmployeeHistory::class, 'employee_id');
+    }
+
+    public function powerUtilities(): HasMany
+    {
+        return $this->hasMany(PowerUtility::class, 'employee_id');
+    }
+
+    public function mobileDevices(): HasMany
+    {
+        return $this->hasMany(MobileDevice::class, 'employee_id');
+    }
 }

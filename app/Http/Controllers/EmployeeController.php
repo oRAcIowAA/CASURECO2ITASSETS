@@ -4,13 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Models\Employee;
 use App\Models\PcHistory;
+use App\Models\PrinterHistory;
+use App\Models\NetworkDeviceHistory;
+use App\Models\EmployeeHistory;
 use Illuminate\Http\Request;
 use App\Constants\Organization;
 use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
+use App\Services\DeviceHistoryService;
+use Illuminate\Support\Facades\DB;
 
 class EmployeeController extends Controller
 {
+    protected $historyService;
+
+    public function __construct(DeviceHistoryService $historyService)
+    {
+        $this->historyService = $historyService;
+    }
+
     public function index(Request $request)
     {
         $query = Employee::query();
@@ -34,17 +46,20 @@ class EmployeeController extends Controller
 
     public function create()
     {
-        $groups = Organization::GROUPS;
-        $divisions = Organization::DIVISIONS;
+        $groups = Organization::LOCATIONS;
         $departments = Organization::DEPARTMENTS;
+        $deptDivisions = Organization::DEPT_DIVISIONS;
 
-        return view('employees.create', compact('groups', 'divisions', 'departments'));
+        return view('employees.create', compact('groups', 'departments', 'deptDivisions'));
     }
 
     public function store(StoreEmployeeRequest $request)
     {
         // Validation handled by StoreEmployeeRequest
-        Employee::create($request->validated());
+        $employee = Employee::create($request->validated());
+
+        // Log creation
+        $this->historyService->logEmployeeAction($employee, 'created', 'Employee record created');
 
         return redirect()->route('employees.index')
             ->with('success', 'Employee created successfully.');
@@ -52,30 +67,53 @@ class EmployeeController extends Controller
 
     public function show(Employee $employee)
     {
-        $employee->load(['pcUnits', 'printers', 'networkDevices']);
+        $employee->load(['pcUnits', 'printers', 'networkDevices', 'employeeHistory.createdBy']);
 
-        $history = PcHistory::where('employee_id', $employee->id)
-            ->orWhere('previous_employee_id', $employee->id)
+        // Asset History
+        $pcHistory = PcHistory::where('employee_id', $employee->id)
             ->with(['pcUnit', 'createdBy', 'previousEmployee', 'employee'])
-            ->latest()
             ->get();
 
-        return view('employees.show', compact('employee', 'history'));
+        $printerHistory = PrinterHistory::where('employee_id', $employee->id)
+            ->with(['printer', 'createdBy', 'previousEmployee', 'employee'])
+            ->get();
+
+        $networkHistory = NetworkDeviceHistory::where('employee_id', $employee->id)
+            ->with(['networkDevice', 'createdBy', 'previousEmployee', 'employee'])
+            ->get();
+
+        // Combine all asset histories
+        $assetHistory = $pcHistory->concat($printerHistory)->concat($networkHistory)->sortByDesc('created_at');
+
+        // Employee Record History
+        $recordHistory = $employee->employeeHistory()->with('createdBy')->latest()->get();
+
+        return view('employees.show', compact('employee', 'assetHistory', 'recordHistory'));
     }
 
     public function edit(Employee $employee)
     {
-        $groups = Organization::GROUPS;
-        $divisions = Organization::DIVISIONS;
+        $groups = Organization::LOCATIONS;
         $departments = Organization::DEPARTMENTS;
+        $deptDivisions = Organization::DEPT_DIVISIONS;
 
-        return view('employees.edit', compact('employee', 'groups', 'divisions', 'departments'));
+        return view('employees.edit', compact('employee', 'groups', 'departments', 'deptDivisions'));
     }
 
     public function update(UpdateEmployeeRequest $request, Employee $employee)
     {
-        // Validation handled by UpdateEmployeeRequest
-        $employee->update($request->validated());
+        $validated = $request->validated();
+        
+        DB::transaction(function () use ($employee, $validated) {
+            $changeSummary = $this->historyService->generateChangesSummary($employee->fill($validated));
+            
+            if ($changeSummary) {
+                $employee->save();
+                $this->historyService->logEmployeeAction($employee, 'edited', $changeSummary);
+            } else {
+                $employee->save();
+            }
+        });
 
         return redirect()->route('employees.index')
             ->with('success', 'Employee updated successfully.');
@@ -83,9 +121,9 @@ class EmployeeController extends Controller
 
     public function destroy(Employee $employee)
     {
-        // Check if employee has any PC units assigned
-        if ($employee->pcUnits()->count() > 0) {
-            return back()->with('error', 'Cannot delete employee with assigned PC units.');
+        // Check if employee has any assets assigned
+        if ($employee->pcUnits()->count() > 0 || $employee->printers()->count() > 0 || $employee->networkDevices()->count() > 0) {
+            return back()->with('error', 'Cannot delete employee with assigned IT assets.');
         }
 
         $employee->delete();

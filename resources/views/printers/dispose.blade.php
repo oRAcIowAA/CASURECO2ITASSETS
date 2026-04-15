@@ -84,7 +84,7 @@
                         <div class="flex items-center justify-end mt-4">
                             <a href="{{ route('printers.show', $printer) }}" class="mr-4 text-sm text-gray-600 hover:text-gray-900">Cancel</a>
                             <button type="submit" class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 active:bg-red-900 focus:outline-none focus:border-red-900 focus:ring ring-red-300 disabled:opacity-25 transition ease-in-out duration-150" onclick="return confirm('Are you sure you want to proceed?');">
-                                {{ strtolower($printer->status) === 'condemned' ? 'Finalize Archive' : 'Confirm' }}
+                                {{ strtolower($printer->status) === 'condemned' ? 'Disposed' : 'Confirm' }}
                             </button>
                         </div>
                     </form>

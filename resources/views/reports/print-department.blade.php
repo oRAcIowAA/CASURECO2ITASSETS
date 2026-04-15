@@ -128,16 +128,16 @@
                 IT Technician
             </div>
             <div style="float: right; width: 50%; text-align: right; line-height: 1.4;">
-                Approved by:<br><br>
-                <strong>ROMEL JOHN Z. ROADEL</strong><br>
-                IT Division Supervisor
+                Noted by:<br><br>
+                <strong>ELMER CLARETE</strong><br>
+                OIC IT Supervisor
             </div>
         </div>
         <div class="clearfix" style="border-top: 1px solid #000; padding-top: 2px;">
             <div class="footer-left">
                 <strong>FILTERS APPLIED:</strong>
                 SEARCH: {{ strtoupper($request->search ?: 'None') }} | 
-                GROUP: {{ strtoupper($request->group ?: 'All') }} | 
+                LOCATION: {{ strtoupper($request->group ?: 'All') }} | 
                 DEPT: {{ strtoupper($request->department ?: 'All') }} |
                 DIV: {{ strtoupper($request->division ?: 'All') }} | 
                 TYPE: {{ strtoupper(is_array($request->type) ? implode(', ', $request->type) : ($request->type ?: 'All')) }} |

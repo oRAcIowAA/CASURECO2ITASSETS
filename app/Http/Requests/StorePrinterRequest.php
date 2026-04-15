@@ -18,7 +18,9 @@ class StorePrinterRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        // No longer using asset_tag_number input
+        $this->merge(array_map(function($value) {
+            return is_string($value) ? strtoupper($value) : $value;
+        }, $this->all()));
     }
 
     /**
@@ -30,15 +32,30 @@ class StorePrinterRequest extends FormRequest
     {
         return [
             'asset_tag' => ['required', 'string', new \App\Rules\GlobalUniqueAssetTag(null, \App\Models\Printer::class)],
+            'type' => 'required|in:PRINTER,SCANNER,PORTABLE PRINTER',
             'brand' => 'required|string|max:255',
             'model' => 'required|string|max:255',
-            'group' => ['required', Rule::in(Organization::GROUPS)],
-            'department' => ['required', Rule::in(Organization::DEPARTMENTS)],
-            'division' => ['required', Rule::in(Organization::DIVISIONS)],
+            'serial_number' => 'required_if:type,PORTABLE PRINTER|nullable|string|max:255',
+            'group' => ['required', Rule::in(Organization::LOCATIONS)],
+            'department' => ['nullable', Rule::in(Organization::DEPARTMENTS)],
+            'division' => ['nullable', Rule::in(Organization::DIVISIONS)],
             'has_network_port' => 'required|boolean',
-            'ip_address' => ['nullable', 'ipv4', new \App\Rules\GlobalUniqueIp(null, \App\Models\Printer::class)],
+            'ip_type' => 'required|in:STATIC,DYNAMIC',
+            'ip_address' => [
+                'nullable',
+                Rule::when($this->ip_type === 'STATIC', ['ipv4']),
+                new \App\Rules\GlobalUniqueIp(null, \App\Models\Printer::class)
+            ],
+            'mac_address' => [
+                'nullable', 
+                'string', 
+                'regex:/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/', 
+                new \App\Rules\GlobalUniqueMac(null, \App\Models\Printer::class)
+            ],
+            'network_segment' => 'nullable|string|max:255',
             'employee_id' => 'nullable|exists:employees,id',
-            'assignment_type' => 'required|in:standby,assign', // Added to match form
+            'date_issued' => 'nullable|date',
+            'assignment_type' => 'required|in:STANDBY,ASSIGN', // Added to match form
         ];
     }
 }

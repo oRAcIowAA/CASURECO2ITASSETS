@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\PcUnit;
 use App\Models\Printer;
 use App\Models\NetworkDevice;
+use App\Models\PowerUtility;
 
 class PublicAssetController extends Controller
 {
@@ -29,6 +30,10 @@ class PublicAssetController extends Controller
         elseif ($networkDevice = NetworkDevice::where('tracking_uuid', $uuid)->first()) {
             $device = $networkDevice;
             $deviceType = 'Network Device';
+        }
+        elseif ($powerUtility = PowerUtility::where('tracking_uuid', $uuid)->first()) {
+            $device = $powerUtility;
+            $deviceType = 'Power Utility';
         }
         else {
             abort(404, 'Asset not found or invalid QR code.');

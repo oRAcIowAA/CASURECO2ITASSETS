@@ -37,6 +37,7 @@ class PrinterController extends Controller
                 $q->where('asset_tag', 'like', "%{$searchTerm}%")
                     ->orWhere('brand', 'like', "%{$searchTerm}%")
                     ->orWhere('model', 'like', "%{$searchTerm}%")
+                    ->orWhere('type', 'like', "%{$searchTerm}%")
                     ->orWhere('ip_address', 'like', "%{$searchTerm}%")
                     ->orWhere('group', 'like', "%{$searchTerm}%")
                     ->orWhere('division', 'like', "%{$searchTerm}%")
@@ -60,13 +61,18 @@ class PrinterController extends Controller
             $query->where('status', $request->status);
         }
 
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
         $printers = $query->latest()->paginate(15)->withQueryString();
 
-        $groups = \App\Constants\Organization::GROUPS;
+        $groups = \App\Constants\Organization::LOCATIONS;
         $divisions = \App\Constants\Organization::DIVISIONS;
         $departments = \App\Constants\Organization::DEPARTMENTS;
+        $deptDivisions = \App\Constants\Organization::DEPT_DIVISIONS;
 
-        return view('printers.index', compact('printers', 'groups', 'divisions', 'departments'));
+        return view('printers.index', compact('printers', 'groups', 'divisions', 'departments', 'deptDivisions'));
     }
 
     /**
@@ -74,12 +80,10 @@ class PrinterController extends Controller
      */
     public function create()
     {
-        $groups = \App\Constants\Organization::GROUPS;
-        $divisions = \App\Constants\Organization::DIVISIONS;
-        $departments = \App\Constants\Organization::DEPARTMENTS;
+        $groups = \App\Constants\Organization::LOCATIONS;
         $employees = Employee::orderBy('full_name')->get();
         $nextAssetTag = \App\Services\AssetTagService::generateNextTag(Printer::class, 'CAS-PR-');
-        return view('printers.create', compact('groups', 'divisions', 'departments', 'employees', 'nextAssetTag'));
+        return view('printers.create', compact('groups', 'employees', 'nextAssetTag'));
     }
 
     /**
@@ -89,16 +93,18 @@ class PrinterController extends Controller
     {
         $validated = $request->validated();
 
-        if ($validated['has_network_port'] && empty($validated['ip_address'])) {
-            return back()->withErrors(['ip_address' => 'IP Address is required when Yes is selected.'])->withInput();
-        }
-
-        if (!$validated['has_network_port']) {
+        if ($validated['has_network_port']) {
+            if ($validated['ip_type'] === 'Static' && empty($validated['ip_address'])) {
+                return back()->withErrors(['ip_address' => 'IP Address is required when Static is selected.'])->withInput();
+            }
+        } else {
             $validated['ip_address'] = null;
+            $validated['mac_address'] = null;
+            $validated['network_segment'] = null;
         }
 
         // Handle Assignment & Status
-        if ($request->assignment_type === 'assign') {
+        if ($request->assignment_type === 'ASSIGN') {
             if (empty($validated['employee_id'])) {
                 return back()->withErrors(['employee_id' => 'Please select an employee.'])->withInput();
             }
@@ -136,11 +142,9 @@ class PrinterController extends Controller
      */
     public function edit(Printer $printer)
     {
-        $groups = \App\Constants\Organization::GROUPS;
-        $divisions = \App\Constants\Organization::DIVISIONS;
-        $departments = \App\Constants\Organization::DEPARTMENTS;
+        $groups = \App\Constants\Organization::LOCATIONS;
         $employees = Employee::orderBy('full_name')->get();
-        return view('printers.edit', compact('printer', 'groups', 'divisions', 'departments', 'employees'));
+        return view('printers.edit', compact('printer', 'groups', 'employees'));
     }
 
     /**
@@ -150,12 +154,14 @@ class PrinterController extends Controller
     {
         $validated = $request->validated();
 
-        if ($validated['has_network_port'] && empty($validated['ip_address'])) {
-            return back()->withErrors(['ip_address' => 'IP Address is required when Yes is selected.'])->withInput();
-        }
-
-        if (!$validated['has_network_port']) {
+        if ($validated['has_network_port']) {
+            if ($validated['ip_type'] === 'Static' && empty($validated['ip_address'])) {
+                return back()->withErrors(['ip_address' => 'IP Address is required when Static is selected.'])->withInput();
+            }
+        } else {
             $validated['ip_address'] = null;
+            $validated['mac_address'] = null;
+            $validated['network_segment'] = null;
         }
 
         // Handle Assignment & Status Logic
@@ -167,7 +173,7 @@ class PrinterController extends Controller
             $validated['status'] = $printer->status;
             $validated['employee_id'] = null;
         } else {
-            if ($request->assignment_type === 'assign') {
+            if ($request->assignment_type === 'ASSIGN') {
                 if (empty($validated['employee_id'])) {
                     return back()->withErrors(['employee_id' => 'Please select an employee.'])->withInput();
                 }
@@ -193,19 +199,32 @@ class PrinterController extends Controller
         $validated['updated_by'] = auth()->id();
 
         DB::transaction(function () use ($printer, $validated, $oldEmployeeId, $newEmployeeId) {
-            $printer->update($validated);
+            $printer->fill($validated);
+            $changeSummary = $this->historyService->generateChangesSummary($printer);
+            $printer->save();
 
             if ($oldEmployeeId == $newEmployeeId) {
-                // If assignment didn't change, log it as an 'edited' action
-                $this->historyService->log($printer, 'edited', 'Printer details updated');
+                // If assignment didn't change, log it as an 'edited' action with details
+                if ($changeSummary) {
+                    $this->historyService->log($printer, 'edited', $changeSummary);
+                }
             } else {
                 if ($newEmployeeId) {
                     $action = $oldEmployeeId ? 'transferred' : 'assigned';
                     $notes = $oldEmployeeId ? 'Printer transferred' : 'Printer assigned';
+                    
+                    if ($changeSummary) {
+                        $notes .= " | " . $changeSummary;
+                    }
+                    
                     $this->historyService->log($printer, $action, $notes, $oldEmployeeId);
                 }
                 else {
-                    $this->historyService->log($printer, 'returned', 'Printer returned/unassigned', $oldEmployeeId);
+                    $notes = 'Printer returned/unassigned';
+                    if ($changeSummary) {
+                        $notes .= " | " . $changeSummary;
+                    }
+                    $this->historyService->log($printer, 'returned', $notes, $oldEmployeeId);
                 }
             }
         });
@@ -232,7 +251,7 @@ class PrinterController extends Controller
      */
     public function printLabel(Printer $printer)
     {
-        $deviceName = $printer->brand . ' ' . $printer->model;
+        $deviceName = $printer->type . ' - ' . $printer->brand . ' ' . $printer->model;
         $deviceType = 'Asset Tag/S.N.';
         $assetTag = $printer->asset_tag ?? $printer->serial_number ?? 'N/A';
         $publicUrl = $printer->public_url;

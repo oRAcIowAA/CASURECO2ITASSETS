@@ -18,7 +18,9 @@ class StoreNetworkDeviceRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        // No longer using asset_tag_number input
+        $this->merge(array_map(function($value) {
+            return is_string($value) ? strtoupper($value) : $value;
+        }, $this->all()));
     }
 
     /**
@@ -30,19 +32,20 @@ class StoreNetworkDeviceRequest extends FormRequest
     {
         return [
             'asset_tag' => ['required', 'string', new \App\Rules\GlobalUniqueAssetTag(null, \App\Models\NetworkDevice::class)],
-            'device_type' => 'required|in:router,switch', // Changed to match form
+            'device_type' => 'required|in:ROUTER,SWITCH', // Changed to match form
             'brand' => 'required|string|max:255',
             'model' => 'required|string|max:255',
-            'network_ports' => 'required|integer', // Match form field
-            'network_speed' => 'required|in:gigabit,non_gigabit', // Match form field
-            'switch_type' => 'nullable|in:managed,unmanaged', // Match form field
+            'network_ports' => 'required|integer|min:1', // Match form field
+            'network_speed' => 'required|in:GIGABIT,NON_GIGABIT', // Match form field
+            'switch_type' => 'nullable|in:MANAGED,UNMANAGED', // Match form field
             'has_ip' => 'nullable|boolean', // Match form field
             'ip_address' => ['nullable', 'ipv4', new \App\Rules\GlobalUniqueIp(null, \App\Models\NetworkDevice::class)],
-            'group' => ['required', Rule::in(Organization::GROUPS)],
-            'department' => ['required', Rule::in(Organization::DEPARTMENTS)],
-            'division' => ['required', Rule::in(Organization::DIVISIONS)],
+            'group' => ['required', Rule::in(Organization::LOCATIONS)],
+            'department' => ['nullable', Rule::in(Organization::DEPARTMENTS)],
+            'division' => ['nullable', Rule::in(Organization::DIVISIONS)],
             'employee_id' => 'nullable|exists:employees,id',
-            'assignment_type' => 'required|in:standby,assign',
+            'date_issued' => 'nullable|date',
+            'assignment_type' => 'required|in:STANDBY,ASSIGN',
         ];
     }
 }

@@ -94,6 +94,40 @@
                     </div>
                 </div>
             </a>
+
+            <!-- Power Utility Card -->
+            <a href="{{ route('power-utilities.index') }}" class="block">
+                <div class="bg-white rounded-xl shadow-sm p-6 border-b-4 border-indigo-500 hover:shadow-md transition-all duration-300 group">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-500 text-sm font-bold uppercase tracking-widest">POWER UTILITY</p>
+                            <p class="text-3xl font-bold mt-2 text-gray-900 group-hover:text-indigo-600 transition-colors uppercase">{{ $powerCount }}</p>
+                        </div>
+                        <div class="bg-indigo-50 p-3 rounded-lg group-hover:bg-indigo-100 transition-colors">
+                            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Mobile Devices Card -->
+            <a href="{{ route('mobile-devices.index') }}" class="block">
+                <div class="bg-white rounded-xl shadow-sm p-6 border-b-4 border-blue-900 hover:shadow-md transition-all duration-300 group">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-500 text-sm font-bold uppercase tracking-widest">MOBILE DEVICES</p>
+                            <p class="text-3xl font-bold mt-2 text-gray-900 group-hover:text-blue-900 transition-colors uppercase">{{ $mobileCount }}</p>
+                        </div>
+                        <div class="bg-indigo-50 p-3 rounded-lg group-hover:bg-indigo-100 transition-colors">
+                            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </a>
             
             <!-- Employees Card -->
             <a href="{{ route('employees.index') }}" class="block">

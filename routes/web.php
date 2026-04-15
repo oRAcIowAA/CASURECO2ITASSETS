@@ -6,6 +6,8 @@ use App\Http\Controllers\PcUnitController;
 use App\Http\Controllers\PcHistoryController;
 use App\Http\Controllers\PrinterController;
 use App\Http\Controllers\NetworkDeviceController;
+use App\Http\Controllers\MobileDeviceController;
+use App\Http\Controllers\MobileDeviceHistoryController;
 use Illuminate\Support\Facades\Route;
 
 /* |-------------------------------------------------------------------------- | Web Routes |-------------------------------------------------------------------------- */
@@ -55,7 +57,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
             }
             );
 
-            $recentActivities = $pcHistory->concat($printerHistory)->concat($networkHistory)
+            $powerHistory = \App\Models\PowerUtilityHistory::with(['powerUtility', 'employee', 'createdBy'])
+                ->latest()->take(5)->get()
+                ->map(function ($h) {
+                $h->device_type_label = 'Power Utility';
+                $h->device = $h->powerUtility;
+                $h->device_name = $h->powerUtility ? $h->powerUtility->asset_tag . ' (' . $h->powerUtility->type . ')' : 'Unknown';
+                return $h;
+            }
+            );
+
+            $mobileHistory = \App\Models\MobileDeviceHistory::with(['mobileDevice', 'employee', 'createdBy'])
+                ->latest()->take(5)->get()
+                ->map(function ($h) {
+                $h->device_type_label = 'Mobile Device';
+                $h->device = $h->mobileDevice;
+                $h->device_name = $h->mobileDevice ? $h->mobileDevice->asset_tag . ' (' . $h->mobileDevice->brand . ' ' . $h->mobileDevice->model . ')' : 'Unknown';
+                return $h;
+            }
+            );
+
+            $recentActivities = $pcHistory->concat($printerHistory)->concat($networkHistory)->concat($powerHistory)->concat($mobileHistory)
                 ->sortByDesc('created_at')
                 ->take(5);
 
@@ -63,19 +85,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
             $pcCount = \App\Models\PcUnit::count();
             $printerCount = \App\Models\Printer::count();
             $networkCount = \App\Models\NetworkDevice::count();
+            $powerCount = \App\Models\PowerUtility::count();
+            $mobileCount = \App\Models\MobileDevice::count();
             $employeeCount = \App\Models\Employee::count();
             
-            $totalAssets = $pcCount + $printerCount + $networkCount;
+            $totalAssets = $pcCount + $printerCount + $networkCount + $powerCount + $mobileCount;
             
             $availableCount = \App\Models\PcUnit::where('status', 'available')->count() +
                              \App\Models\Printer::where('status', 'available')->count() +
-                             \App\Models\NetworkDevice::where('status', 'available')->count();
+                             \App\Models\NetworkDevice::where('status', 'available')->count() +
+                             \App\Models\PowerUtility::where('status', 'available')->count() +
+                             \App\Models\MobileDevice::where('status', 'available')->count();
 
             return view('dashboard', compact(
                 'recentActivities', 
                 'pcCount', 
                 'printerCount', 
                 'networkCount', 
+                'powerCount',
+                'mobileCount',
                 'employeeCount', 
                 'totalAssets', 
                 'availableCount'
@@ -128,6 +156,32 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('network-devices/{networkDevice}/print-disposal', [NetworkDeviceController::class , 'printDisposal'])->name('network-devices.print-disposal');
         Route::post('network-devices/{networkDevice}/restore', [NetworkDeviceController::class , 'restore'])->name('network-devices.restore');
 
+        // Power Utility Management
+        Route::resource('power-utilities', \App\Http\Controllers\PowerUtilityController::class);
+        Route::post('power-utilities/{powerUtility}/assign', [\App\Http\Controllers\PowerUtilityController::class, 'assign'])->name('power-utilities.assign');
+        Route::post('power-utilities/{powerUtility}/return', [\App\Http\Controllers\PowerUtilityController::class, 'return'])->name('power-utilities.return');
+        Route::get('power-utilities/{powerUtility}/dispose', [\App\Http\Controllers\PowerUtilityController::class, 'dispose'])->name('power-utilities.dispose');
+        Route::post('power-utilities/{powerUtility}/condemn', [\App\Http\Controllers\PowerUtilityController::class, 'condemn'])->name('power-utilities.condemn');
+        Route::post('power-utilities/{powerUtility}/repair', [\App\Http\Controllers\PowerUtilityController::class, 'repair'])->name('power-utilities.repair');
+                Route::get('power-utilities/{powerUtility}/transfer', [\App\Http\Controllers\PowerUtilityController::class, 'transfer'])->name('power-utilities.transfer');
+                Route::post('power-utilities/{powerUtility}/reassign', [\App\Http\Controllers\PowerUtilityController::class, 'reassign'])->name('power-utilities.reassign');
+        Route::post('power-utilities/{powerUtility}/restore', [\App\Http\Controllers\PowerUtilityController::class, 'restore'])->name('power-utilities.restore');
+        Route::get('power-utilities/{powerUtility}/print-label', [\App\Http\Controllers\PowerUtilityController::class, 'printLabel'])->name('power-utilities.print-label');
+        Route::get('power-utilities/{powerUtility}/print-disposal', [\App\Http\Controllers\PowerUtilityController::class, 'printDisposal'])->name('power-utilities.print-disposal');
+
+        // Mobile Device Management
+        Route::resource('mobile-devices', MobileDeviceController::class);
+        Route::post('mobile-devices/{mobileDevice}/assign', [MobileDeviceController::class, 'assign'])->name('mobile-devices.assign');
+        Route::post('mobile-devices/{mobileDevice}/return', [MobileDeviceController::class, 'return'])->name('mobile-devices.return');
+        Route::get('mobile-devices/{mobileDevice}/dispose', [MobileDeviceController::class, 'dispose'])->name('mobile-devices.dispose');
+        Route::post('mobile-devices/{mobileDevice}/condemn', [MobileDeviceController::class, 'condemn'])->name('mobile-devices.condemn');
+        Route::post('mobile-devices/{mobileDevice}/repair', [MobileDeviceController::class, 'repair'])->name('mobile-devices.repair');
+        Route::get('mobile-devices/{mobileDevice}/transfer', [MobileDeviceController::class, 'transfer'])->name('mobile-devices.transfer');
+        Route::post('mobile-devices/{mobileDevice}/reassign', [MobileDeviceController::class, 'reassign'])->name('mobile-devices.reassign');
+        Route::post('mobile-devices/{mobileDevice}/restore', [MobileDeviceController::class, 'restore'])->name('mobile-devices.restore');
+        Route::get('mobile-devices/{mobileDevice}/print-label', [MobileDeviceController::class, 'printLabel'])->name('mobile-devices.print-label');
+        Route::get('mobile-devices/{mobileDevice}/print-disposal', [MobileDeviceController::class, 'printDisposal'])->name('mobile-devices.print-disposal');
+
         // PC Unit De-assignment
         Route::post('pc-units/{pcUnit}/return', [PcUnitController::class , 'return'])->name('pc-units.return');
 
@@ -153,7 +207,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Printer History
         Route::get('printer-history', [\App\Http\Controllers\PrinterHistoryController::class , 'index'])->name('printer-history.index');
-        Route::get('printer-history/{printer}', [\App\Http\Controllers\PrinterHistoryController::class , 'showByPrinter'])->name('printer-history.show');
+                Route::get('printer-history/{printer}', [\App\Http\Controllers\PrinterHistoryController::class , 'showByPrinter'])->name('printer-history.show');
+        Route::get('power-utility-history', [\App\Http\Controllers\PowerUtilityHistoryController::class , 'index'])->name('power-utility-history.index');
+        Route::get('power-utility-history/{powerUtility}', [\App\Http\Controllers\PowerUtilityHistoryController::class , 'showByPowerUtility'])->name('power-utility-history.show');
+        Route::get('mobile-device-history', [MobileDeviceHistoryController::class, 'index'])->name('mobile-device-history.index');
+        Route::get('mobile-device-history/{mobileDevice}', [MobileDeviceHistoryController::class, 'showByDevice'])->name('mobile-device-history.show');
 
         // Network Device History
         Route::get('network-device-history', [\App\Http\Controllers\NetworkDeviceHistoryController::class , 'index'])->name('network-device-history.index');
@@ -172,4 +230,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Organization Chart
         Route::get('/organization', [App\Http\Controllers\OrganizationController::class , 'index'])->name('organization.index');
+        Route::get('/organization/manage', [App\Http\Controllers\OrgManagementController::class, 'index'])->name('organization.manage');
+        Route::post('/organization/manage', [App\Http\Controllers\OrgManagementController::class, 'update'])->name('organization.update-structure');
     });

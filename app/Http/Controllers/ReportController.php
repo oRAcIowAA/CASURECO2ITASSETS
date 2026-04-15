@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\PcUnit;
+use App\Models\PowerUtility;
+use App\Models\MobileDevice;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Log;
@@ -38,6 +40,18 @@ class ReportController extends Controller
             ],
             'printers' => [
                 'total' => $items->where('category', 'Printer')->count(),
+                'Printer' => $items->where('category', 'Printer')->where('type_label', 'Printer')->count(),
+                'Scanner' => $items->where('category', 'Printer')->where('type_label', 'Scanner')->count(),
+                'Portable Printer' => $items->where('category', 'Printer')->where('type_label', 'Portable Printer')->count(),
+            ],
+            'power_utilities' => [
+                'total' => $items->where('category', 'Power Utility')->count(),
+                'UPS' => $items->where('category', 'Power Utility')->where('type_label', 'UPS')->count(),
+                'AVR' => $items->where('category', 'Power Utility')->where('type_label', 'AVR')->count(),
+            ],
+            'mobile_devices' => [
+                'total' => $items->where('category', 'Mobile Device')->count(),
+                'Cellphone' => $items->where('category', 'Mobile Device')->where('type_label', 'Cellphone')->count(),
             ]
         ];
 
@@ -54,11 +68,12 @@ class ReportController extends Controller
             ['path' => $request->url(), 'query' => $request->query()]
         );
 
-        $groups = \App\Constants\Organization::GROUPS;
+        $groups = \App\Constants\Organization::LOCATIONS;
         $divisions = \App\Constants\Organization::DIVISIONS;
         $departments = \App\Constants\Organization::DEPARTMENTS;
+        $deptDivisions = \App\Constants\Organization::DEPT_DIVISIONS;
 
-        return view('reports.index', compact('paginatedItems', 'groups', 'divisions', 'departments', 'stats'));
+        return view('reports.index', compact('paginatedItems', 'groups', 'divisions', 'departments', 'deptDivisions', 'stats'));
     }
 
     /**
@@ -72,10 +87,7 @@ class ReportController extends Controller
             ->setPaper('letter', 'portrait');
 
         // Add headers to prevent IDM interception
-        return $pdf->stream('Unified-Device-List.pdf', [
-            'Content-Disposition' => 'inline; filename="Unified-Device-List.pdf"',
-            'Content-Type' => 'application/pdf',
-        ]);
+        return $pdf->stream('Unified-Device-List.pdf');
     }
 
     /**
@@ -106,7 +118,9 @@ class ReportController extends Controller
                     'ip_address' => $item->ip_address ?? 'N/A',
                     'type_model' => ($item->asset_tag ? $item->asset_tag . ' - ' : '') . $item->device_type . ' - ' . $item->model,
                     'type_label' => $item->device_type,
-                    'location' => strtoupper(implode(' / ', array_filter([$item->group, $item->department, $item->division]))),
+                    'location' => $item->employee_id 
+                        ? strtoupper(implode(' / ', array_filter([$item->employee->group, $item->employee->department, $item->employee->division])))
+                        : strtoupper(implode(' / ', array_filter([$item->group, $item->department, $item->division]))),
                     'assigned_to' => $item->employee->full_name ?? 'N/A',
                     'status' => $item->status,
                     'category' => 'PC Unit',
@@ -127,9 +141,11 @@ class ReportController extends Controller
                     'asset_tag' => $item->asset_tag,
                     'view_route' => 'printers.show',
                     'ip_address' => $item->ip_address ?? 'N/A',
-                    'type_model' => ($item->asset_tag ? $item->asset_tag . ' - ' : '') . 'Printer - ' . $item->brand . ' ' . $item->model,
-                    'type_label' => 'Printer',
-                    'location' => strtoupper(implode(' / ', array_filter([$item->group, $item->department, $item->division]))),
+                    'type_model' => ($item->asset_tag ? $item->asset_tag . ' - ' : '') . ucfirst(strtolower($item->type)) . ' - ' . $item->brand . ' ' . $item->model,
+                    'type_label' => ucfirst(strtolower($item->type)),
+                    'location' => $item->employee_id 
+                        ? strtoupper(implode(' / ', array_filter([$item->employee->group, $item->employee->department, $item->employee->division])))
+                        : strtoupper(implode(' / ', array_filter([$item->group, $item->department, $item->division]))),
                     'assigned_to' => $item->employee->full_name ?? 'N/A',
                     'status' => $item->status,
                     'category' => 'Printer',
@@ -152,7 +168,9 @@ class ReportController extends Controller
                     'ip_address' => $item->ip_address ?? 'N/A',
                     'type_model' => ($item->asset_tag ? $item->asset_tag . ' - ' : '') . ucfirst($item->device_type) . ' - ' . $item->brand . ' ' . $item->model,
                     'type_label' => ucfirst($item->device_type),
-                    'location' => strtoupper(implode(' / ', array_filter([$item->group, $item->department, $item->division]))),
+                    'location' => $item->employee_id 
+                        ? strtoupper(implode(' / ', array_filter([$item->employee->group, $item->employee->department, $item->employee->division])))
+                        : strtoupper(implode(' / ', array_filter([$item->group, $item->department, $item->division]))),
                     'assigned_to' => $item->employee->full_name ?? 'N/A',
                     'status' => $item->status,
                     'category' => 'Network Device',
@@ -160,6 +178,56 @@ class ReportController extends Controller
                 ];
             });
             $collection = $collection->merge($netDevices);
+        }
+        
+        // 4. Power Utilities
+        if ($category === 'All' || $category === 'Power Utilities') {
+            $query = PowerUtility::with('employee');
+            $this->applyFilters($query, $request, 'power_utility');
+
+            $powerUtilities = $query->latest()->get()->map(function ($item) {
+                return (object)[
+                    'id' => $item->id,
+                    'asset_tag' => $item->asset_tag,
+                    'view_route' => 'power-utilities.show',
+                    'ip_address' => 'N/A',
+                    'type_model' => ($item->asset_tag ? $item->asset_tag . ' - ' : '') . $item->type . ' - ' . $item->brand . ' ' . $item->model,
+                    'type_label' => $item->type,
+                    'location' => $item->employee_id 
+                        ? strtoupper(implode(' / ', array_filter([$item->employee->group, $item->employee->department, $item->employee->division])))
+                        : strtoupper(implode(' / ', array_filter([$item->group, $item->department, $item->division]))),
+                    'assigned_to' => $item->employee->full_name ?? 'N/A',
+                    'status' => $item->status,
+                    'category' => 'Power Utility',
+                    'original' => $item
+                ];
+            });
+            $collection = $collection->merge($powerUtilities);
+        }
+        
+        // 5. Mobile Devices
+        if ($category === 'All' || $category === 'Mobile Devices') {
+            $query = MobileDevice::with('employee');
+            $this->applyFilters($query, $request, 'mobile_device');
+
+            $mobileDevices = $query->latest()->get()->map(function ($item) {
+                return (object)[
+                    'id' => $item->id,
+                    'asset_tag' => $item->asset_tag,
+                    'view_route' => 'mobile-devices.show',
+                    'ip_address' => 'N/A',
+                    'type_model' => ($item->asset_tag ? $item->asset_tag . ' - ' : '') . ucfirst(strtolower($item->type)) . ' - ' . $item->brand . ' ' . $item->model,
+                    'type_label' => ucfirst(strtolower($item->type)),
+                    'location' => $item->employee_id 
+                        ? strtoupper(implode(' / ', array_filter([$item->employee->group, $item->employee->department, $item->employee->division])))
+                        : strtoupper(implode(' / ', array_filter([$item->group, $item->department, $item->division]))),
+                    'assigned_to' => $item->employee->full_name ?? 'N/A',
+                    'status' => $item->status,
+                    'category' => 'Mobile Device',
+                    'original' => $item
+                ];
+            });
+            $collection = $collection->merge($mobileDevices);
         }
 
         return $collection;
@@ -187,6 +255,15 @@ class ReportController extends Controller
                 } elseif ($modelType === 'network_device') {
                     $q->orWhere('brand', 'like', "%{$search}%")
                         ->orWhere('device_type', 'like', "%{$search}%");
+                } elseif ($modelType === 'power_utility') {
+                    $q->orWhere('asset_tag', 'like', "%{$search}%")
+                        ->orWhere('brand', 'like', "%{$search}%")
+                        ->orWhere('type', 'like', "%{$search}%");
+                } elseif ($modelType === 'mobile_device') {
+                    $q->orWhere('asset_tag', 'like', "%{$search}%")
+                        ->orWhere('brand', 'like', "%{$search}%")
+                        ->orWhere('type', 'like', "%{$search}%")
+                        ->orWhere('serial_number', 'like', "%{$search}%");
                 }
             });
         }
@@ -202,17 +279,35 @@ class ReportController extends Controller
 
         // Group
         if ($request->filled('group') && $request->group !== 'All Groups') {
-            $query->where('group', $request->group);
+            $query->where(function ($q) use ($request) {
+                $q->where(function ($sub) use ($request) {
+                    $sub->whereNull('employee_id')->where('group', $request->group);
+                })->orWhereHas('employee', function ($eq) use ($request) {
+                    $eq->where('group', $request->group);
+                });
+            });
         }
 
         // Division
         if ($request->filled('division') && $request->division !== 'All Divisions') {
-            $query->where('division', $request->division);
+            $query->where(function ($q) use ($request) {
+                $q->where(function ($sub) use ($request) {
+                    $sub->whereNull('employee_id')->where('division', $request->division);
+                })->orWhereHas('employee', function ($eq) use ($request) {
+                    $eq->where('division', $request->division);
+                });
+            });
         }
 
         // Department
         if ($request->filled('department') && $request->department !== 'All Departments') {
-            $query->where('department', $request->department);
+            $query->where(function ($q) use ($request) {
+                $q->where(function ($sub) use ($request) {
+                    $sub->whereNull('employee_id')->where('department', $request->department);
+                })->orWhereHas('employee', function ($eq) use ($request) {
+                    $eq->where('department', $request->department);
+                });
+            });
         }
 
         // Type
@@ -243,8 +338,30 @@ class ReportController extends Controller
                     $query->whereIn('device_type', $selectedNetTypes);
                 }
             } elseif ($modelType === 'printer') {
-                if (!in_array('Printer', $types)) {
+                $validPrinterTypes = ['Printer', 'Scanner', 'Portable Printer'];
+                $selectedPrinterTypes = array_intersect($types, $validPrinterTypes);
+                if (empty($selectedPrinterTypes)) {
                     $query->whereRaw('1 = 0');
+                } else {
+                    $selectedPrinterTypes = array_map('strtoupper', $selectedPrinterTypes);
+                    $query->whereIn('type', $selectedPrinterTypes);
+                }
+            } elseif ($modelType === 'power_utility') {
+                $validPowerTypes = ['UPS', 'AVR'];
+                $selectedPowerTypes = array_intersect($types, $validPowerTypes);
+                if (empty($selectedPowerTypes)) {
+                    $query->whereRaw('1 = 0');
+                } else {
+                    $query->whereIn('type', $selectedPowerTypes);
+                }
+            } elseif ($modelType === 'mobile_device') {
+                $validMobileTypes = ['Cellphone'];
+                $selectedMobileTypes = array_intersect($types, $validMobileTypes);
+                if (empty($selectedMobileTypes)) {
+                    $query->whereRaw('1 = 0');
+                } else {
+                    $selectedMobileTypes = array_map('strtoupper', $selectedMobileTypes);
+                    $query->whereIn('type', $selectedMobileTypes);
                 }
             }
         }
@@ -314,18 +431,28 @@ class ReportController extends Controller
             ],
             'printers' => [
                 'total' => $items->where('category', 'Printer')->count(),
+                'Printer' => $items->where('category', 'Printer')->where('type_label', 'Printer')->count(),
+                'Scanner' => $items->where('category', 'Printer')->where('type_label', 'Scanner')->count(),
+                'Portable Printer' => $items->where('category', 'Printer')->where('type_label', 'Portable Printer')->count(),
+            ],
+            'power_utilities' => [
+                'total' => $items->where('category', 'Power Utility')->count(),
+                'UPS' => $items->where('category', 'Power Utility')->where('type_label', 'UPS')->count(),
+                'AVR' => $items->where('category', 'Power Utility')->where('type_label', 'AVR')->count(),
+            ],
+            'mobile_devices' => [
+                'total' => $items->where('category', 'Mobile Device')->count(),
+                'Cellphone' => $items->where('category', 'Mobile Device')->where('type_label', 'Cellphone')->count(),
             ]
         ];
 
-        $groups = \App\Constants\Organization::GROUPS;
+        $groups = \App\Constants\Organization::LOCATIONS;
         $divisions = \App\Constants\Organization::DIVISIONS;
         $departments = \App\Constants\Organization::DEPARTMENTS;
 
         $locationRows = [];
         foreach ($items as $item) {
-            $u = $item->original;
-            $locParts = array_filter([$u->group, $u->department, $u->division]);
-            $locString = empty($locParts) ? 'UNASSIGNED' : strtoupper(implode(' / ', $locParts));
+            $locString = $item->location ?: 'UNASSIGNED';
             if (!in_array($locString, $locationRows)) {
                 $locationRows[] = $locString;
             }
@@ -338,7 +465,7 @@ class ReportController extends Controller
         }
         $selectedTypes = array_filter($selectedTypes);
 
-        $allDeviceTypes = ['Desktop', 'Laptop', 'Server', 'All-in-One', 'Router', 'Switch', 'Printer'];
+        $allDeviceTypes = ['Desktop', 'Laptop', 'Server', 'All-in-One', 'Router', 'Switch', 'Printer', 'Scanner', 'Portable Printer', 'UPS', 'AVR', 'Cellphone'];
         if (empty($selectedTypes)) {
             $deviceColumns = $allDeviceTypes;
         } else {
@@ -358,15 +485,14 @@ class ReportController extends Controller
 
             foreach ($deviceColumns as $type) {
                 $count = $items->filter(function ($item) use ($loc, $type) {
-                    $u = $item->original;
-                    $locParts = array_filter([$u->group, $u->department, $u->division]);
-                    $itemLocStr = empty($locParts) ? 'UNASSIGNED' : strtoupper(implode(' / ', $locParts));
+                    $itemLocStr = $item->location ?: 'UNASSIGNED';
                     if ($itemLocStr !== $loc) return false;
 
-                    if (in_array($item->category, ['PC Unit', 'Network Device'])) {
+                    if (in_array($item->category, ['PC Unit', 'Network Device', 'Power Utility', 'Mobile Device'])) {
                         return strtolower($item->type_label) === strtolower($type);
                     }
-                    return strtolower($item->category) === 'printer' && strtolower($type) === 'printer';
+                    // For Printer category, match type_label (Printer or Scanner)
+                    return strtolower($item->category) === 'printer' && strtolower($item->type_label) === strtolower($type);
                 })->count();
 
                 $row['types'][$type] = $count;
@@ -379,7 +505,10 @@ class ReportController extends Controller
 
         $totals['col_totals'] = $colTotals;
 
-        return view('reports.department', compact('reportMatrix', 'deviceColumns', 'locationRows', 'totals', 'stats', 'groups', 'divisions', 'departments', 'items', 'selectedTypes'));
+        $departments = \App\Constants\Organization::DEPARTMENTS;
+        $deptDivisions = \App\Constants\Organization::DEPT_DIVISIONS;
+
+        return view('reports.department', compact('reportMatrix', 'deviceColumns', 'locationRows', 'totals', 'stats', 'groups', 'divisions', 'departments', 'deptDivisions', 'items', 'selectedTypes'));
     }
 
     /**
@@ -391,9 +520,7 @@ class ReportController extends Controller
 
         $locationRows = [];
         foreach ($items as $item) {
-            $u = $item->original;
-            $locParts = array_filter([$u->group, $u->department, $u->division]);
-            $locString = empty($locParts) ? 'UNASSIGNED' : strtoupper(implode(' / ', $locParts));
+            $locString = $item->location ?: 'UNASSIGNED';
             if (!in_array($locString, $locationRows)) {
                 $locationRows[] = $locString;
             }
@@ -406,7 +533,7 @@ class ReportController extends Controller
         }
         $selectedTypes = array_filter($selectedTypes);
 
-        $allDeviceTypes = ['Desktop', 'Laptop', 'Server', 'All-in-One', 'Router', 'Switch', 'Printer'];
+        $allDeviceTypes = ['Desktop', 'Laptop', 'Server', 'All-in-One', 'Router', 'Switch', 'Printer', 'Scanner', 'Portable Printer', 'UPS', 'AVR', 'Cellphone'];
         if (empty($selectedTypes)) {
             $deviceColumns = $allDeviceTypes;
         } else {
@@ -426,15 +553,14 @@ class ReportController extends Controller
 
             foreach ($deviceColumns as $type) {
                 $count = $items->filter(function ($item) use ($loc, $type) {
-                    $u = $item->original;
-                    $locParts = array_filter([$u->group, $u->department, $u->division]);
-                    $itemLocStr = empty($locParts) ? 'UNASSIGNED' : strtoupper(implode(' / ', $locParts));
+                    $itemLocStr = $item->location ?: 'UNASSIGNED';
                     if ($itemLocStr !== $loc) return false;
 
-                    if (in_array($item->category, ['PC Unit', 'Network Device'])) {
+                    if (in_array($item->category, ['PC Unit', 'Network Device', 'Power Utility', 'Mobile Device'])) {
                         return strtolower($item->type_label) === strtolower($type);
                     }
-                    return strtolower($item->category) === 'printer' && strtolower($type) === 'printer';
+                    // For Printer category, match type_label (Printer or Scanner)
+                    return strtolower($item->category) === 'printer' && strtolower($item->type_label) === strtolower($type);
                 })->count();
 
                 $row['types'][$type] = $count;

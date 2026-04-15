@@ -13,9 +13,18 @@ class PcUnit extends Model
         'asset_tag',
         'spare_parts',
         'model',
+        'serial_number',
+        'monitor_brand',
+        'monitor_serial',
+        'os_version',
         'processor',
         'ram',
         'storage',
+        'storage_secondary',
+        'ms_office_licensed',
+        'ms_office_version',
+        'ms_office_email',
+        'ms_office_password',
         'status',
         'ip_type',
         'ip_address',
@@ -24,7 +33,7 @@ class PcUnit extends Model
         'department',
         'group',
         'division',
-        'date_received',
+        'date_issued',
         'remarks',
         'employee_id',
         'date_assigned',
@@ -35,7 +44,7 @@ class PcUnit extends Model
     ];
 
     protected $casts = [
-        'date_received' => 'date',
+        'date_issued' => 'date',
         'date_assigned' => 'date',
         'date_returned' => 'date'
     ];

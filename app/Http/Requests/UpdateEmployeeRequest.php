@@ -16,6 +16,13 @@ class UpdateEmployeeRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation()
+    {
+        $this->merge(array_map(function($value) {
+            return is_string($value) ? strtoupper($value) : $value;
+        }, $this->all()));
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -33,7 +40,7 @@ class UpdateEmployeeRequest extends FormRequest
             'full_name' => 'required|string|max:255',
             'position' => 'nullable|string|max:255',
             'department' => ['required', Rule::in(Organization::DEPARTMENTS)],
-            'group' => ['required', Rule::in(Organization::GROUPS)],
+            'group' => ['required', Rule::in(Organization::LOCATIONS)],
             'division' => ['required', Rule::in(Organization::DIVISIONS)],
         ];
     }

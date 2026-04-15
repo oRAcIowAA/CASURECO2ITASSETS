@@ -72,11 +72,12 @@ class PcUnitController extends Controller
 
         $pcUnits = $query->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
 
-        $groups = \App\Constants\Organization::GROUPS;
+        $groups = \App\Constants\Organization::LOCATIONS;
         $divisions = \App\Constants\Organization::DIVISIONS;
         $departments = \App\Constants\Organization::DEPARTMENTS;
+        $deptDivisions = \App\Constants\Organization::DEPT_DIVISIONS;
 
-        return view('pc-units.index', compact('pcUnits', 'groups', 'divisions', 'departments'));
+        return view('pc-units.index', compact('pcUnits', 'groups', 'divisions', 'departments', 'deptDivisions'));
     }
 
     /**
@@ -90,13 +91,11 @@ class PcUnitController extends Controller
             return view('pc-units.select-type');
         }
 
-        $groups = \App\Constants\Organization::GROUPS;
-        $divisions = \App\Constants\Organization::DIVISIONS;
-        $departments = \App\Constants\Organization::DEPARTMENTS;
+        $groups = \App\Constants\Organization::LOCATIONS;
         $employees = Employee::all();
         $nextAssetTag = \App\Services\AssetTagService::generateNextTag(PcUnit::class, 'CAS-PC-');
 
-        return view('pc-units.create', compact('groups', 'divisions', 'departments', 'employees', 'type', 'nextAssetTag'));
+        return view('pc-units.create', compact('groups', 'employees', 'type', 'nextAssetTag'));
     }
 
     /**
@@ -107,7 +106,7 @@ class PcUnitController extends Controller
         $validated = $request->validated();
 
         // Handle Assignment & Status
-        if ($request->assignment_type === 'assign') {
+        if ($request->assignment_type === 'ASSIGN') {
             if (empty($validated['employee_id'])) {
                 return back()->withErrors(['employee_id' => 'Please select an employee.'])->withInput();
             }
@@ -146,12 +145,10 @@ class PcUnitController extends Controller
      */
     public function edit(PcUnit $pcUnit)
     {
-        $groups = \App\Constants\Organization::GROUPS;
-        $divisions = \App\Constants\Organization::DIVISIONS;
-        $departments = \App\Constants\Organization::DEPARTMENTS;
+        $groups = \App\Constants\Organization::LOCATIONS;
         $employees = Employee::all();
 
-        return view('pc-units.edit', compact('pcUnit', 'groups', 'divisions', 'departments', 'employees'));
+        return view('pc-units.edit', compact('pcUnit', 'groups', 'employees'));
     }
 
     /**
@@ -170,7 +167,7 @@ class PcUnitController extends Controller
             $validated['status'] = $pcUnit->status;
             $validated['employee_id'] = null;
         } else {
-            if ($request->assignment_type === 'assign') {
+            if ($request->assignment_type === 'ASSIGN') {
                 if (empty($validated['employee_id'])) {
                     return back()->withErrors(['employee_id' => 'Please select an employee.'])->withInput();
                 }
@@ -197,21 +194,35 @@ class PcUnitController extends Controller
         $validated['updated_by'] = auth()->id();
 
         DB::transaction(function () use ($pcUnit, $validated, $oldEmployeeId, $newEmployeeId) {
-            $pcUnit->update($validated);
+            $pcUnit->fill($validated);
+            $changeSummary = $this->historyService->generateChangesSummary($pcUnit);
+            $pcUnit->save();
 
             if ($oldEmployeeId == $newEmployeeId) {
-                // If assignment didn't change, log it as an 'edited' action
-                $this->historyService->log($pcUnit, 'edited', 'PC unit details updated');
+                // If assignment didn't change, log it as an 'edited' action with details
+                if ($changeSummary) {
+                    $this->historyService->log($pcUnit, 'edited', $changeSummary);
+                }
             } else {
                 if ($newEmployeeId) {
                     // Assigned or Transferred
                     $action = $oldEmployeeId ? 'transferred' : 'assigned';
                     $notes = $oldEmployeeId ? 'PC unit transferred' : 'PC unit assigned';
+                    
+                    // If there were also other spec changes, append them to notes
+                    if ($changeSummary) {
+                        $notes .= " | " . $changeSummary;
+                    }
+                    
                     $this->historyService->log($pcUnit, $action, $notes, $oldEmployeeId);
                 }
                 else {
                     // Returned
-                    $this->historyService->log($pcUnit, 'returned', 'PC unit returned/unassigned', $oldEmployeeId);
+                    $notes = 'PC unit returned/unassigned';
+                    if ($changeSummary) {
+                        $notes .= " | " . $changeSummary;
+                    }
+                    $this->historyService->log($pcUnit, 'returned', $notes, $oldEmployeeId);
                 }
             }
         });

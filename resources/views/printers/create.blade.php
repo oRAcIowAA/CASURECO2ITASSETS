@@ -19,93 +19,150 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('printers.store') }}">
+                <form method="POST" action="{{ route('printers.store') }}" x-data="{ type: '{{ old('type', 'PRINTER') }}', hasNetwork: '{{ old('has_network_port', '0') }}' }">
                     @csrf
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">ASSET TAG</label>
-                        <div class="flex rounded-md shadow-sm">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="mb-4">
+                            <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">ASSET TAG</label>
                             <input type="text" name="asset_tag" value="{{ $nextAssetTag }}" readonly
-                                   class="flex-1 min-w-0 block w-full px-4 py-2 bg-gray-100 border-gray-300 rounded-md text-gray-600 font-bold focus:ring-0 focus:border-gray-300"
+                                   class="w-full px-4 py-2 bg-gray-100 border-gray-300 rounded-md text-gray-600 font-bold focus:ring-0 focus:border-gray-300"
                                    title="This tag is automatically generated">
+                            <p class="text-xs text-gray-500 mt-1 italic uppercase">Auto-generated</p>
                         </div>
-                        <p class="text-xs text-gray-500 mt-1 italic">Automatically generated based on the latest record.</p>
+                        <div class="mb-4">
+                            <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">DEVICE TYPE</label>
+                            <select name="type" x-model="type" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 uppercase" required>
+                                <option value="PRINTER">PRINTER</option>
+                                <option value="SCANNER">SCANNER</option>
+                                <option value="PORTABLE PRINTER">PORTABLE PRINTER</option>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1 italic uppercase">&nbsp;</p>
+                        </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4" :class="type === 'PORTABLE PRINTER' ? 'md:grid-cols-3' : ''">
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">BRAND</label>
                             <input type="text" name="brand" value="{{ old('brand') }}"
-                                   class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                                   placeholder="e.g. Epson, HP" required>
+                                   class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 uppercase"
+                                   placeholder="e.g. Epson, HP"
+                                   oninput="this.value = this.value.toUpperCase()" required>
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">MODEL</label>
                             <input type="text" name="model" value="{{ old('model') }}"
-                                   class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                                   placeholder="e.g. L3110, LaserJet Pro" required>
+                                   class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 uppercase"
+                                   placeholder="e.g. L3110, LaserJet Pro"
+                                   oninput="this.value = this.value.toUpperCase()" required>
+                        </div>
+                        <div x-show="type === 'PORTABLE PRINTER'" x-transition>
+                            <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">SERIAL NUMBER <span class="text-red-500">*</span></label>
+                            <input type="text" name="serial_number" value="{{ old('serial_number') }}"
+                                   class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 uppercase"
+                                   placeholder="REQUIRED FOR PORTABLE"
+                                   oninput="this.value = this.value.toUpperCase()"
+                                   :required="type === 'PORTABLE PRINTER'">
                         </div>
                     </div>
 
-                    <!-- Location -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <!-- Location & Date -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">Department</label>
-                            <select name="department" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 uppercase" required>
-                                <option value="">SELECT DEPARTMENT</option>
-                                @foreach($departments as $dept)
-                                    <option value="{{ $dept }}" {{ old('department') == $dept ? 'selected' : '' }}>{{ strtoupper($dept) }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">Division</label>
-                            <select name="division" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 uppercase">
-                                <option value="">SELECT DIVISION</option>
-                                @foreach($divisions as $division)
-                                    <option value="{{ $division }}" {{ old('division') == $division ? 'selected' : '' }}>{{ strtoupper($division) }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">Group</label>
+                            <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">Location</label>
                             <select name="group" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 uppercase" required>
-                                <option value="">SELECT GROUP</option>
+                                <option value="">SELECT LOCATION</option>
                                 @foreach($groups as $group)
                                     <option value="{{ $group }}" {{ old('group') == $group ? 'selected' : '' }}>{{ strtoupper($group) }}</option>
                                 @endforeach
                             </select>
                         </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">DATE ISSUED</label>
+                            <input type="date" name="date_issued" value="{{ old('date_issued') }}"
+                                   class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
                     </div>
 
                     <div class="mb-6">
-                            HAS NETWORK PORT?
-                        </label>
-                        <div class="mb-4" x-data="{ hasNetwork: '{{ old('has_network_port', '0') }}' }">
+                        <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">HAS NETWORK PORT?</label>
+                        <div class="mb-4">
                             <div class="flex items-center space-x-4 mb-2">
                                 <label class="inline-flex items-center">
                                     <input type="radio" name="has_network_port" id="network_yes" value="1" 
                                            class="border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                            x-model="hasNetwork"
-                                           @click="hasNetwork = '1'"
-                                           {{ old('has_network_port') == '1' ? 'checked' : '' }}>
+                                           @click="hasNetwork = '1'">
                                     <span class="ml-2 text-sm text-gray-700">Yes (Network/WiFi)</span>
                                 </label>
                                 <label class="inline-flex items-center">
                                     <input type="radio" name="has_network_port" id="network_no" value="0"
                                            class="border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                            x-model="hasNetwork"
-                                           @click="hasNetwork = '0'"
-                                           {{ old('has_network_port', '0') == '0' ? 'checked' : '' }}>
+                                           @click="hasNetwork = '0'">
                                     <span class="ml-2 text-sm text-gray-700">No (USB Only)</span>
                                 </label>
                             </div>
 
-                            <!-- IP Address Input (Conditional) -->
-                            <div x-show="hasNetwork == '1'" x-transition>
-                                <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">IP ADDRESS</label>
-                                <input type="text" name="ip_address" value="{{ old('ip_address') }}"
-                                       class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                                       placeholder="192.168.1.xxx">
+                            <!-- Network Details (Conditional) -->
+                            <div x-show="hasNetwork == '1'" x-transition class="mt-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-2">
+                                    <div x-data="{ 
+                                        ipType: '{{ old('ip_type', 'Static') }}',
+                                        ipAddress: '{{ old('ip_address') }}',
+                                        lastStaticIp: '{{ old('ip_address') }}',
+                                        toggleIpType(type) {
+                                            if (type === 'Dynamic') {
+                                                if (this.ipAddress !== 'Dynamic') this.lastStaticIp = this.ipAddress;
+                                                this.ipAddress = 'Dynamic';
+                                            } else {
+                                                this.ipAddress = (this.lastStaticIp && this.lastStaticIp !== 'Dynamic') ? this.lastStaticIp : '';
+                                            }
+                                        }
+                                    }">
+                                        <label class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                            IP ADDRESS / CONFIGURATION
+                                        </label>
+                                        <div class="flex space-x-4 mb-3">
+                                            <label class="inline-flex items-center cursor-pointer">
+                                                <input type="radio" name="ip_type" value="Static" x-model="ipType" @change="toggleIpType('Static')" class="form-radio h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
+                                                <span class="ml-2 text-sm text-gray-700 font-semibold uppercase">STATIC</span>
+                                            </label>
+                                            <label class="inline-flex items-center cursor-pointer">
+                                                <input type="radio" name="ip_type" value="Dynamic" x-model="ipType" @change="toggleIpType('Dynamic')" class="form-radio h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
+                                                <span class="ml-2 text-sm text-gray-700 font-semibold uppercase">DYNAMIC</span>
+                                            </label>
+                                        </div>
+                                        <input type="text" name="ip_address" id="ip_address" 
+                                            x-model="ipAddress"
+                                            :readonly="ipType === 'Dynamic'"
+                                            :class="ipType === 'Dynamic' ? 'bg-gray-100 cursor-not-allowed text-gray-500' : ''"
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('ip_address') border-red-500 @enderror" 
+                                            placeholder="192.168.1.100">
+                                    </div>
+                                    
+                                    <div x-data="{ 
+                                        mac: '{{ old('mac_address') }}',
+                                        formatMac(e) {
+                                            let val = e.target.value.replace(/[^a-fA-F0-9]/g, '').toUpperCase();
+                                            let matches = val.match(/.{1,2}/g);
+                                            if (matches) {
+                                                this.mac = matches.join(':').substring(0, 17);
+                                            } else {
+                                                this.mac = val;
+                                            }
+                                        }
+                                    }">
+                                        <label for="mac_address" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                                            MAC ADDRESS
+                                        </label>
+                                        <input type="text" name="mac_address" id="mac_address" 
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('mac_address') border-red-500 @enderror" 
+                                            x-model="mac"
+                                            @input="formatMac"
+                                            placeholder="00:1A:2B:3C:4D:5E"
+                                            maxlength="17">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -119,13 +176,13 @@
                                 <input type="radio" name="assignment_type" value="standby" 
                                        class="border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                        x-model="assignmentType">
-                                <span class="ml-2 text-gray-700 uppercase font-bold">STANDBY (AVAILABLE)</span>
+                                <span class="ml-2 text-gray-700 uppercase font-bold">STORAGE AVAILABLE</span>
                             </label>
                             <label class="inline-flex items-center">
                                 <input type="radio" name="assignment_type" value="assign" 
                                        class="border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                        x-model="assignmentType">
-                                <span class="ml-2 text-gray-700 uppercase font-bold">ASSIGN TO EMPLOYEE</span>
+                                <span class="ml-2 text-gray-700 uppercase font-bold">DEPLOYMENT</span>
                             </label>
                         </div>
 

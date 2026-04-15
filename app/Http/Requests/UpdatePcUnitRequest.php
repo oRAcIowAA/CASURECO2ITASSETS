@@ -18,7 +18,16 @@ class UpdatePcUnitRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        // No longer using asset_tag_number input
+        $data = $this->all();
+        $exclude = ['ms_office_password', 'ms_office_email'];
+
+        foreach ($data as $key => $value) {
+            if (is_string($value) && !in_array($key, $exclude)) {
+                $data[$key] = strtoupper($value);
+            }
+        }
+
+        $this->merge($data);
     }
 
     /**
@@ -29,26 +38,35 @@ class UpdatePcUnitRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'device_type' => 'required|in:Desktop,Laptop,Server,All-in-One',
+            'device_type' => 'required|in:DESKTOP,LAPTOP,SERVER,ALL-IN-ONE',
             'asset_tag' => [
                 'required',
                 'string',
                 new \App\Rules\GlobalUniqueAssetTag($this->route('pc_unit') ? $this->route('pc_unit')->id : null, \App\Models\PcUnit::class),
             ],
             'model' => 'required|string',
+            'serial_number' => 'nullable|string',
+            'monitor_brand' => 'required_if:device_type,DESKTOP,SERVER|nullable|string',
+            'monitor_serial' => 'nullable|string',
+            'os_version' => 'nullable|string',
             'processor' => 'nullable|string',
             'ram' => 'nullable|string',
             'storage' => 'nullable|string',
-            'group' => ['required', Rule::in(Organization::GROUPS)],
-            'department' => ['required', Rule::in(Organization::DEPARTMENTS)],
-            'division' => ['required', Rule::in(Organization::DIVISIONS)],
+            'storage_secondary' => 'nullable|string',
+            'ms_office_licensed' => 'nullable|in:LICENSED,UNLICENSED',
+            'ms_office_version' => 'nullable|string',
+            'ms_office_email' => 'nullable|string',
+            'ms_office_password' => 'nullable|string',
+            'group' => ['required', Rule::in(Organization::LOCATIONS)],
+            'department' => ['nullable', Rule::in(Organization::DEPARTMENTS)],
+            'division' => ['nullable', Rule::in(Organization::DIVISIONS)],
             'employee_id' => 'nullable|exists:employees,id',
-            'date_received' => 'nullable|date',
+            'date_issued' => 'nullable|date',
             'remarks' => 'nullable|string',
-            'ip_type' => 'required|in:Static,Dynamic',
+            'ip_type' => 'required|in:STATIC,DYNAMIC',
             'ip_address' => [
                 'nullable',
-                Rule::when($this->ip_type === 'Static', ['ipv4']),
+                Rule::when($this->ip_type === 'STATIC', ['ipv4']),
                 new \App\Rules\GlobalUniqueIp($this->route('pc_unit') ? $this->route('pc_unit')->id : null, \App\Models\PcUnit::class),
             ],
             'mac_address' => [
@@ -58,7 +76,7 @@ class UpdatePcUnitRequest extends FormRequest
                 new \App\Rules\GlobalUniqueMac($this->route('pc_unit') ? $this->route('pc_unit')->id : null, \App\Models\PcUnit::class),
             ],
             'network_segment' => 'nullable|string',
-            'assignment_type' => 'required|in:standby,assign',
+            'assignment_type' => 'required|in:STANDBY,ASSIGN',
         ];
     }
 }

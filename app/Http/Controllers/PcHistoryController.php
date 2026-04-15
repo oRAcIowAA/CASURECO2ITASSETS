@@ -62,7 +62,7 @@ class PcHistoryController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        $groups = \App\Constants\Organization::GROUPS;
+        $groups = \App\Constants\Organization::LOCATIONS;
         $divisions = \App\Constants\Organization::DIVISIONS;
         $departments = \App\Constants\Organization::DEPARTMENTS;
 
