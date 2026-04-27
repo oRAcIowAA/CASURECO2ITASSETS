@@ -71,13 +71,13 @@
 
                         <div class="mb-4">
                             <label for="remarks" class="block text-sm font-medium text-gray-700">Technical Findings / Remarks</label>
-                            <textarea name="remarks" id="remarks" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required placeholder="Describe the defect or reason for condemnation..."></textarea>
+                            <textarea name="remarks" id="remarks" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 uppercase" required placeholder="Describe the defect or reason for condemnation..." oninput="this.value = this.value.toUpperCase()"></textarea>
                         </div>
 
                         @if(strtolower($printer->status) === 'condemned')
                         <div class="mb-4">
                             <label for="spare_parts" class="block text-sm font-medium text-gray-700">Spare Parts salvaged (If any)</label>
-                            <textarea name="spare_parts" id="spare_parts" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="List components that can still be used (e.g. Memory, Screen, HDD)..."></textarea>
+                            <textarea name="spare_parts" id="spare_parts" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 uppercase" placeholder="List components that can still be used (e.g. Memory, Screen, HDD)..." oninput="this.value = this.value.toUpperCase()"></textarea>
                         </div>
                         @endif
 

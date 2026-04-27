@@ -174,7 +174,7 @@
                     
                     @foreach($deviceColumns as $colType)
                         <td class="col-center {{ $row['types'][$colType] > 0 ? 'text-blue' : '' }}">
-                            {{ $row['types'][$colType] > 0 ? $row['types'][$colType] : '-' }}
+                            {{ $row['types'][$colType] > 0 ? $row['types'][$colType] : '0' }}
                         </td>
                     @endforeach
 

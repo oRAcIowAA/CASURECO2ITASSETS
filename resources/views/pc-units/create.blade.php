@@ -179,42 +179,92 @@
                             </div>
 
                             <!-- Storage -->
-                            <div x-data="{ storageType: '{{ old('storage') }}', customStorage: '' }">
+                            @php
+                                $storageOptions = ['256GB SSD', '512GB SSD', '1TB SSD', '2TB SSD', '500GB HDD', '1TB HDD', '2TB HDD'];
+                                $oldStorage = old('storage');
+                                $isHybrid = str_contains($oldStorage, '/');
+                                $isCustom = $oldStorage && !in_array($oldStorage, $storageOptions) && !$isHybrid;
+                                
+                                $hybridPrimary = '';
+                                $hybridSecondary = '';
+                                if ($isHybrid) {
+                                    $parts = explode('/', $oldStorage);
+                                    $hybridPrimary = $parts[0] ?? '';
+                                    $hybridSecondary = $parts[1] ?? '';
+                                }
+                            @endphp
+
+                            <div x-data="{ 
+                                storageType: '{{ $isHybrid ? 'Hybrid' : ($isCustom ? 'Other' : $oldStorage) }}', 
+                                customStorage: '{{ $isCustom ? $oldStorage : '' }}',
+                                hybridPrimary: '{{ $hybridPrimary && in_array($hybridPrimary, $storageOptions) ? $hybridPrimary : ($hybridPrimary ? 'Other' : '') }}',
+                                hybridSecondary: '{{ $hybridSecondary && in_array($hybridSecondary, $storageOptions) ? $hybridSecondary : ($hybridSecondary ? 'Other' : '') }}',
+                                customHybridPrimary: '{{ !in_array($hybridPrimary, $storageOptions) ? $hybridPrimary : '' }}',
+                                customHybridSecondary: '{{ !in_array($hybridSecondary, $storageOptions) ? $hybridSecondary : '' }}',
+                                updateHidden() {
+                                    if (this.storageType === 'Hybrid') {
+                                        let p = this.hybridPrimary === 'Other' ? this.customHybridPrimary : this.hybridPrimary;
+                                        let s = this.hybridSecondary === 'Other' ? this.customHybridSecondary : this.hybridSecondary;
+                                        this.$refs.hiddenStorage.value = (p || '') + '/' + (s || '');
+                                    } else if (this.storageType === 'Other') {
+                                        this.$refs.hiddenStorage.value = this.customStorage.toUpperCase();
+                                    } else {
+                                        this.$refs.hiddenStorage.value = this.storageType;
+                                    }
+                                }
+                            }" x-init="updateHidden()">
                                 <label for="storage_select" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
                                     STORAGE
                                 </label>
-                                @php
-                                    $storageOptions = ['256GB SSD', '512GB SSD', '1TB SSD', '2TB SSD', '500GB HDD', '1TB HDD', '2TB HDD', 'Hybrid'];
-                                    $oldStorage = old('storage');
-                                    $isCustomStorage = $oldStorage && !in_array($oldStorage, $storageOptions);
-                                @endphp
+                                
                                 <select x-model="storageType" id="storage_select"
                                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 mb-2 uppercase"
-                                        @change="if(storageType !== 'Other') { customStorage = ''; $refs.hiddenStorage.value = storageType } else { $refs.hiddenStorage.value = customStorage }">
+                                        @change="updateHidden()">
                                     <option value="">SELECT STORAGE</option>
                                     @foreach($storageOptions as $opt)
                                         <option value="{{ $opt }}" {{ $oldStorage === $opt ? 'selected' : '' }}>{{ strtoupper($opt) }}</option>
                                     @endforeach
-                                    <option value="Other" {{ $isCustomStorage ? 'selected' : '' }}>OTHER...</option>
+                                    <option value="Hybrid" {{ $isHybrid ? 'selected' : '' }}>HYBRID</option>
+                                    <option value="Other" {{ $isCustom ? 'selected' : '' }}>OTHER...</option>
                                 </select>
                                 
+                                <!-- Hybrid Inputs -->
+                                <div x-show="storageType === 'Hybrid'" class="grid grid-cols-2 gap-6 mt-4 mb-2" style="display: none;">
+                                    <div>
+                                        <label class="block text-gray-700 text-xs font-bold mb-2 uppercase">Primary Storage</label>
+                                        <select x-model="hybridPrimary" @change="updateHidden()"
+                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm uppercase focus:ring-2 focus:ring-indigo-500 mb-2">
+                                            <option value="">SELECT</option>
+                                            @foreach($storageOptions as $opt)
+                                                <option value="{{ $opt }}">{{ strtoupper($opt) }}</option>
+                                            @endforeach
+                                            <option value="Other">OTHER...</option>
+                                        </select>
+                                        <input type="text" x-show="hybridPrimary === 'Other'" x-model="customHybridPrimary" @input="updateHidden()"
+                                               class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm uppercase focus:ring-2 focus:ring-indigo-500" placeholder="Specify Primary">
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-700 text-xs font-bold mb-2 uppercase">Secondary Storage</label>
+                                        <select x-model="hybridSecondary" @change="updateHidden()"
+                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm uppercase focus:ring-2 focus:ring-indigo-500 mb-2">
+                                            <option value="">SELECT</option>
+                                            @foreach($storageOptions as $opt)
+                                                <option value="{{ $opt }}">{{ strtoupper($opt) }}</option>
+                                            @endforeach
+                                            <option value="Other">OTHER...</option>
+                                        </select>
+                                        <input type="text" x-show="hybridSecondary === 'Other'" x-model="customHybridSecondary" @input="updateHidden()"
+                                               class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm uppercase focus:ring-2 focus:ring-indigo-500" placeholder="Specify Secondary">
+                                    </div>
+                                </div>
+
                                 <div x-show="storageType === 'Other'" style="display: none;">
-                                    <input type="text" x-model="customStorage" @input="$refs.hiddenStorage.value = customStorage.toUpperCase(); customStorage = customStorage.toUpperCase()"
+                                    <input type="text" x-model="customStorage" @input="updateHidden()"
                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 uppercase"
-                                           placeholder="Specify Storage"
-                                           x-init="if('{{ $isCustomStorage }}' == '1') { customStorage = '{{ $oldStorage }}'; }">
+                                           placeholder="Specify Storage">
                                 </div>
 
-                                <!-- Secondary Storage (if Hybrid) -->
-                                <div x-show="storageType === 'Hybrid'" class="mt-2" style="display: none;">
-                                    <label class="block text-gray-600 text-[10px] font-bold mb-1 uppercase tracking-tighter">SECOND STORAGE DEVICE</label>
-                                    <input type="text" name="storage_secondary" value="{{ old('storage_secondary') }}"
-                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 uppercase"
-                                           placeholder="e.g. 1TB HDD"
-                                           oninput="this.value = this.value.toUpperCase()">
-                                </div>
-
-                            <input type="hidden" name="storage" x-ref="hiddenStorage" value="{{ old('storage') }}">
+                                <input type="hidden" name="storage" x-ref="hiddenStorage" value="{{ $oldStorage }}">
                             </div>
                         </div>
 
@@ -430,11 +480,12 @@
                         <!-- Date Issued -->
                         <div class="mb-6">
                             <label for="date_issued" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
-                                DATE ISSUED
+                                DATE ISSUED <span class="text-red-500">*</span>
                             </label>
                             <input type="date" name="date_issued" id="date_issued" 
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
-                                   value="{{ old('date_issued') }}">
+                                   value="{{ old('date_issued') }}"
+                                   required>
                         </div>
 
                         <!-- Remarks -->

@@ -77,7 +77,7 @@
                             <label for="remarks" class="block text-gray-700 text-sm font-medium mb-2">
                                 Reason/Remarks <span class="text-red-500">*</span>
                             </label>
-                            <textarea name="remarks" id="remarks" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="e.g., Port failure, power issue..." required></textarea>
+                            <textarea name="remarks" id="remarks" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 uppercase" placeholder="e.g., Port failure, power issue..." required oninput="this.value = this.value.toUpperCase()"></textarea>
                         </div>
 
                         @if(strtolower($networkDevice->status) === 'condemned')
@@ -85,7 +85,7 @@
                             <label for="spare_parts" class="block text-gray-700 text-sm font-medium mb-2">
                                 Spare Parts salvaged (If any)
                             </label>
-                            <textarea name="spare_parts" id="spare_parts" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="List components that can still be used (e.g. Memory, Screen, HDD)..."></textarea>
+                            <textarea name="spare_parts" id="spare_parts" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 uppercase" placeholder="List components that can still be used (e.g. Memory, Screen, HDD)..." oninput="this.value = this.value.toUpperCase()"></textarea>
                         </div>
                         @endif
 

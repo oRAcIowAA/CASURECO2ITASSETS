@@ -6,7 +6,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="w-full sm:px-6 lg:px-8">
             <!-- Search Bar -->
             <div class="mb-6">
                 <form action="{{ route('parts.index') }}" method="GET" class="flex items-center">
@@ -64,7 +64,7 @@
                                                     <form action="{{ route('parts.update', ['type' => 'pc-unit', 'id' => $pc->id]) }}" method="POST">
                                                         @csrf
                                                         @method('PUT')
-                                                        <textarea name="spare_parts" rows="4" class="w-full text-sm p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 mb-2">{{ $pc->spare_parts }}</textarea>
+                                                        <textarea name="spare_parts" rows="4" class="w-full text-sm p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 mb-2 uppercase" oninput="this.value = this.value.toUpperCase()">{{ $pc->spare_parts }}</textarea>
                                                         <div class="flex justify-end space-x-2">
                                                             <button type="button" @click="editing = false" class="px-3 py-1 text-xs text-gray-600 hover:text-gray-800 font-bold">Cancel</button>
                                                             <button type="submit" class="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 font-bold">Save</button>
@@ -116,7 +116,7 @@
                                                     <form action="{{ route('parts.update', ['type' => 'printer', 'id' => $printer->id]) }}" method="POST">
                                                         @csrf
                                                         @method('PUT')
-                                                        <textarea name="spare_parts" rows="4" class="w-full text-sm p-2 border rounded-lg focus:ring-2 focus:ring-green-500 mb-2">{{ $printer->spare_parts }}</textarea>
+                                                        <textarea name="spare_parts" rows="4" class="w-full text-sm p-2 border rounded-lg focus:ring-2 focus:ring-green-500 mb-2 uppercase" oninput="this.value = this.value.toUpperCase()">{{ $printer->spare_parts }}</textarea>
                                                         <div class="flex justify-end space-x-2">
                                                             <button type="button" @click="editing = false" class="px-3 py-1 text-xs text-gray-600 hover:text-gray-800 uppercase font-bold">CANCEL</button>
                                                             <button type="submit" class="px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 uppercase font-bold">SAVE</button>
@@ -168,7 +168,7 @@
                                                     <form action="{{ route('parts.update', ['type' => 'network-device', 'id' => $device->id]) }}" method="POST">
                                                         @csrf
                                                         @method('PUT')
-                                                        <textarea name="spare_parts" rows="4" class="w-full text-sm p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 mb-2">{{ $device->spare_parts }}</textarea>
+                                                        <textarea name="spare_parts" rows="4" class="w-full text-sm p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 mb-2 uppercase" oninput="this.value = this.value.toUpperCase()">{{ $device->spare_parts }}</textarea>
                                                         <div class="flex justify-end space-x-2">
                                                             <button type="button" @click="editing = false" class="px-3 py-1 text-xs text-gray-600 hover:text-gray-800 uppercase font-bold">CANCEL</button>
                                                             <button type="submit" class="px-3 py-1 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700 uppercase font-bold">SAVE</button>
@@ -220,7 +220,7 @@
                                                     <form action="{{ route('parts.update', ['type' => 'power-utility', 'id' => $pu->id]) }}" method="POST">
                                                         @csrf
                                                         @method('PUT')
-                                                        <textarea name="spare_parts" rows="4" class="w-full text-sm p-2 border rounded-lg focus:ring-2 focus:ring-purple-500 mb-2">{{ $pu->spare_parts }}</textarea>
+                                                        <textarea name="spare_parts" rows="4" class="w-full text-sm p-2 border rounded-lg focus:ring-2 focus:ring-purple-500 mb-2 uppercase" oninput="this.value = this.value.toUpperCase()">{{ $pu->spare_parts }}</textarea>
                                                         <div class="flex justify-end space-x-2">
                                                             <button type="button" @click="editing = false" class="px-3 py-1 text-xs text-gray-600 hover:text-gray-800 uppercase font-bold">CANCEL</button>
                                                             <button type="submit" class="px-3 py-1 text-xs bg-purple-600 text-white rounded hover:bg-purple-700 uppercase font-bold">SAVE</button>
@@ -271,7 +271,7 @@
                                                     <form action="{{ route('parts.update', ['type' => 'mobile-device', 'id' => $device->id]) }}" method="POST">
                                                         @csrf
                                                         @method('PUT')
-                                                        <textarea name="spare_parts" rows="4" class="w-full text-sm p-2 border rounded-lg focus:ring-2 focus:ring-orange-500 mb-2">{{ $device->spare_parts }}</textarea>
+                                                        <textarea name="spare_parts" rows="4" class="w-full text-sm p-2 border rounded-lg focus:ring-2 focus:ring-orange-500 mb-2 uppercase" oninput="this.value = this.value.toUpperCase()">{{ $device->spare_parts }}</textarea>
                                                         <div class="flex justify-end space-x-2">
                                                             <button type="button" @click="editing = false" class="px-3 py-1 text-xs text-gray-600 hover:text-gray-800 uppercase font-bold">CANCEL</button>
                                                             <button type="submit" class="px-3 py-1 text-xs bg-orange-600 text-white rounded hover:bg-orange-700 uppercase font-bold">SAVE</button>

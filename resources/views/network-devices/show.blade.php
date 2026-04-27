@@ -323,9 +323,9 @@
                                 </p>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-500 mb-1">DATE ASSIGNED</label>
+                                <label class="block text-sm font-medium text-gray-500 mb-1">DATE ISSUED</label>
                                 <p class="text-lg font-semibold text-gray-900">
-                                    {{ $networkDevice->date_assigned ? \Carbon\Carbon::parse($networkDevice->date_assigned)->format('M d, Y') : 'N/A' }}
+                                    {{ $networkDevice->date_issued ? \Carbon\Carbon::parse($networkDevice->date_issued)->format('M d, Y') : 'N/A' }}
                                 </p>
                             </div>
                         </div>

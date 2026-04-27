@@ -365,9 +365,9 @@
                                 </p>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-500 mb-1">Date Assigned</label>
+                                <label class="block text-sm font-medium text-gray-500 mb-1">Date Issued</label>
                                 <p class="text-lg font-bold text-gray-900 uppercase">
-                                    {{ $powerUtility->date_assigned ? \Carbon\Carbon::parse($powerUtility->date_assigned)->format('M d, Y') : 'N/A' }}
+                                    {{ $powerUtility->date_issued ? $powerUtility->date_issued->format('M d, Y') : 'N/A' }}
                                 </p>
                             </div>
                         </div>

@@ -158,6 +158,11 @@ class PcUnitController extends Controller
     {
         $validated = $request->validated();
 
+        // Prevent modification of date_issued if already set
+        if ($pcUnit->date_issued) {
+            unset($validated['date_issued']);
+        }
+
         // Handle Assignment & Status Logic
         $specialStatuses = ['disposed', 'condemned', 'defective'];
         $currentStatus = strtolower($pcUnit->status);
@@ -253,9 +258,9 @@ class PcUnitController extends Controller
         $deviceType = 'Asset Tag';
         $assetTag = $pcUnit->asset_tag;
         $publicUrl = $pcUnit->public_url;
-        $dateAssigned = $pcUnit->date_assigned ? \Carbon\Carbon::parse($pcUnit->date_assigned)->format('M d, Y') : 'N/A';
+        $dateIssued = $pcUnit->date_issued ? \Carbon\Carbon::parse($pcUnit->date_issued)->format('M d, Y') : 'N/A';
 
-        return view('reports.qr-sticker', compact('pcUnit', 'deviceName', 'deviceType', 'assetTag', 'publicUrl', 'dateAssigned'));
+        return view('reports.qr-sticker', compact('pcUnit', 'deviceName', 'deviceType', 'assetTag', 'publicUrl', 'dateIssued'));
     }
 
     /**

@@ -6,7 +6,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="w-full sm:px-6 lg:px-8">
             
             <!-- Actions / Navigation -->
             <div class="mb-6 flex justify-between items-center">
@@ -66,46 +66,53 @@
                 </div>
 
                 <!-- Printers -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Printers</p>
-                        <p class="text-3xl font-bold text-gray-900">{{ $stats['printers']['total'] }}</p>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Printers</p>
+                            <p class="text-3xl font-bold text-gray-900">{{ $stats['printers']['total'] }}</p>
+                        </div>
+                        <div class="p-3 bg-yellow-50 rounded-full shadow-sm">
+                            <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        </div>
                     </div>
-                    <div class="p-3 bg-yellow-50 rounded-full shadow-sm">
-                        <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    <div class="text-sm text-gray-600 flex justify-between">
+                        <span>Printer: <span class="font-semibold text-gray-900">{{ $stats['printers']['Printer'] }}</span></span>
+                        <span>Scanner: <span class="font-semibold text-gray-900">{{ $stats['printers']['Scanner'] }}</span></span>
+                        <span>Portable: <span class="font-semibold text-gray-900">{{ $stats['printers']['Portable Printer'] }}</span></span>
                     </div>
                 </div>
 
                 <!-- Power Utilities -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Power Utils</p>
-                        <p class="text-3xl font-bold text-gray-900">{{ $stats['power_utilities']['total'] }}</p>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Power Utils</p>
+                            <p class="text-3xl font-bold text-gray-900">{{ $stats['power_utilities']['total'] }}</p>
+                        </div>
+                        <div class="p-3 bg-indigo-50 rounded-full shadow-sm">
+                            <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </div>
                     </div>
-                    <div class="p-3 bg-indigo-50 rounded-full shadow-sm">
-                        <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    <div class="text-sm text-gray-600 flex justify-start">
+                        <span class="mr-6">UPS: <span class="font-semibold text-gray-900">{{ $stats['power_utilities']['UPS'] }}</span></span>
+                        <span>AVR: <span class="font-semibold text-gray-900">{{ $stats['power_utilities']['AVR'] }}</span></span>
                     </div>
                 </div>
 
                 <!-- Mobile Devices -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Mobile Units</p>
-                        <p class="text-3xl font-bold text-gray-900">{{ $stats['mobile_devices']['total'] }}</p>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Mobile Units</p>
+                            <p class="text-3xl font-bold text-gray-900">{{ $stats['mobile_devices']['total'] }}</p>
+                        </div>
+                        <div class="p-3 bg-pink-50 rounded-full shadow-sm">
+                            <svg class="w-8 h-8 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        </div>
                     </div>
-                    <div class="p-3 bg-pink-50 rounded-full shadow-sm">
-                        <svg class="w-8 h-8 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                    </div>
-                </div>
-                <!-- Printer Detailed Stats -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 print:hidden col-span-1 md:col-span-2 lg:col-span-2">
-                    <div class="flex flex-wrap gap-4 text-xs font-bold text-gray-600 uppercase">
-                        <div>Printer: <span class="text-gray-900">{{ $stats['printers']['Printer'] }}</span></div>
-                        <div>Scanner: <span class="text-gray-900">{{ $stats['printers']['Scanner'] }}</span></div>
-                        <div>Portable Printer: <span class="text-gray-900">{{ $stats['printers']['Portable Printer'] }}</span></div>
-                        <div class="border-l pl-4 border-gray-300">UPS: <span class="text-gray-900">{{ $stats['power_utilities']['UPS'] }}</span></div>
-                        <div>AVR: <span class="text-gray-900">{{ $stats['power_utilities']['AVR'] }}</span></div>
-                        <div class="border-l pl-4 border-gray-300">Cellphone: <span class="text-gray-900">{{ $stats['mobile_devices']['Cellphone'] }}</span></div>
+                    <div class="text-sm text-gray-600 flex justify-start">
+                        <span>Cellphone: <span class="font-semibold text-gray-900">{{ $stats['mobile_devices']['Cellphone'] }}</span></span>
                     </div>
                 </div>
             </div>
@@ -168,7 +175,7 @@
                         <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">TYPE</label>
                         
                         <button type="button" @click="open = !open" 
-                            class="bg-white relative w-full border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm h-10">
+                            class="bg-white relative w-full border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm h-10 font-semibold text-xs uppercase">
                             <span class="block truncate uppercase font-semibold" x-text="selectedTypes.length ? selectedTypes.join(', ') : 'ALL DEVICES'"></span>
                             <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                                 <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -286,13 +293,15 @@
                     <!-- Search -->
                     <div class="col-span-1 border-transparent">
                         <label for="search" class="block text-sm font-bold text-gray-700 mb-1 uppercase">SEARCH</label>
-                        <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="ASSET TAG, MODEL..." class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm uppercase font-semibold">
+                        <input type="text" name="search" id="search" value="{{ request('search') }}" 
+                               placeholder="ASSET TAG, MODEL..." 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-semibold text-xs h-10 uppercase placeholder-gray-400">
                     </div>
 
                     <!-- Group -->
                     <div>
                          <label for="group" class="block text-sm font-medium text-gray-700 mb-1">LOCATION</label>
-                         <select name="group" id="group" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                         <select name="group" id="group" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-semibold text-xs h-10">
                             <option value="">ALL LOCATIONS</option>
                             @foreach($groups as $group)
                                 <option value="{{ $group }}" {{ request('group') == $group ? 'selected' : '' }}>{{ strtoupper($group) }}</option>
@@ -304,7 +313,7 @@
                     <div>
                         <label for="department" class="block text-sm font-bold text-gray-700 mb-1 uppercase">DEPARTMENT</label>
                         <select name="department" id="department" x-model="department" @change="division = ''"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-semibold text-xs h-10">
                             <option value="">ALL DEPARTMENTS</option>
                             @foreach($departments as $dept)
                                 <option value="{{ $dept }}">{{ strtoupper($dept) }}</option>
@@ -316,7 +325,7 @@
                     <div>
                          <label for="division" class="block text-sm font-bold text-gray-700 mb-1 uppercase">DIVISION</label>
                          <select name="division" id="division" x-model="division" :disabled="!department"
-                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-400">
+                                 class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 disabled:bg-gray-100 disabled:text-gray-400 font-semibold text-xs h-10">
                             <option value="">ALL DIVISIONS</option>
                             <template x-for="div in filteredDivisions" :key="div">
                                 <option :value="div" x-text="div.toUpperCase()" :selected="division === div"></option>
@@ -327,7 +336,7 @@
                     <!-- Status -->
                     <div>
                         <label for="status" class="block text-sm font-medium text-gray-700 mb-1">STATUS</label>
-                        <select name="status" id="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        <select name="status" id="status" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-semibold text-xs h-10">
                             <option value="">ALL STATUSES</option>
                             <option value="Assigned" {{ request('status') == 'Assigned' ? 'selected' : '' }}>ASSIGNED</option>
                             <option value="Available" {{ request('status') == 'Available' ? 'selected' : '' }}>AVAILABLE</option>
@@ -382,7 +391,7 @@
                                 <!-- Count by Columns (Devices) -->
                                 @foreach($deviceColumns as $colType)
                                     <td class="border border-gray-200 px-4 py-3 text-center {{ $row['types'][$colType] > 0 ? 'text-gray-900 font-medium' : 'text-gray-400' }}">
-                                        {{ $row['types'][$colType] > 0 ? $row['types'][$colType] : '-' }}
+                                        {{ $row['types'][$colType] > 0 ? $row['types'][$colType] : '0' }}
                                     </td>
                                 @endforeach
 

@@ -6,7 +6,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="w-full sm:px-6 lg:px-8">
             
             <!-- Search & Filters -->
             <div class="mb-6 p-6 bg-white rounded-lg border border-gray-200 shadow-sm print:hidden">
@@ -65,7 +65,7 @@
                             <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">TYPE</label>
                             
                             <button type="button" @click="open = !open" 
-                                class="bg-white relative w-full border border-gray-300 rounded-xl shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm h-10 transition-all duration-200">
+                                class="bg-white relative w-full border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm h-10 transition-all duration-200">
                                 <span class="block truncate uppercase font-semibold text-xs text-gray-700" x-text="selectedTypes.length ? selectedTypes.join(', ') : 'ALL DEVICES'"></span>
                                 <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                                     <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -188,7 +188,7 @@
                                     </svg>
                                 </span>
                                 <input type="text" name="search" placeholder="ASSET TAG, MODEL, IP..." 
-                                       class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 placeholder-gray-400 uppercase font-semibold text-xs shadow-sm h-10 transition-all duration-200"
+                                       class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 placeholder-gray-400 uppercase font-semibold text-xs shadow-sm h-10 transition-all duration-200"
                                        value="{{ request('search') }}">
                             </div>
                         </div>
@@ -196,7 +196,7 @@
                         <!-- Group -->
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">LOCATION</label>
-                            <select name="group" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-semibold text-xs h-10">
+                            <select name="group" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-semibold text-xs h-10">
                                 <option value="">ALL LOCATIONS</option>
                                 @foreach($groups ?? [] as $group)
                                     <option value="{{ $group }}" {{ request('group') == $group ? 'selected' : '' }}>{{ strtoupper($group) }}</option>
@@ -209,7 +209,7 @@
                             <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">DEPARTMENT</label>
                             <div>
                                 <select name="department" x-model="department" @change="division = ''"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900">
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-semibold text-xs h-10">
                                     <option value="">ALL DEPARTMENTS</option>
                                     @foreach($departments as $department)
                                         <option value="{{ $department }}">{{ strtoupper($department) }}</option>
@@ -223,7 +223,7 @@
                             <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">DIVISION</label>
                             <div>
                                 <select name="division" x-model="division" :disabled="!department"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 disabled:bg-gray-100 disabled:text-gray-400">
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 disabled:bg-gray-100 disabled:text-gray-400 font-semibold text-xs h-10">
                                     <option value="">ALL DIVISIONS</option>
                                     <template x-for="div in filteredDivisions" :key="div">
                                         <option :value="div" x-text="div.toUpperCase()" :selected="division === div"></option>
@@ -235,7 +235,7 @@
                         <!-- Status -->
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">STATUS</label>
-                            <select name="status" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-semibold text-xs h-10">
+                            <select name="status" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-semibold text-xs h-10">
                                 <option value="">ALL STATUSES</option>
                                 <option value="Assigned" {{ request('status') == 'Assigned' ? 'selected' : '' }}>ASSIGNED</option>
                                 <option value="Available" {{ request('status') == 'Available' ? 'selected' : '' }}>AVAILABLE</option>

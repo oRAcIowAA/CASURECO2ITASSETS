@@ -57,7 +57,7 @@ class StorePcUnitRequest extends FormRequest
             'department' => ['nullable', Rule::in(Organization::DEPARTMENTS)],
             'division' => ['nullable', Rule::in(Organization::DIVISIONS)],
             'employee_id' => 'nullable|exists:employees,id',
-            'date_issued' => 'nullable|date',
+            'date_issued' => 'required|date',
             'remarks' => 'nullable|string',
             'ip_type' => 'required|in:STATIC,DYNAMIC',
             'ip_address' => [

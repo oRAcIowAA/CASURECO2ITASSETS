@@ -140,7 +140,7 @@
                 <div class="label-content" style="margin-top: 10px;">
                     <h2 class="asset-title">{{ $asset['deviceName'] }}</h2>
                     <p class="asset-code" style="font-weight: bold;">Tag: {{ $asset['assetTag'] }}</p>
-                    <p class="asset-code" style="font-size: 6px; margin-top: 2px;">Assigned: {{ $asset['dateAssigned'] }}</p>
+                    <p class="asset-code" style="font-size: 6px; margin-top: 2px;">Issued: {{ $asset['dateIssued'] }}</p>
                 </div>
                 <div id="qr-{{ $loop->parent->index }}-{{ $index }}" class="qr-wrapper" data-url="{{ $asset['assetTag'] }}"></div>
             </div>

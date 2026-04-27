@@ -209,7 +209,7 @@ class QrAssetController extends Controller
                     'deviceType' => $deviceTypeLabel,
                     'assetTag' => $asset->asset_tag,
                     'publicUrl' => $asset->public_url,
-                    'dateAssigned' => $asset->date_assigned ? \Carbon\Carbon::parse($asset->date_assigned)->format('M d, Y') : 'N/A'
+                    'dateIssued' => $asset->date_issued ? \Carbon\Carbon::parse($asset->date_issued)->format('M d, Y') : 'N/A'
                 ];
             }
         }
@@ -284,7 +284,7 @@ class QrAssetController extends Controller
                     'deviceType' => $deviceTypeLabel,
                     'assetTag' => $asset->asset_tag,
                     'qrBase64' => $qrBase64,
-                    'dateAssigned' => $asset->date_assigned ? \Carbon\Carbon::parse($asset->date_assigned)->format('M d, Y') : 'N/A'
+                    'dateIssued' => $asset->date_issued ? \Carbon\Carbon::parse($asset->date_issued)->format('M d, Y') : 'N/A'
                 ];
             }
         }

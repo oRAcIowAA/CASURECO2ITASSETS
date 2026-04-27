@@ -169,7 +169,7 @@
                                 @if($statusStr === 'condemned')
                                     Disposed
                                 @elseif($statusStr === 'defective')
-                                    Upgrade to Disposal
+                                    Defective / Condemn
                                 @else
                                     Defective / Condemn
                                 @endif
@@ -264,9 +264,9 @@
                                 </p>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-500 mb-1">Date Assigned</label>
+                                <label class="block text-sm font-medium text-gray-500 mb-1">Date Issued</label>
                                 <p class="text-lg font-bold text-gray-900 uppercase">
-                                    {{ $mobileDevice->date_assigned ? \Carbon\Carbon::parse($mobileDevice->date_assigned)->format('M d, Y') : 'N/A' }}
+                                    {{ $mobileDevice->date_issued ? $mobileDevice->date_issued->format('M d, Y') : 'N/A' }}
                                 </p>
                             </div>
                         </div>

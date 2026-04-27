@@ -6,7 +6,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="w-full sm:px-6 lg:px-8">
             <div class="mb-4">
                 <a href="{{ route('printers.index') }}" class="text-indigo-600 hover:text-indigo-900">
                     &larr; BACK TO PRINTERS

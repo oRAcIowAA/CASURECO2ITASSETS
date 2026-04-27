@@ -27,7 +27,7 @@
                     <!-- Name -->
                     <div class="mb-6">
                         <x-input-label for="name" :value="__('Full Name')" class="font-bold text-gray-700 uppercase tracking-wide text-xs mb-2" />
-                        <x-text-input id="name" class="block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" type="text" name="name" :value="old('name', $admin->name)" required autofocus />
+                        <x-text-input id="name" class="block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm uppercase" type="text" name="name" :value="old('name', $admin->name)" required autofocus oninput="this.value = this.value.toUpperCase()" />
                         <x-input-error :messages="$errors->get('name')" class="mt-2 text-red-600 text-xs font-semibold" />
                     </div>
 
@@ -46,14 +46,14 @@
                     <!-- Security Question -->
                     <div class="mb-6">
                         <x-input-label for="security_question" :value="__('Security Question')" class="font-bold text-gray-700 uppercase tracking-wide text-xs mb-2" />
-                        <x-text-input id="security_question" class="block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" type="text" name="security_question" :value="old('security_question', $admin->security_question)" placeholder="e.g., What is the name of your first pet?" required />
+                        <x-text-input id="security_question" class="block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm uppercase" type="text" name="security_question" :value="old('security_question', $admin->security_question)" placeholder="e.g., What is the name of your first pet?" required oninput="this.value = this.value.toUpperCase()" />
                         <x-input-error :messages="$errors->get('security_question')" class="mt-2 text-red-600 text-xs font-semibold" />
                     </div>
 
                     <!-- Security Answer -->
                     <div class="mb-8">
                         <x-input-label for="security_answer" :value="__('Security Answer')" class="font-bold text-gray-700 uppercase tracking-wide text-xs mb-2" />
-                        <x-text-input id="security_answer" class="block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" type="text" name="security_answer" :value="old('security_answer', $admin->security_answer)" required />
+                        <x-text-input id="security_answer" class="block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm uppercase" type="text" name="security_answer" :value="old('security_answer', $admin->security_answer)" required oninput="this.value = this.value.toUpperCase()" />
                         <x-input-error :messages="$errors->get('security_answer')" class="mt-2 text-red-600 text-xs font-semibold" />
                     </div>
 

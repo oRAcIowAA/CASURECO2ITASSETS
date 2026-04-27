@@ -89,7 +89,7 @@
                                             <td style="width: 65%; border: none; padding: 0; vertical-align: middle; overflow: hidden;">
                                                 <div class="asset-title">{{ $asset['deviceName'] }}</div>
                                                 <div class="asset-code" style="font-weight: bold;">Tag: {{ $asset['assetTag'] }}</div>
-                                                <div class="asset-code" style="font-size: 6px; margin-top: 2px;">Assigned: {{ $asset['dateAssigned'] }}</div>
+                                                <div class="asset-code" style="font-size: 6px; margin-top: 2px;">Issued: {{ $asset['dateIssued'] }}</div>
                                             </td>
                                             <td style="width: 35%; border: none; padding: 0; text-align: right; vertical-align: middle;">
                                                 <img src="{{ $asset['qrBase64'] }}" style="width: 0.75in; height: 0.75in; display: block; margin-left: auto;">

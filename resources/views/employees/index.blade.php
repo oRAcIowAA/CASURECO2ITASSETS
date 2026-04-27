@@ -8,7 +8,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="w-full sm:px-6 lg:px-8">
             
             <!-- Actions Bar -->
             <div class="mb-6 flex justify-between items-center">
@@ -32,11 +32,11 @@
                     <form method="GET" action="{{ route('employees.index') }}" class="flex flex-col md:flex-row gap-4">
                         
                         <div class="flex-grow">
-                            <input type="text" name="search" placeholder="Search employees..." 
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                            <input type="text" name="search" placeholder="SEARCH EMPLOYEES..." 
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-semibold text-xs h-10 uppercase placeholder-gray-400"
                                    value="{{ request('search') }}">
                         </div>
-                        <button type="submit" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md shadow-sm transition-colors">
+                        <button type="submit" class="px-6 py-2 h-10 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-md shadow-sm transition-colors uppercase text-xs">
                             Search
                         </button>
                     </form>

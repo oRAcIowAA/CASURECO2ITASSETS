@@ -157,6 +157,11 @@ class MobileDeviceController extends Controller
     {
         $validated = $request->validated();
 
+        // Prevent modification of date_issued if already set
+        if ($mobileDevice->date_issued) {
+            unset($validated['date_issued']);
+        }
+
         $specialStatuses = ['disposed', 'condemned', 'defective'];
         $currentStatus = strtolower($mobileDevice->status);
 
@@ -243,9 +248,9 @@ class MobileDeviceController extends Controller
         $deviceType = 'Asset Tag';
         $assetTag = $mobileDevice->asset_tag;
         $publicUrl = $mobileDevice->public_url;
-        $dateAssigned = $mobileDevice->date_assigned ? \Carbon\Carbon::parse($mobileDevice->date_assigned)->format('M d, Y') : 'N/A';
+        $dateIssued = $mobileDevice->date_issued ? \Carbon\Carbon::parse($mobileDevice->date_issued)->format('M d, Y') : 'N/A';
 
-        return view('reports.qr-sticker', compact('mobileDevice', 'deviceName', 'deviceType', 'assetTag', 'publicUrl', 'dateAssigned'));
+        return view('reports.qr-sticker', compact('mobileDevice', 'deviceName', 'deviceType', 'assetTag', 'publicUrl', 'dateIssued'));
     }
 
     /**

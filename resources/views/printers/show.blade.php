@@ -317,9 +317,9 @@
                                 </p>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-500 mb-1">DATE ASSIGNED</label>
+                                <label class="block text-sm font-medium text-gray-500 mb-1">DATE ISSUED</label>
                                 <p class="text-lg font-semibold text-gray-900">
-                                    {{ $printer->date_assigned ? \Carbon\Carbon::parse($printer->date_assigned)->format('M d, Y') : 'N/A' }}
+                                    {{ $printer->date_issued ? $printer->date_issued->format('M d, Y') : 'N/A' }}
                                 </p>
                             </div>
                         </div>

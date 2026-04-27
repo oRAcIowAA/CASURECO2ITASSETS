@@ -169,6 +169,11 @@ class NetworkDeviceController extends Controller
     {
         $validated = $request->validated();
 
+        // Prevent modification of date_issued if already set
+        if ($networkDevice->date_issued) {
+            unset($validated['date_issued']);
+        }
+
         // Logic formatting
         if ($request->device_type === 'switch') {
             if ($request->switch_type === 'unmanaged') {
@@ -268,9 +273,9 @@ class NetworkDeviceController extends Controller
         $deviceType = 'Asset Tag/S.N.';
         $assetTag = $networkDevice->asset_tag ?? $networkDevice->serial_number ?? 'N/A';
         $publicUrl = $networkDevice->public_url;
-        $dateAssigned = $networkDevice->date_assigned ? \Carbon\Carbon::parse($networkDevice->date_assigned)->format('M d, Y') : 'N/A';
+        $dateIssued = $networkDevice->date_issued ? \Carbon\Carbon::parse($networkDevice->date_issued)->format('M d, Y') : 'N/A';
 
-        return view('reports.qr-sticker', compact('networkDevice', 'deviceName', 'deviceType', 'assetTag', 'publicUrl', 'dateAssigned'));
+        return view('reports.qr-sticker', compact('networkDevice', 'deviceName', 'deviceType', 'assetTag', 'publicUrl', 'dateIssued'));
     }
 
 

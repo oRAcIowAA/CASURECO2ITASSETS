@@ -121,7 +121,7 @@
                 <div class="label-content" style="margin-top: 10px;">
                     <h2 class="asset-title">{{ $deviceName }}</h2>
                     <p class="asset-code" style="font-weight: bold;">Tag: {{ $assetTag ?? 'N/A' }}</p>
-                    <p class="asset-code" style="font-size: 6px; margin-top: 2px;">Assigned: {{ $dateAssigned }}</p>
+                    <p class="asset-code" style="font-size: 6px; margin-top: 2px;">Issued: {{ $dateIssued }}</p>
                 </div>
                 <div id="qrcode" class="qr-wrapper"></div>
             </div>

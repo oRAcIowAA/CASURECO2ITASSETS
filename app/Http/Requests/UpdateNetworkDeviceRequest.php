@@ -52,7 +52,7 @@ class UpdateNetworkDeviceRequest extends FormRequest
             'department' => ['nullable', Rule::in(Organization::DEPARTMENTS)],
             'division' => ['nullable', Rule::in(Organization::DIVISIONS)],
             'employee_id' => 'nullable|exists:employees,id',
-            'date_issued' => 'nullable|date',
+            'date_issued' => 'required|date',
             'assignment_type' => 'required|in:STANDBY,ASSIGN',
         ];
     }

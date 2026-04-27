@@ -6,7 +6,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="w-full sm:px-6 lg:px-8">
             <!-- Search and Filter Bar -->
             <div class="mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                 <form method="GET" action="{{ route('mobile-device-history.index') }}" class="flex flex-col md:flex-row gap-4">

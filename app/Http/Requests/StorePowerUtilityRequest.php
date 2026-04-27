@@ -34,7 +34,7 @@ class StorePowerUtilityRequest extends FormRequest
             'department' => 'nullable|string|max:255',
             'assignment_type' => 'required|in:AVAILABLE,ASSIGN',
             'employee_id' => 'required_if:assignment_type,ASSIGN|nullable|exists:employees,id',
-            'date_issued' => 'nullable|date',
+            'date_issued' => 'required|date',
             'status' => 'nullable|string|max:255',
             'spare_parts' => 'nullable|string',
         ];

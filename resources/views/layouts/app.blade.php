@@ -56,7 +56,7 @@
                     <!-- Page Header -->
                     @isset($header)
                         <header class="bg-white shadow-sm z-0 sticky top-0">
-                            <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+                            <div class="w-full py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                                 <div class="text-gray-900">
                                     {{ $header }}
                                 </div>
@@ -65,7 +65,7 @@
                         </header>
                     @endisset
 
-                    <div class="container mx-auto px-6 py-8">
+                    <div class="w-full px-6 py-8">
                         {{ $slot }}
                     </div>
                 </main>

@@ -35,23 +35,16 @@ class Organization
             1 => 'PLANNING DIVISION',
             2 => 'CONSTRUCTION MANAGE & SERVICING DIVISION',
         ],
-        'NAGA AREA OFFICE (NAO)' => 
-        [
-        ],
-        'NORTH AREA OFFICE' => 
+        'NORTH AREA OFFICE (NAO)' => 
         [
             0 => 'CANAMAN MAGARAO SUB-OFFICE (CMSO)',
             1 => 'CALABANGA BOMBON SUB-OFFICE (CBSO)',
             2 => 'TINAMBAC SIRUMA SUB-OFFICE (TSSO)',
         ],
-        'SOUTH AREA OFFICE' => 
+        'SOUTH AREA OFFICE (SAO)' => 
         [
             0 => 'PILI SUB-OFFICE (PSO)',
             1 => 'MILAOR MINALABAC SUB-OFFICE (MMSO)',
-        ],
-        'DEPARTMENT CHECK' => 
-        [
-            0 => 'DIVISION CHECK',
         ],
     ];
 
@@ -62,10 +55,8 @@ class Organization
         3 => 'FINANCE DEPARTMENT (FIN DEPT)',
         4 => 'AUDIT DEPARTMENT (AUDIT DEPT)',
         5 => 'ENGINEERING DEPARTMENT (ENGR DEPT)',
-        6 => 'NAGA AREA OFFICE (NAO)',
-        7 => 'NORTH AREA OFFICE',
-        8 => 'SOUTH AREA OFFICE',
-        9 => 'DEPARTMENT CHECK',
+        6 => 'NORTH AREA OFFICE (NAO)',
+        7 => 'SOUTH AREA OFFICE (SAO)',
     ];
 
     public const LOCATIONS = [
@@ -76,7 +67,6 @@ class Organization
         4 => 'CANAMAN MAGARAO SUB-OFFICE(CMSO)',
         5 => 'CALABANGA BOMBON SUB-OFFICE (CBSO)',
         6 => 'TINAMBAC SIRUMA SUB-OFFICE (TSSO)',
-        7 => 'LOCATION CHECK (EDIT CHECK)',
     ];
 
     public const DIVISIONS = [
@@ -97,6 +87,5 @@ class Organization
         14 => 'TINAMBAC SIRUMA SUB-OFFICE (TSSO)',
         15 => 'PILI SUB-OFFICE (PSO)',
         16 => 'MILAOR MINALABAC SUB-OFFICE (MMSO)',
-        17 => 'DIVISION CHECK',
     ];
 }

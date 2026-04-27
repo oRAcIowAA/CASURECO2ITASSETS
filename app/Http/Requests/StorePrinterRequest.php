@@ -54,7 +54,7 @@ class StorePrinterRequest extends FormRequest
             ],
             'network_segment' => 'nullable|string|max:255',
             'employee_id' => 'nullable|exists:employees,id',
-            'date_issued' => 'nullable|date',
+            'date_issued' => 'required|date',
             'assignment_type' => 'required|in:STANDBY,ASSIGN', // Added to match form
         ];
     }

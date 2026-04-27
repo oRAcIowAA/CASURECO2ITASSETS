@@ -78,9 +78,14 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">DATE ISSUED</label>
+                            <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">DATE ISSUED <span class="text-red-500">*</span></label>
                             <input type="date" name="date_issued" value="{{ old('date_issued', $printer->date_issued ? $printer->date_issued->format('Y-m-d') : '') }}"
-                                   class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                   @if($printer->date_issued) readonly @endif
+                                   class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 @if($printer->date_issued) bg-gray-100 text-gray-600 @endif"
+                                   required>
+                            @if($printer->date_issued)
+                                <p class="text-[10px] text-gray-500 mt-1 italic uppercase">Fixed once set</p>
+                            @endif
                         </div>
                     </div>
 

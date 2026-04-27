@@ -158,6 +158,11 @@ class PowerUtilityController extends Controller
     {
         $validated = $request->validated();
 
+        // Prevent modification of date_issued if already set
+        if ($powerUtility->date_issued) {
+            unset($validated['date_issued']);
+        }
+
         $specialStatuses = ['disposed', 'condemned', 'defective'];
         $currentStatus = strtolower($powerUtility->status);
 
@@ -244,9 +249,9 @@ class PowerUtilityController extends Controller
         $deviceType = 'Asset Tag';
         $assetTag = $powerUtility->asset_tag;
         $publicUrl = $powerUtility->public_url;
-        $dateAssigned = $powerUtility->date_assigned ? \Carbon\Carbon::parse($powerUtility->date_assigned)->format('M d, Y') : 'N/A';
+        $dateIssued = $powerUtility->date_issued ? \Carbon\Carbon::parse($powerUtility->date_issued)->format('M d, Y') : 'N/A';
 
-        return view('reports.qr-sticker', compact('powerUtility', 'deviceName', 'deviceType', 'assetTag', 'publicUrl', 'dateAssigned'));
+        return view('reports.qr-sticker', compact('powerUtility', 'deviceName', 'deviceType', 'assetTag', 'publicUrl', 'dateIssued'));
     }
 
     /**

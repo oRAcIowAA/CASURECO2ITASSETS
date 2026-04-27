@@ -154,6 +154,11 @@ class PrinterController extends Controller
     {
         $validated = $request->validated();
 
+        // Prevent modification of date_issued if already set
+        if ($printer->date_issued) {
+            unset($validated['date_issued']);
+        }
+
         if ($validated['has_network_port']) {
             if ($validated['ip_type'] === 'Static' && empty($validated['ip_address'])) {
                 return back()->withErrors(['ip_address' => 'IP Address is required when Static is selected.'])->withInput();
@@ -255,9 +260,9 @@ class PrinterController extends Controller
         $deviceType = 'Asset Tag/S.N.';
         $assetTag = $printer->asset_tag ?? $printer->serial_number ?? 'N/A';
         $publicUrl = $printer->public_url;
-        $dateAssigned = $printer->date_assigned ? \Carbon\Carbon::parse($printer->date_assigned)->format('M d, Y') : 'N/A';
+        $dateIssued = $printer->date_issued ? \Carbon\Carbon::parse($printer->date_issued)->format('M d, Y') : 'N/A';
 
-        return view('reports.qr-sticker', compact('printer', 'deviceName', 'deviceType', 'assetTag', 'publicUrl', 'dateAssigned'));
+        return view('reports.qr-sticker', compact('printer', 'deviceName', 'deviceType', 'assetTag', 'publicUrl', 'dateIssued'));
     }
 
     /**

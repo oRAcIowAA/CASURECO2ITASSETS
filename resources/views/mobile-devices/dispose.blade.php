@@ -41,13 +41,13 @@
 
                         <div class="mb-6">
                             <label for="remarks" class="block text-sm font-bold text-gray-700 mb-2">Reason / Remarks <span class="text-red-500">*</span></label>
-                            <textarea name="remarks" id="remarks" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 font-semibold" placeholder="Describe the defect or reason for this change..." required></textarea>
+                            <textarea name="remarks" id="remarks" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 font-semibold uppercase" placeholder="Describe the defect or reason for this change..." required oninput="this.value = this.value.toUpperCase()"></textarea>
                         </div>
 
                         @if(strtolower($mobileDevice->status) === 'condemned')
                         <div class="mb-6">
                             <label for="spare_parts" class="block text-sm font-bold text-gray-700 mb-2">Spare Parts Salvaged (If any)</label>
-                            <textarea name="spare_parts" id="spare_parts" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 font-semibold" placeholder="List components that can still be used (e.g. Battery, Screen, SIM Tray)...">{{ $mobileDevice->spare_parts }}</textarea>
+                            <textarea name="spare_parts" id="spare_parts" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 font-semibold uppercase" placeholder="List components that can still be used (e.g. Battery, Screen, SIM Tray)..." oninput="this.value = this.value.toUpperCase()">{{ $mobileDevice->spare_parts }}</textarea>
                         </div>
                         @endif
 

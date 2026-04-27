@@ -316,11 +316,11 @@
                             <p class="text-lg font-semibold text-gray-900">{{ strtoupper($pcUnit->ram ?? 'N/A') }}</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 mb-1">Primary Storage</label>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Storage</label>
                             <p class="text-lg font-semibold text-gray-900">{{ strtoupper($pcUnit->storage ?? 'N/A') }}
                             </p>
                         </div>
-                        @if($pcUnit->storage_secondary)
+                        @if($pcUnit->storage_secondary && !str_contains($pcUnit->storage, $pcUnit->storage_secondary))
                             <div>
                                 <label class="block text-sm font-medium text-gray-500 mb-1">Secondary Storage</label>
                                 <p class="text-lg font-semibold text-gray-900">{{ strtoupper($pcUnit->storage_secondary) }}
@@ -438,9 +438,9 @@
                                 </p>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-500 mb-1">DATE ASSIGNED</label>
+                                <label class="block text-sm font-medium text-gray-500 mb-1">DATE ISSUED</label>
                                 <p class="text-lg font-semibold text-gray-900">
-                                    {{ $pcUnit->date_assigned ? $pcUnit->date_assigned->format('M d, Y') : 'N/A' }}</p>
+                                    {{ $pcUnit->date_issued ? $pcUnit->date_issued->format('M d, Y') : 'N/A' }}</p>
                             </div>
                         </div>
                     </div>
