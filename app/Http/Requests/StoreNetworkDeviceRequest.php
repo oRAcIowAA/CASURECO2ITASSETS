@@ -40,10 +40,10 @@ class StoreNetworkDeviceRequest extends FormRequest
             'switch_type' => 'nullable|in:MANAGED,UNMANAGED', // Match form field
             'has_ip' => 'nullable|boolean', // Match form field
             'ip_address' => ['nullable', 'ipv4', new \App\Rules\GlobalUniqueIp(null, \App\Models\NetworkDevice::class)],
-            'group' => ['required', Rule::in(Organization::LOCATIONS)],
+            'location' => ['required', Rule::in(Organization::LOCATIONS)],
             'department' => ['nullable', Rule::in(Organization::DEPARTMENTS)],
             'division' => ['nullable', Rule::in(Organization::DIVISIONS)],
-            'employee_id' => 'nullable|exists:employees,id',
+            'employee_id' => 'nullable|exists:employees,emp_id',
             'date_issued' => 'required|date',
             'assignment_type' => 'required|in:STANDBY,ASSIGN',
         ];

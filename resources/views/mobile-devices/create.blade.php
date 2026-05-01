@@ -92,10 +92,10 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">Location</label>
-                            <select name="group" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 uppercase" required>
+                            <select name="location" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 uppercase" required>
                                 <option value="">SELECT LOCATION</option>
                                 @foreach($groups as $group)
-                                    <option value="{{ $group }}" {{ old('group') == $group ? 'selected' : '' }}>{{ strtoupper($group) }}</option>
+                                    <option value="{{ $group }}" {{ old('location') == $group ? 'selected' : '' }}>{{ strtoupper($group) }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -160,3 +160,5 @@
         </div>
     </div>
 </x-app-layout>
+
+

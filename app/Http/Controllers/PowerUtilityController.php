@@ -31,9 +31,40 @@ class PowerUtilityController extends Controller
     {
         $query = PowerUtility::with(['employee']);
 
-        // Group/Location filter
-        if ($request->filled('group')) {
-            $query->where('group', $request->group);
+        // Location filter
+        if ($request->filled('location') && $request->location !== 'All Locations') {
+            $val = $request->location;
+            $query->where(function($q) use ($val) {
+                $q->where(function($sq) use ($val) {
+                    $sq->whereNull('employee_id')->where('location', $val);
+                })->orWhereHas('employee', function($sq) use ($val) {
+                    $sq->where('location', $val);
+                });
+            });
+        }
+
+        // Division filter
+        if ($request->filled('division') && $request->division !== 'All Divisions') {
+            $val = $request->division;
+            $query->where(function($q) use ($val) {
+                $q->where(function($sq) use ($val) {
+                    $sq->whereNull('employee_id')->where('division', $val);
+                })->orWhereHas('employee', function($sq) use ($val) {
+                    $sq->where('division', $val);
+                });
+            });
+        }
+
+        // Department filter
+        if ($request->filled('department') && $request->department !== 'All Departments') {
+            $val = $request->department;
+            $query->where(function($q) use ($val) {
+                $q->where(function($sq) use ($val) {
+                    $sq->whereNull('employee_id')->where('department', $val);
+                })->orWhereHas('employee', function($sq) use ($val) {
+                    $sq->where('department', $val);
+                });
+            });
         }
 
         // Search filter (extended)
@@ -45,19 +76,11 @@ class PowerUtilityController extends Controller
                     ->orWhere('brand', 'like', "%{$search}%")
                     ->orWhere('serial_number', 'like', "%{$search}%")
                     ->orWhereHas('employee', function ($sq) use ($search) {
-                        $sq->where('full_name', 'like', "%{$search}%");
+                        $sq->where('fname', 'like', "%{$search}%")
+                           ->orWhere('lname', 'like', "%{$search}%")
+                           ->orWhere('emp_id', 'like', "%{$search}%");
                     });
             });
-        }
-
-        // Department filter
-        if ($request->filled('department')) {
-            $query->where('department', $request->department);
-        }
-
-        // Division filter
-        if ($request->filled('division')) {
-            $query->where('division', $request->division);
         }
 
         // Type filter
@@ -88,7 +111,7 @@ class PowerUtilityController extends Controller
         $type = $request->query('type', 'UPS'); // Default to UPS
 
         $groups = \App\Constants\Organization::LOCATIONS;
-        $employees = Employee::orderBy('full_name')->get();
+        $employees = Employee::orderBy('lname')->orderBy('fname')->get();
         $nextAssetTag = \App\Services\AssetTagService::generateNextTag(PowerUtility::class, 'CAS-PU-');
 
         return view('power-utilities.create', compact('groups', 'employees', 'type', 'nextAssetTag'));
@@ -108,7 +131,7 @@ class PowerUtilityController extends Controller
 
             $employee = Employee::find($validated['employee_id']);
             if ($employee) {
-                $validated['group'] = $employee->group;
+                $validated['location'] = $employee->location;
                 $validated['department'] = $employee->department;
                 $validated['division'] = $employee->division;
             }
@@ -177,7 +200,7 @@ class PowerUtilityController extends Controller
 
                 $employee = Employee::find($validated['employee_id']);
                 if ($employee) {
-                    $validated['group'] = $employee->group;
+                    $validated['location'] = $employee->location;
                     $validated['department'] = $employee->department;
                     $validated['division'] = $employee->division;
                 }
@@ -274,7 +297,7 @@ class PowerUtilityController extends Controller
         DB::transaction(function () use ($powerUtility, $request, $oldEmployeeId, $employee) {
             $powerUtility->update([
                 'employee_id' => $request->employee_id,
-                'group' => $employee->group ?? $powerUtility->group,
+                'location' => $employee->location ?? $powerUtility->location,
                 'department' => $employee->department ?? $powerUtility->department,
                 'division' => $employee->division ?? $powerUtility->division,
                 'status' => 'assigned',
@@ -295,7 +318,7 @@ class PowerUtilityController extends Controller
     public function assign(Request $request, PowerUtility $powerUtility)
     {
         $request->validate([
-            'employee_id' => 'required|exists:employees,id',
+            'employee_id' => 'required|exists:employees,emp_id',
             'assignment_notes' => 'nullable|string'
         ]);
 
@@ -305,7 +328,7 @@ class PowerUtilityController extends Controller
         DB::transaction(function () use ($powerUtility, $request, $oldEmployeeId, $employee) {
             $powerUtility->update([
                 'employee_id' => $request->employee_id,
-                'group' => $employee->group ?? $powerUtility->group,
+                'location' => $employee->location ?? $powerUtility->location,
                 'department' => $employee->department ?? $powerUtility->department,
                 'division' => $employee->division ?? $powerUtility->division,
                 'status' => 'assigned',

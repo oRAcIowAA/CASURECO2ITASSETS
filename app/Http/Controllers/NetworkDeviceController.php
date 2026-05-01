@@ -38,9 +38,14 @@ class NetworkDeviceController extends Controller
                     ->orWhere('model', 'like', "%{$search}%")
                     ->orWhere('ip_address', 'like', "%{$search}%")
                     ->orWhere('device_type', 'like', "%{$search}%")
-                    ->orWhere('group', 'like', "%{$search}%")
+                    ->orWhere('location', 'like', "%{$search}%")
                     ->orWhere('division', 'like', "%{$search}%")
-                    ->orWhere('department', 'like', "%{$search}%");
+                    ->orWhere('department', 'like', "%{$search}%")
+                    ->orWhereHas('employee', function ($sq) use ($search) {
+                        $sq->where('fname', 'like', "%{$search}%")
+                           ->orWhere('lname', 'like', "%{$search}%")
+                           ->orWhere('emp_id', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -52,19 +57,40 @@ class NetworkDeviceController extends Controller
             $query->where('status', $request->status);
         }
 
-        // Filter by Group (for folder navigation)
-        if ($request->filled('group')) {
-            $query->where('group', $request->group);
+        // Location filter
+        if ($request->filled('location') && $request->location !== 'All Locations') {
+            $val = $request->location;
+            $query->where(function($q) use ($val) {
+                $q->where(function($sq) use ($val) {
+                    $sq->whereNull('employee_id')->where('location', $val);
+                })->orWhereHas('employee', function($sq) use ($val) {
+                    $sq->where('location', $val);
+                });
+            });
         }
 
-        // Filter by Division (for folder navigation)
-        if ($request->filled('division')) {
-            $query->where('division', $request->division);
+        // Division filter
+        if ($request->filled('division') && $request->division !== 'All Divisions') {
+            $val = $request->division;
+            $query->where(function($q) use ($val) {
+                $q->where(function($sq) use ($val) {
+                    $sq->whereNull('employee_id')->where('division', $val);
+                })->orWhereHas('employee', function($sq) use ($val) {
+                    $sq->where('division', $val);
+                });
+            });
         }
 
-        // Filter by Department (for folder navigation)
-        if ($request->filled('department')) {
-            $query->where('department', $request->department);
+        // Department filter
+        if ($request->filled('department') && $request->department !== 'All Departments') {
+            $val = $request->department;
+            $query->where(function($q) use ($val) {
+                $q->where(function($sq) use ($val) {
+                    $sq->whereNull('employee_id')->where('department', $val);
+                })->orWhereHas('employee', function($sq) use ($val) {
+                    $sq->where('department', $val);
+                });
+            });
         }
 
         $networkDevices = $query->latest()->paginate(15)->withQueryString();
@@ -82,7 +108,7 @@ class NetworkDeviceController extends Controller
     public function create()
     {
         $groups = \App\Constants\Organization::LOCATIONS;
-        $employees = Employee::orderBy('full_name')->get();
+        $employees = Employee::orderBy('lname')->orderBy('fname')->get();
         $nextAssetTag = \App\Services\AssetTagService::generateNextTag(NetworkDevice::class, 'CAS-ND-');
         return view('network-devices.create', compact('groups', 'employees', 'nextAssetTag'));
     }
@@ -158,7 +184,7 @@ class NetworkDeviceController extends Controller
     public function edit(NetworkDevice $networkDevice)
     {
         $groups = \App\Constants\Organization::LOCATIONS;
-        $employees = Employee::orderBy('full_name')->get();
+        $employees = Employee::orderBy('lname')->orderBy('fname')->get();
         return view('network-devices.edit', compact('networkDevice', 'groups', 'employees'));
     }
 

@@ -16,7 +16,7 @@ class NetworkDevice extends Model
         'brand',
         'model',
         'department',
-        'group',
+        'location',
         'division',
         'network_ports',
         'network_speed',
@@ -42,7 +42,7 @@ class NetworkDevice extends Model
 
     public function employee(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Employee::class);
+        return $this->belongsTo(Employee::class, 'employee_id', 'emp_id')->withDefault();
     }
 
     public function updatedBy(): \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -70,5 +70,34 @@ class NetworkDevice extends Model
     public function getPublicUrlAttribute()
     {
         return route('public.asset.show', $this->tracking_uuid);
+    }
+
+    public function getLocationAttribute($value)
+    {
+        if ($this->status === 'assigned' && $this->employee && $this->employee->exists) {
+            return $this->employee->location;
+        }
+        return $value ?? 'N/A';
+    }
+
+    public function getDepartmentAttribute($value)
+    {
+        if ($this->status === 'assigned' && $this->employee && $this->employee->exists) {
+            return $this->employee->department;
+        }
+        return $value ?? 'N/A';
+    }
+
+    public function getDivisionAttribute($value)
+    {
+        if ($this->status === 'assigned' && $this->employee && $this->employee->exists) {
+            return $this->employee->division;
+        }
+        return $value ?? 'N/A';
+    }
+
+    public function getGroupAttribute()
+    {
+        return $this->location;
     }
 }

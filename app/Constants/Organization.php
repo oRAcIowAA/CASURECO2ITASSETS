@@ -10,9 +10,8 @@ class Organization
         ],
         'CORPORATE PLANNING DEPARTMENT (CORPLAN)' => 
         [
-            0 => 'CORPLAN DIVISION',
-            1 => 'I.T. DIVISION',
-            2 => 'CORPORATE PLANNING DIVISION',
+            0 => 'I.T. DIVISION',
+            1 => 'CORPORATE PLANNING DIVISION',
         ],
         'INSTITUTIONAL SERVICE DEPARTMENT (ISD)' => 
         [
@@ -40,6 +39,7 @@ class Organization
             0 => 'CANAMAN MAGARAO SUB-OFFICE (CMSO)',
             1 => 'CALABANGA BOMBON SUB-OFFICE (CBSO)',
             2 => 'TINAMBAC SIRUMA SUB-OFFICE (TSSO)',
+            3 => 'NAGA AREA (COLLECTION OFFICE)',
         ],
         'SOUTH AREA OFFICE (SAO)' => 
         [
@@ -70,21 +70,21 @@ class Organization
     ];
 
     public const DIVISIONS = [
-        0 => 'CORPLAN DIVISION',
-        1 => 'I.T. DIVISION',
-        2 => 'CORPORATE PLANNING DIVISION',
-        3 => 'HUMAN RESOURCE DIVISION',
-        4 => 'MANAGEMENT SERVICE DIVISION',
-        5 => 'ACCOUNTING DIVISION',
-        6 => 'BUDGET & TREASURER DIVISION',
-        7 => 'FINANCIAL DIVISION',
-        8 => 'TECHNICAL DIVISION',
-        9 => 'SYSTEMS LOSS REDUCTION DIVISION',
-        10 => 'PLANNING DIVISION',
-        11 => 'CONSTRUCTION MANAGE & SERVICING DIVISION',
-        12 => 'CANAMAN MAGARAO SUB-OFFICE (CMSO)',
-        13 => 'CALABANGA BOMBON SUB-OFFICE (CBSO)',
-        14 => 'TINAMBAC SIRUMA SUB-OFFICE (TSSO)',
+        0 => 'I.T. DIVISION',
+        1 => 'CORPORATE PLANNING DIVISION',
+        2 => 'HUMAN RESOURCE DIVISION',
+        3 => 'MANAGEMENT SERVICE DIVISION',
+        4 => 'ACCOUNTING DIVISION',
+        5 => 'BUDGET & TREASURER DIVISION',
+        6 => 'FINANCIAL DIVISION',
+        7 => 'TECHNICAL DIVISION',
+        8 => 'SYSTEMS LOSS REDUCTION DIVISION',
+        9 => 'PLANNING DIVISION',
+        10 => 'CONSTRUCTION MANAGE & SERVICING DIVISION',
+        11 => 'CANAMAN MAGARAO SUB-OFFICE (CMSO)',
+        12 => 'CALABANGA BOMBON SUB-OFFICE (CBSO)',
+        13 => 'TINAMBAC SIRUMA SUB-OFFICE (TSSO)',
+        14 => 'NAGA AREA (COLLECTION OFFICE)',
         15 => 'PILI SUB-OFFICE (PSO)',
         16 => 'MILAOR MINALABAC SUB-OFFICE (MMSO)',
     ];

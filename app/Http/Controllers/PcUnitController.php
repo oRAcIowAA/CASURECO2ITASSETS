@@ -39,9 +39,10 @@ class PcUnitController extends Controller
                     ->orWhere('device_type', 'like', "%{$search}%")
                     ->orWhere('ip_address', 'like', "%{$search}%")
                     ->orWhereHas('employee', function ($sq) use ($search) {
-                    $sq->where('full_name', 'like', "%{$search}%");
-                }
-                );
+                        $sq->where('fname', 'like', "%{$search}%")
+                           ->orWhere('lname', 'like', "%{$search}%")
+                           ->orWhere('emp_id', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -55,19 +56,40 @@ class PcUnitController extends Controller
             $query->where('device_type', $request->type);
         }
 
-        // Group filter
-        if ($request->filled('group') && $request->group !== 'All Groups') {
-            $query->where('group', $request->group);
+        // Location filter
+        if ($request->filled('location') && $request->location !== 'All Locations') {
+            $val = $request->location;
+            $query->where(function($q) use ($val) {
+                $q->where(function($sq) use ($val) {
+                    $sq->whereNull('employee_id')->where('location', $val);
+                })->orWhereHas('employee', function($sq) use ($val) {
+                    $sq->where('location', $val);
+                });
+            });
         }
 
         // Division filter
         if ($request->filled('division') && $request->division !== 'All Divisions') {
-            $query->where('division', $request->division);
+            $val = $request->division;
+            $query->where(function($q) use ($val) {
+                $q->where(function($sq) use ($val) {
+                    $sq->whereNull('employee_id')->where('division', $val);
+                })->orWhereHas('employee', function($sq) use ($val) {
+                    $sq->where('division', $val);
+                });
+            });
         }
 
-        // Department filter (for folder navigation)
-        if ($request->filled('department')) {
-            $query->where('department', $request->department);
+        // Department filter
+        if ($request->filled('department') && $request->department !== 'All Departments') {
+            $val = $request->department;
+            $query->where(function($q) use ($val) {
+                $q->where(function($sq) use ($val) {
+                    $sq->whereNull('employee_id')->where('department', $val);
+                })->orWhereHas('employee', function($sq) use ($val) {
+                    $sq->where('department', $val);
+                });
+            });
         }
 
         $pcUnits = $query->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
@@ -92,7 +114,8 @@ class PcUnitController extends Controller
         }
 
         $groups = \App\Constants\Organization::LOCATIONS;
-        $employees = Employee::all();
+        $employees = Employee::orderBy('lname')->orderBy('fname')->get();
+
         $nextAssetTag = \App\Services\AssetTagService::generateNextTag(PcUnit::class, 'CAS-PC-');
 
         return view('pc-units.create', compact('groups', 'employees', 'type', 'nextAssetTag'));
@@ -269,7 +292,7 @@ class PcUnitController extends Controller
     public function assign(Request $request, PcUnit $pcUnit)
     {
         $request->validate([
-            'employee_id' => 'required|exists:employees,id',
+            'employee_id' => 'required|exists:employees,emp_id',
             'assignment_notes' => 'nullable|string'
         ]);
 
@@ -365,7 +388,7 @@ class PcUnitController extends Controller
      */
     public function transfer(PcUnit $pcUnit)
     {
-        $employees = Employee::orderBy('full_name')->get();
+        $employees = Employee::orderBy('lname')->orderBy('fname')->get();
         return view('pc-units.transfer', compact('pcUnit', 'employees'));
     }
 

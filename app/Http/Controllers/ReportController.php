@@ -96,13 +96,6 @@ class ReportController extends Controller
     private function getFilteredItems(Request $request)
     {
         $category = $request->input('category', 'All');
-        $search = $request->search;
-        $status = $request->status;
-        $group = $request->group;
-        $division = $request->division;
-        $department = $request->department;
-        $type = $request->type; // This acts as 'Device Type' for PC/Network, or ignored for Printer if not applicable
-
         $collection = collect();
 
         // 1. PC Units
@@ -118,9 +111,9 @@ class ReportController extends Controller
                     'ip_address' => $item->ip_address ?? 'N/A',
                     'type_model' => ($item->asset_tag ? $item->asset_tag . ' - ' : '') . $item->device_type . ' - ' . $item->model,
                     'type_label' => $item->device_type,
-                    'location' => $item->employee_id 
-                        ? strtoupper(implode(' / ', array_filter([$item->employee->group, $item->employee->department, $item->employee->division])))
-                        : strtoupper(implode(' / ', array_filter([$item->group, $item->department, $item->division]))),
+                    'location' => $item->location,
+                    'department' => $item->department,
+                    'division' => $item->division,
                     'assigned_to' => $item->employee->full_name ?? 'N/A',
                     'status' => $item->status,
                     'category' => 'PC Unit',
@@ -143,9 +136,9 @@ class ReportController extends Controller
                     'ip_address' => $item->ip_address ?? 'N/A',
                     'type_model' => ($item->asset_tag ? $item->asset_tag . ' - ' : '') . ucfirst(strtolower($item->type)) . ' - ' . $item->brand . ' ' . $item->model,
                     'type_label' => ucfirst(strtolower($item->type)),
-                    'location' => $item->employee_id 
-                        ? strtoupper(implode(' / ', array_filter([$item->employee->group, $item->employee->department, $item->employee->division])))
-                        : strtoupper(implode(' / ', array_filter([$item->group, $item->department, $item->division]))),
+                    'location' => $item->location,
+                    'department' => $item->department,
+                    'division' => $item->division,
                     'assigned_to' => $item->employee->full_name ?? 'N/A',
                     'status' => $item->status,
                     'category' => 'Printer',
@@ -168,9 +161,9 @@ class ReportController extends Controller
                     'ip_address' => $item->ip_address ?? 'N/A',
                     'type_model' => ($item->asset_tag ? $item->asset_tag . ' - ' : '') . ucfirst($item->device_type) . ' - ' . $item->brand . ' ' . $item->model,
                     'type_label' => ucfirst($item->device_type),
-                    'location' => $item->employee_id 
-                        ? strtoupper(implode(' / ', array_filter([$item->employee->group, $item->employee->department, $item->employee->division])))
-                        : strtoupper(implode(' / ', array_filter([$item->group, $item->department, $item->division]))),
+                    'location' => $item->location,
+                    'department' => $item->department,
+                    'division' => $item->division,
                     'assigned_to' => $item->employee->full_name ?? 'N/A',
                     'status' => $item->status,
                     'category' => 'Network Device',
@@ -193,9 +186,9 @@ class ReportController extends Controller
                     'ip_address' => 'N/A',
                     'type_model' => ($item->asset_tag ? $item->asset_tag . ' - ' : '') . $item->type . ' - ' . $item->brand . ' ' . $item->model,
                     'type_label' => $item->type,
-                    'location' => $item->employee_id 
-                        ? strtoupper(implode(' / ', array_filter([$item->employee->group, $item->employee->department, $item->employee->division])))
-                        : strtoupper(implode(' / ', array_filter([$item->group, $item->department, $item->division]))),
+                    'location' => $item->location,
+                    'department' => $item->department,
+                    'division' => $item->division,
                     'assigned_to' => $item->employee->full_name ?? 'N/A',
                     'status' => $item->status,
                     'category' => 'Power Utility',
@@ -218,9 +211,9 @@ class ReportController extends Controller
                     'ip_address' => 'N/A',
                     'type_model' => ($item->asset_tag ? $item->asset_tag . ' - ' : '') . ucfirst(strtolower($item->type)) . ' - ' . $item->brand . ' ' . $item->model,
                     'type_label' => ucfirst(strtolower($item->type)),
-                    'location' => $item->employee_id 
-                        ? strtoupper(implode(' / ', array_filter([$item->employee->group, $item->employee->department, $item->employee->division])))
-                        : strtoupper(implode(' / ', array_filter([$item->group, $item->department, $item->division]))),
+                    'location' => $item->location,
+                    'department' => $item->department,
+                    'division' => $item->division,
                     'assigned_to' => $item->employee->full_name ?? 'N/A',
                     'status' => $item->status,
                     'category' => 'Mobile Device',
@@ -243,7 +236,9 @@ class ReportController extends Controller
                 $q->where('model', 'like', "%{$search}%")
                     ->orWhere('ip_address', 'like', "%{$search}%")
                     ->orWhereHas('employee', function ($sq) use ($search) {
-                        $sq->where('full_name', 'like', "%{$search}%");
+                        $sq->where('fname', 'like', "%{$search}%")
+                           ->orWhere('lname', 'like', "%{$search}%")
+                           ->orWhere('emp_id', 'like', "%{$search}%");
                     });
 
                 // Model specific
@@ -278,12 +273,12 @@ class ReportController extends Controller
         }
 
         // Group
-        if ($request->filled('group') && $request->group !== 'All Groups') {
+        if ($request->filled('group') && $request->group !== 'All Groups' && $request->group !== 'All Locations') {
             $query->where(function ($q) use ($request) {
                 $q->where(function ($sub) use ($request) {
-                    $sub->whereNull('employee_id')->where('group', $request->group);
+                    $sub->whereNull('employee_id')->where('location', $request->group);
                 })->orWhereHas('employee', function ($eq) use ($request) {
-                    $eq->where('group', $request->group);
+                    $eq->where('location', $request->group);
                 });
             });
         }

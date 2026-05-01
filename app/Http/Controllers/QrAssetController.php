@@ -25,9 +25,9 @@ class QrAssetController extends Controller
             if ($request->filled('group')) {
                 $query->where(function ($q) use ($request) {
                     $q->where(function ($sub) use ($request) {
-                        $sub->whereNull('employee_id')->where('group', $request->group);
+                        $sub->whereNull('employee_id')->where('location', $request->group);
                     })->orWhereHas('employee', function ($eq) use ($request) {
-                        $eq->where('group', $request->group);
+                        $eq->where('location', $request->group);
                     });
                 });
             }
@@ -63,35 +63,45 @@ class QrAssetController extends Controller
             $pcQuery->where(function ($q) use ($search) {
                 $q->whereAny(['asset_tag', 'model', 'device_type', 'ip_address'], 'like', "%{$search}%")
                   ->orWhereHas('employee', function ($sq) use ($search) {
-                      $sq->where('full_name', 'like', "%{$search}%");
+                      $sq->where('fname', 'like', "%{$search}%")
+                         ->orWhere('lname', 'like', "%{$search}%")
+                         ->orWhere('emp_id', 'like', "%{$search}%");
                   });
             });
 
             $printerQuery->where(function ($q) use ($search) {
                 $q->whereAny(['asset_tag', 'model', 'brand', 'ip_address'], 'like', "%{$search}%")
                   ->orWhereHas('employee', function ($sq) use ($search) {
-                      $sq->where('full_name', 'like', "%{$search}%");
+                      $sq->where('fname', 'like', "%{$search}%")
+                         ->orWhere('lname', 'like', "%{$search}%")
+                         ->orWhere('emp_id', 'like', "%{$search}%");
                   });
             });
 
             $networkQuery->where(function ($q) use ($search) {
                 $q->whereAny(['asset_tag', 'model', 'brand', 'device_type', 'ip_address'], 'like', "%{$search}%")
                   ->orWhereHas('employee', function ($sq) use ($search) {
-                      $sq->where('full_name', 'like', "%{$search}%");
+                      $sq->where('fname', 'like', "%{$search}%")
+                         ->orWhere('lname', 'like', "%{$search}%")
+                         ->orWhere('emp_id', 'like', "%{$search}%");
                   });
             });
 
             $powerQuery->where(function ($q) use ($search) {
                 $q->whereAny(['asset_tag', 'model', 'brand', 'type'], 'like', "%{$search}%")
                   ->orWhereHas('employee', function ($sq) use ($search) {
-                      $sq->where('full_name', 'like', "%{$search}%");
+                      $sq->where('fname', 'like', "%{$search}%")
+                         ->orWhere('lname', 'like', "%{$search}%")
+                         ->orWhere('emp_id', 'like', "%{$search}%");
                   });
             });
 
             $mobileQuery->where(function ($q) use ($search) {
                 $q->whereAny(['asset_tag', 'model', 'brand', 'type', 'serial_number'], 'like', "%{$search}%")
                   ->orWhereHas('employee', function ($sq) use ($search) {
-                      $sq->where('full_name', 'like', "%{$search}%");
+                      $sq->where('fname', 'like', "%{$search}%")
+                         ->orWhere('lname', 'like', "%{$search}%")
+                         ->orWhere('emp_id', 'like', "%{$search}%");
                   });
             });
         }

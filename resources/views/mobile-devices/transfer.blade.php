@@ -35,7 +35,7 @@
                                     @endif
                                 @endforeach
                             </select>
-                            <p class="mt-2 text-xs text-gray-500 uppercase italic">The current owner is: {{ $mobileDevice->employee ? strtoupper($mobileDevice->employee->full_name) : 'NONE (AVAILABLE)' }}</p>
+                            <p class="mt-2 text-xs text-gray-500 uppercase italic">The current owner is: {{ $mobileDevice->employee_id ? strtoupper($mobileDevice->employee->full_name) : 'NONE (AVAILABLE)' }}</p>
                         </div>
 
                         <div class="mb-6">
@@ -57,3 +57,5 @@
         </div>
     </div>
 </x-app-layout>
+
+

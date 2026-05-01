@@ -11,11 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::dropIfExists('power_utility_histories');
         Schema::create('power_utility_histories', function (Blueprint $table) {
             $table->id();
             $table->foreignId('power_utility_id')->constrained('power_utilities')->onDelete('cascade');
-            $table->foreignId('employee_id')->nullable()->constrained('employees')->onDelete('set null');
-            $table->foreignId('previous_employee_id')->nullable()->constrained('employees')->onDelete('set null');
+            $table->string('employee_id')->nullable();
+            $table->foreign('employee_id')->references('emp_id')->on('employees')->onDelete('set null');
+            $table->string('previous_employee_id')->nullable();
+            $table->foreign('previous_employee_id')->references('emp_id')->on('employees')->onDelete('set null');
             $table->string('action');
             $table->text('notes')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');

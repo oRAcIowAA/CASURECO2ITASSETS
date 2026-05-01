@@ -132,10 +132,10 @@ class OrgManagementController extends Controller
                         $currentLocations[$key] = $newName;
                         
                         // Propagate to database
-                        \App\Models\Employee::where('group', $oldName)->update(['group' => $newName]);
-                        \App\Models\PcUnit::where('group', $oldName)->update(['group' => $newName]);
-                        \App\Models\Printer::where('group', $oldName)->update(['group' => $newName]);
-                        \App\Models\NetworkDevice::where('group', $oldName)->update(['group' => $newName]);
+                        \App\Models\Employee::where('location', $oldName)->update(['location' => $newName]);
+                        \App\Models\PcUnit::where('location', $oldName)->update(['location' => $newName]);
+                        \App\Models\Printer::where('location', $oldName)->update(['location' => $newName]);
+                        \App\Models\NetworkDevice::where('location', $oldName)->update(['location' => $newName]);
                     }
                 }
                 break;
@@ -145,10 +145,10 @@ class OrgManagementController extends Controller
                 $key = array_search($name, $currentLocations);
                 if ($key !== false) {
                     // Check if in use
-                    $inUse = \App\Models\Employee::where('group', $name)->exists() ||
-                             \App\Models\PcUnit::where('group', $name)->exists() ||
-                             \App\Models\Printer::where('group', $name)->exists() ||
-                             \App\Models\NetworkDevice::where('group', $name)->exists();
+                    $inUse = \App\Models\Employee::where('location', $name)->exists() ||
+                             \App\Models\PcUnit::where('location', $name)->exists() ||
+                             \App\Models\Printer::where('location', $name)->exists() ||
+                             \App\Models\NetworkDevice::where('location', $name)->exists();
 
                     if ($inUse) {
                         return back()->with('error', "Cannot delete location '$name' because it is currently assigned to employees or assets.");

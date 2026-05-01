@@ -30,12 +30,12 @@ class PcHistory extends Model
 
     public function employee(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'employee_id');
+        return $this->belongsTo(Employee::class, 'employee_id')->withDefault();
     }
 
     public function previousEmployee(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'previous_employee_id');
+        return $this->belongsTo(Employee::class, 'previous_employee_id')->withDefault();
     }
 
     public function createdBy(): BelongsTo

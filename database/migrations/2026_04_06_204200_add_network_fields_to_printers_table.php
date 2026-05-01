@@ -15,6 +15,9 @@ return new class extends Migration
             if (!Schema::hasColumn('printers', 'ip_type')) {
                 $table->string('ip_type')->default('Static')->after('has_network_port');
             }
+            if (!Schema::hasColumn('printers', 'mac_address')) {
+                $table->string('mac_address')->nullable()->after('ip_address');
+            }
             if (!Schema::hasColumn('printers', 'network_segment')) {
                 $table->string('network_segment')->nullable()->after('mac_address');
             }
@@ -27,7 +30,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('printers', function (Blueprint $table) {
-            $table->dropColumn(['ip_type', 'network_segment']);
+            $table->dropColumn(['ip_type', 'mac_address', 'network_segment']);
         });
     }
 };

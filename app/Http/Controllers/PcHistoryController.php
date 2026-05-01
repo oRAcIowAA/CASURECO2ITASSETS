@@ -21,7 +21,7 @@ class PcHistoryController extends Controller
         // Filter by Group (current location of the unit)
         if ($request->filled('group')) {
             $query->whereHas('pcUnit', function ($q) use ($request) {
-                $q->where('group', $request->group);
+                $q->where('location', $request->group);
             });
         }
 
@@ -47,7 +47,9 @@ class PcHistoryController extends Controller
                         $q2->where('asset_tag', 'like', "%{$search}%");
                     }
                     )->orWhereHas('employee', function ($q3) use ($search) {
-                        $q3->where('full_name', 'like', "%{$search}%");
+                        $q3->where('fname', 'like', "%{$search}%")
+                           ->orWhere('lname', 'like', "%{$search}%")
+                           ->orWhere('emp_id', 'like', "%{$search}%");
                     }
                     );
                 });
@@ -112,7 +114,9 @@ class PcHistoryController extends Controller
                         $q2->where('asset_tag', 'like', "%{$search}%");
                     }
                     )->orWhereHas('employee', function ($q3) use ($search) {
-                        $q3->where('full_name', 'like', "%{$search}%");
+                        $q3->where('fname', 'like', "%{$search}%")
+                           ->orWhere('lname', 'like', "%{$search}%")
+                           ->orWhere('emp_id', 'like', "%{$search}%");
                     }
                     );
                 });

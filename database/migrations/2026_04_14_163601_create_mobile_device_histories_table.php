@@ -11,11 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::dropIfExists('mobile_device_histories');
         Schema::create('mobile_device_histories', function (Blueprint $table) {
             $table->id();
             $table->foreignId('mobile_device_id')->constrained('mobile_devices')->onDelete('cascade');
-            $table->foreignId('employee_id')->nullable()->constrained('employees')->onDelete('set null');
-            $table->foreignId('previous_employee_id')->nullable()->constrained('employees')->onDelete('set null');
+            $table->string('employee_id')->nullable();
+            $table->foreign('employee_id')->references('emp_id')->on('employees')->onDelete('set null');
+            $table->string('previous_employee_id')->nullable();
+            $table->foreign('previous_employee_id')->references('emp_id')->on('employees')->onDelete('set null');
             $table->timestamp('assigned_date')->nullable();
             $table->timestamp('returned_date')->nullable();
             $table->string('action');

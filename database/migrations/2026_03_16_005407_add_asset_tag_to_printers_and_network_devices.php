@@ -11,13 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('printers', function (Blueprint $table) {
-            $table->string('asset_tag')->unique()->nullable()->after('id');
-        });
+        if (!Schema::hasColumn('printers', 'asset_tag')) {
+            Schema::table('printers', function (Blueprint $table) {
+                $table->string('asset_tag')->unique()->nullable()->after('id');
+            });
+        }
 
-        Schema::table('network_devices', function (Blueprint $table) {
-            $table->string('asset_tag')->unique()->nullable()->after('id');
-        });
+        if (!Schema::hasColumn('network_devices', 'asset_tag')) {
+            Schema::table('network_devices', function (Blueprint $table) {
+                $table->string('asset_tag')->unique()->nullable()->after('id');
+            });
+        }
     }
 
     /**

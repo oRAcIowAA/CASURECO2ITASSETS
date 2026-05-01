@@ -31,12 +31,12 @@ class EmployeeController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('full_name', 'like', "%{$search}%")
-                    ->orWhere('employee_id', 'like', "%{$search}%")
-                    ->orWhere('position', 'like', "%{$search}%")
+                $q->where('fname', 'like', "%{$search}%")
+                    ->orWhere('lname', 'like', "%{$search}%")
+                    ->orWhere('mname', 'like', "%{$search}%")
+                    ->orWhere('emp_id', 'like', "%{$search}%")
                     ->orWhere('department', 'like', "%{$search}%")
-                    ->orWhere('group', 'like', "%{$search}%")
-                    ->orWhere('division', 'like', "%{$search}%");
+                    ->orWhere('location', 'like', "%{$search}%");
             });
         }
 
@@ -71,15 +71,15 @@ class EmployeeController extends Controller
         $employee->load(['pcUnits', 'printers', 'networkDevices', 'employeeHistory.createdBy']);
 
         // Asset History
-        $pcHistory = PcHistory::where('employee_id', $employee->id)
+        $pcHistory = PcHistory::where('employee_id', $employee->emp_id)
             ->with(['pcUnit', 'createdBy', 'previousEmployee', 'employee'])
             ->get();
 
-        $printerHistory = PrinterHistory::where('employee_id', $employee->id)
+        $printerHistory = PrinterHistory::where('employee_id', $employee->emp_id)
             ->with(['printer', 'createdBy', 'previousEmployee', 'employee'])
             ->get();
 
-        $networkHistory = NetworkDeviceHistory::where('employee_id', $employee->id)
+        $networkHistory = NetworkDeviceHistory::where('employee_id', $employee->emp_id)
             ->with(['networkDevice', 'createdBy', 'previousEmployee', 'employee'])
             ->get();
 

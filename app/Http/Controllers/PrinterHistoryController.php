@@ -24,7 +24,9 @@ class PrinterHistoryController extends Controller
                             ->orWhere('model', 'like', "%{$search}%");
                     }
                     )->orWhereHas('employee', function ($q3) use ($search) {
-                        $q3->where('full_name', 'like', "%{$search}%");
+                        $q3->where('fname', 'like', "%{$search}%")
+                           ->orWhere('lname', 'like', "%{$search}%")
+                           ->orWhere('emp_id', 'like', "%{$search}%");
                     }
                     );
                 });

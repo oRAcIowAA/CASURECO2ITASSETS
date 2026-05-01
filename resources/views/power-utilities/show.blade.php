@@ -343,9 +343,12 @@
                     <div class="border-t border-gray-200 pt-6 mb-6">
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Location & Assignment</h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                            $source = $powerUtility->employee ?: $powerUtility; @endphp
+                            @php
+                                $source = $powerUtility->employee_id ? $powerUtility->employee : $powerUtility;
+                            @endphp
                             <div>
-                                <label class="block text-sm font-medium text-gray-500 mb-1">Location</label>
+                                <label class="block text-sm font-medium text-gray-500 mb-1 uppercase">Location <span
+                                        class="text-[10px] text-indigo-500 font-bold uppercase tracking-tight">{{ $powerUtility->employee_id ? '(BASED ON EMPLOYEE)' : '' }}</span></label>
                                 <p class="text-lg font-bold text-gray-900 uppercase">{{ $source->group ?? 'N/A' }}</p>
                             </div>
                             <div>
@@ -361,7 +364,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-500 mb-1">Assigned To</label>
                                 <p class="text-lg font-bold text-gray-900 uppercase">
-                                    {{ $powerUtility->employee ? strtoupper($powerUtility->employee->full_name) : 'UNASSIGNED' }}
+                                    {{ $powerUtility->employee_id ? strtoupper($powerUtility->employee->full_name) : 'UNASSIGNED' }}
                                 </p>
                             </div>
                             <div>
@@ -519,3 +522,5 @@
         });
     </script>
 </x-app-layout>
+
+

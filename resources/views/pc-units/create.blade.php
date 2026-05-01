@@ -422,46 +422,46 @@
                             </div>
                         </div>
 
-                        <!-- Group -->
+                        <!-- Location -->
                         <div class="mb-6">
-                            <label for="group" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                            <label for="location" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
                                 Location <span class="text-red-500">*</span>
                             </label>
-                            <select name="group" id="group"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('group') border-red-500 @enderror"
+                            <select name="location" id="location"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('location') border-red-500 @enderror"
                                     required>
                                 <option value="">SELECT LOCATION</option>
                                 @foreach($groups as $group)
-                                    <option value="{{ $group }}" {{ old('group') === $group ? 'selected' : '' }}>
+                                    <option value="{{ $group }}" {{ old('location') === $group ? 'selected' : '' }}>
                                         {{ strtoupper($group) }}
                                     </option>
                                 @endforeach
                             </select>
-                            @error('group')
+                            @error('location')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <!-- Assignment Section -->
-                        <div class="mb-6 border-t pt-4" x-data="{ assignmentType: '{{ old('assignment_type', 'standby') }}' }">
+                        <div class="mb-6 border-t pt-4" x-data="{ assignmentType: '{{ old('assignment_type', 'STANDBY') }}' }">
                             <label class="block text-lg font-bold text-gray-900 mb-2 uppercase tracking-wide">ASSIGNMENT</label>
                             
                             <div class="flex space-x-6 mb-4">
                                 <label class="inline-flex items-center">
-                                    <input type="radio" name="assignment_type" value="standby" 
+                                    <input type="radio" name="assignment_type" value="STANDBY" 
                                            class="border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                            x-model="assignmentType">
                                     <span class="ml-2 text-gray-700 uppercase font-bold">STORAGE AVAILABLE</span>
                                 </label>
                                 <label class="inline-flex items-center">
-                                    <input type="radio" name="assignment_type" value="assign" 
+                                    <input type="radio" name="assignment_type" value="ASSIGN" 
                                            class="border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                            x-model="assignmentType">
                                     <span class="ml-2 text-gray-700 uppercase font-bold">DEPLOYMENT</span>
                                 </label>
                             </div>
 
-                            <div x-show="assignmentType === 'assign'" class="bg-gray-50 p-4 rounded-md mb-4">
+                            <div x-show="assignmentType === 'ASSIGN'" class="bg-gray-50 p-4 rounded-md mb-4">
                                 <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">SELECT EMPLOYEE</label>
                                 <select name="employee_id" x-init="new Choices($el, { searchPlaceholderValue: 'SEARCH NAME, DEPARTMENT...' })" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                                     <option value="">-- CHOOSE EMPLOYEE --</option>
@@ -523,3 +523,5 @@
         </div>
     </div>
 </x-app-layout>
+
+

@@ -5,8 +5,11 @@
         </h2>
         <div class="mt-1 text-sm text-gray-500 uppercase">
             ID: <span class="font-medium text-gray-900">{{ strtoupper($employee->employee_id ?? 'N/A') }}</span> &bull; 
-            {{ strtoupper($employee->position ?? 'NO POSITION') }} &bull; 
-            {{ strtoupper($employee->department ?? 'N/A') }} / {{ strtoupper($employee->division ?? 'N/A') }} / {{ strtoupper($employee->group ?? 'N/A') }}
+            {{ strtoupper($employee->position ?? 'N/A') }} &bull; 
+            @php
+                $locParts = array_filter([$employee->department, $employee->division, $employee->location, $employee->group]);
+                echo strtoupper(implode(' / ', array_unique($locParts))) ?: 'N/A';
+            @endphp
         </div>
     </x-slot>
 
@@ -259,3 +262,5 @@
         </div>
     </div>
 </x-app-layout>
+
+

@@ -60,11 +60,11 @@
                     </div>
 
                     <div>
-                        <select name="group"
+                        <select name="location"
                             class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-semibold text-xs h-10">
                             <option value="">ALL LOCATIONS</option>
                             @foreach($groups as $group)
-                                <option value="{{ $group }}" {{ request('group') == $group ? 'selected' : '' }}>
+                                <option value="{{ $group }}" {{ request('location') == $group ? 'selected' : '' }}>
                                     {{ strtoupper($group) }}</option>
                             @endforeach
                         </select>
@@ -179,15 +179,11 @@
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">
-                                            {{ strtoupper(($device->employee ? $device->employee->group : $device->group) ?? 'N/A') }}
+                                        <div class="text-sm text-gray-900 font-semibold uppercase">
+                                            {{ strtoupper($device->location) }}
                                         </div>
-                                        <div class="text-xs text-gray-500">
-                                            @php
-                                                $source = $device->employee ?: $device;
-                                                $locParts = array_filter([$source->department, $source->division]);
-                                                echo strtoupper(implode(' / ', $locParts)) ?: 'N/A';
-                                            @endphp
+                                        <div class="text-xs text-gray-500 italic">
+                                            {{ strtoupper($device->department) }} / {{ strtoupper($device->division) }}
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -235,3 +231,5 @@
         </div>
     </div>
 </x-app-layout>
+
+

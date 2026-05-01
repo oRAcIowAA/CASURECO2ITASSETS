@@ -48,10 +48,10 @@ class UpdateNetworkDeviceRequest extends FormRequest
                 'ipv4',
                 new \App\Rules\GlobalUniqueIp($this->route('network_device') ? $this->route('network_device')->id : null, \App\Models\NetworkDevice::class),
             ],
-            'group' => ['required', Rule::in(Organization::LOCATIONS)],
+            'location' => ['required', Rule::in(Organization::LOCATIONS)],
             'department' => ['nullable', Rule::in(Organization::DEPARTMENTS)],
             'division' => ['nullable', Rule::in(Organization::DIVISIONS)],
-            'employee_id' => 'nullable|exists:employees,id',
+            'employee_id' => 'nullable|exists:employees,emp_id',
             'date_issued' => 'required|date',
             'assignment_type' => 'required|in:STANDBY,ASSIGN',
         ];

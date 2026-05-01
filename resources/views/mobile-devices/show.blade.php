@@ -243,10 +243,11 @@
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Location & Assignment</h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                             @php
-                                $source = $mobileDevice->employee ?: $mobileDevice;
+                                $source = $mobileDevice->employee_id ? $mobileDevice->employee : $mobileDevice;
                             @endphp
                             <div>
-                                <label class="block text-sm font-medium text-gray-500 mb-1">Location</label>
+                                <label class="block text-sm font-medium text-gray-500 mb-1 uppercase">Location <span
+                                        class="text-[10px] text-indigo-500 font-bold uppercase tracking-tight">{{ $mobileDevice->employee_id ? '(BASED ON EMPLOYEE)' : '' }}</span></label>
                                 <p class="text-lg font-bold text-gray-900 uppercase">{{ $source->group ?? 'N/A' }}</p>
                             </div>
                             <div>
@@ -260,7 +261,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-500 mb-1">Assigned To</label>
                                 <p class="text-lg font-bold text-gray-900 uppercase">
-                                    {{ $mobileDevice->employee ? strtoupper($mobileDevice->employee->full_name) : 'UNASSIGNED' }}
+                                    {{ $mobileDevice->employee_id ? strtoupper($mobileDevice->employee->full_name) : 'UNASSIGNED' }}
                                 </p>
                             </div>
                             <div>
@@ -400,3 +401,5 @@
         });
     </script>
 </x-app-layout>
+
+

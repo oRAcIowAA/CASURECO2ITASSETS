@@ -316,7 +316,7 @@
                                                         <span class="text-sm text-gray-600">{{ $unit->device_type }} - {{ $unit->model }}</span>
                                                     </td>
                                                     <td class="px-6 py-3 whitespace-nowrap text-xs font-mono text-gray-400 italic">
-                                                        {{ $unit->employee_id 
+                                                        {{ ($unit->employee_id && $unit->employee) 
                                                             ? strtoupper(implode(' / ', array_filter([$unit->employee->group, $unit->employee->department, $unit->employee->division])))
                                                             : strtoupper(implode(' / ', array_filter([$unit->group, $unit->department, $unit->division]))) 
                                                         }}
@@ -359,7 +359,7 @@
                                                         <span class="text-sm text-gray-600">{{ $unit->brand }} {{ $unit->model }}</span>
                                                     </td>
                                                     <td class="px-6 py-3 whitespace-nowrap text-xs font-mono text-gray-400 italic">
-                                                        {{ $unit->employee_id 
+                                                        {{ ($unit->employee_id && $unit->employee) 
                                                             ? strtoupper(implode(' / ', array_filter([$unit->employee->group, $unit->employee->department, $unit->employee->division])))
                                                             : strtoupper(implode(' / ', array_filter([$unit->group, $unit->department, $unit->division]))) 
                                                         }}
@@ -401,7 +401,7 @@
                                                         <span class="text-sm text-gray-600">{{ $unit->brand }} {{ $unit->model }} ({{ $unit->device_type }})</span>
                                                     </td>
                                                     <td class="px-6 py-3 whitespace-nowrap text-xs font-mono text-gray-400 italic">
-                                                        {{ $unit->employee_id 
+                                                        {{ ($unit->employee_id && $unit->employee) 
                                                             ? strtoupper(implode(' / ', array_filter([$unit->employee->group, $unit->employee->department, $unit->employee->division])))
                                                             : strtoupper(implode(' / ', array_filter([$unit->group, $unit->department, $unit->division]))) 
                                                         }}
@@ -444,7 +444,7 @@
                                                         <span class="text-sm text-gray-600">{{ $unit->type }} - {{ $unit->brand }} {{ $unit->model }}</span>
                                                     </td>
                                                     <td class="px-6 py-3 whitespace-nowrap text-xs font-mono text-gray-400 italic">
-                                                        {{ $unit->employee_id 
+                                                        {{ ($unit->employee_id && $unit->employee) 
                                                             ? strtoupper(implode(' / ', array_filter([$unit->employee->group, $unit->employee->department, $unit->employee->division])))
                                                             : strtoupper(implode(' / ', array_filter([$unit->group, $unit->department, $unit->division]))) 
                                                         }}
@@ -487,7 +487,7 @@
                                                         <span class="text-sm text-gray-600">{{ $unit->type }} - {{ $unit->brand }} {{ $unit->model }}</span>
                                                     </td>
                                                     <td class="px-6 py-3 whitespace-nowrap text-xs font-mono text-gray-400 italic">
-                                                        {{ $unit->employee_id 
+                                                        {{ ($unit->employee_id && $unit->employee) 
                                                             ? strtoupper(implode(' / ', array_filter([$unit->employee->group, $unit->employee->department, $unit->employee->division])))
                                                             : strtoupper(implode(' / ', array_filter([$unit->group, $unit->department, $unit->division]))) 
                                                         }}
@@ -551,3 +551,5 @@
     </script>
     @endpush
 </x-app-layout>
+
+

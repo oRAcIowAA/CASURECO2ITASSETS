@@ -13,7 +13,7 @@ class OrganizationController extends Controller
         $groupsConst = \App\Constants\Organization::LOCATIONS;
 
         // Fetch all employees with PC Units, Printers, Network Devices, Power Utilities, and Mobile Devices, ordered by name
-        $allEmployees = Employee::with(['pcUnits', 'printers', 'networkDevices', 'powerUtilities', 'mobileDevices'])->orderBy('full_name')->get();
+        $allEmployees = Employee::with(['pcUnits', 'printers', 'networkDevices', 'powerUtilities', 'mobileDevices'])->orderBy('lname')->orderBy('fname')->get();
 
         $groups = collect();
 

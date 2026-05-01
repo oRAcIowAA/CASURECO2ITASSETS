@@ -288,11 +288,11 @@
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Location & Assignment</h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                             @php
-                                $source = $printer->employee ?: $printer;
+                                $source = $printer->employee_id ? $printer->employee : $printer;
                             @endphp
                             <div>
                                 <label class="block text-sm font-medium text-gray-500 mb-1 uppercase">Location <span
-                                        class="text-[10px] text-indigo-500 font-bold uppercase tracking-tight">{{ $printer->employee ? '(BASED ON EMPLOYEE)' : '' }}</span></label>
+                                        class="text-[10px] text-indigo-500 font-bold uppercase tracking-tight">{{ $printer->employee_id ? '(BASED ON EMPLOYEE)' : '' }}</span></label>
                                 <p class="text-lg font-semibold text-gray-900 uppercase">{{ $source->group ?? 'N/A' }}
                                 </p>
                             </div>
@@ -309,7 +309,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-500 mb-1">ASSIGNED TO</label>
                                 <p class="text-lg font-semibold text-gray-900">
-                                    {{ $printer->employee ? strtoupper($printer->employee->full_name) : 'UNASSIGNED' }}
+                                    {{ $printer->employee_id ? strtoupper($printer->employee->full_name) : 'UNASSIGNED' }}
                                     @if($printer->employee)
                                         <span
                                             class="text-sm text-gray-500">({{ strtoupper($printer->employee->position) }})</span>
@@ -472,3 +472,5 @@
         </script>
     @endif
 </x-app-layout>
+
+

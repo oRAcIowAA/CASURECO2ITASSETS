@@ -409,11 +409,11 @@
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Location & Assignment</h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                             @php
-                                $source = $pcUnit->employee ?: $pcUnit;
+                                $source = $pcUnit->employee_id ? $pcUnit->employee : $pcUnit;
                             @endphp
                             <div>
                                 <label class="block text-sm font-medium text-gray-500 mb-1 uppercase">Location <span
-                                        class="text-[10px] text-indigo-500 font-bold uppercase tracking-tight">{{ $pcUnit->employee ? '(BASED ON EMPLOYEE)' : '' }}</span></label>
+                                        class="text-[10px] text-indigo-500 font-bold uppercase tracking-tight">{{ $pcUnit->employee_id ? '(BASED ON EMPLOYEE)' : '' }}</span></label>
                                 <p class="text-lg font-semibold text-gray-900 uppercase">{{ $source->group ?? 'N/A' }}
                                 </p>
                             </div>
@@ -430,7 +430,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-500 mb-1">ASSIGNED TO</label>
                                 <p class="text-lg font-semibold text-gray-900">
-                                    {{ $pcUnit->employee ? strtoupper($pcUnit->employee->full_name) : 'UNASSIGNED' }}
+                                    {{ $pcUnit->employee_id ? strtoupper($pcUnit->employee->full_name) : 'UNASSIGNED' }}
                                     @if($pcUnit->employee)
                                         <span
                                             class="text-sm text-gray-500">({{ strtoupper($pcUnit->employee->position) }})</span>
@@ -583,3 +583,5 @@
         </script>
     @endif
 </x-app-layout>
+
+

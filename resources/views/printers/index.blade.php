@@ -55,10 +55,10 @@
                         </div>
 
                         <div>
-                            <select name="group" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-semibold text-xs h-10">
+                            <select name="location" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-semibold text-xs h-10">
                                 <option value="">ALL LOCATIONS</option>
                                 @foreach($groups as $group)
-                                    <option value="{{ $group }}" {{ request('group') == $group ? 'selected' : '' }}>{{ strtoupper($group) }}</option>
+                                    <option value="{{ $group }}" {{ request('location') == $group ? 'selected' : '' }}>{{ strtoupper($group) }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -126,7 +126,8 @@
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset Tag</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type / Brand / Model</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location / Network</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Network</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned To</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -143,18 +144,19 @@
                                             <div class="text-xs text-gray-500 uppercase">{{ $printer->brand }} {{ $printer->model }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">
-                                                {{ strtoupper(($printer->employee ? $printer->employee->group : $printer->group) ?? 'N/A') }}
+                                            <div class="text-sm text-gray-900 font-semibold uppercase">
+                                                {{ strtoupper($printer->location) }}
                                             </div>
-                                            <div class="text-xs text-gray-500">
-                                                @php
-                                                    $source = $printer->employee ?: $printer;
-                                                    $locParts = array_filter([$source->department, $source->division]);
-                                                    echo strtoupper(implode(' / ', $locParts)) ?: 'N/A';
-                                                @endphp
+                                            <div class="text-xs text-gray-500 italic">
+                                                {{ strtoupper($printer->department) }} / {{ strtoupper($printer->division) }}
                                             </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
                                             @if($printer->ip_address)
-                                                <div class="text-[10px] text-indigo-400 font-mono mt-0.5 tracking-tighter">{{ $printer->ip_address }}</div>
+                                                <div class="text-sm text-gray-900 font-mono font-semibold">{{ $printer->ip_address }}</div>
+                                                <div class="text-[10px] text-gray-500 uppercase tracking-tighter">{{ $printer->ip_type ?? 'STATIC' }}</div>
+                                            @else
+                                                <span class="text-xs text-gray-400 italic">N/A</span>
                                             @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -202,3 +204,5 @@
         </div>
     </div>
 </x-app-layout>
+
+

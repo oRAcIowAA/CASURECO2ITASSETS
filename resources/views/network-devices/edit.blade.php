@@ -134,10 +134,10 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">Location</label>
-                            <select name="group" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 uppercase" required>
+                            <select name="location" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 uppercase" required>
                                 <option value="">SELECT LOCATION</option>
                                 @foreach($groups as $group)
-                                    <option value="{{ $group }}" {{ old('group', $networkDevice->group) == $group ? 'selected' : '' }}>{{ strtoupper($group) }}</option>
+                                    <option value="{{ $group }}" {{ old('location', $networkDevice->location) == $group ? 'selected' : '' }}>{{ strtoupper($group) }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -172,7 +172,7 @@
                                         This unit is currently <strong>{{ strtoupper($networkDevice->status) }}</strong> and cannot be reassigned. To change the status, please use the appropriate action from the details page.
                                     </span>
                                 </div>
-                                <input type="hidden" name="assignment_type" value="standby">
+                                <input type="hidden" name="assignment_type" value="STANDBY">
                             </div>
                         </div>
                     @else
@@ -181,20 +181,20 @@
                             
                             <div class="flex space-x-6 mb-4">
                                 <label class="inline-flex items-center">
-                                    <input type="radio" name="assignment_type" value="standby" 
+                                    <input type="radio" name="assignment_type" value="STANDBY" 
                                            class="border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                            x-model="assignmentType">
                                     <span class="ml-2 text-gray-700 uppercase font-bold">STORAGE AVAILABLE</span>
                                 </label>
                                 <label class="inline-flex items-center">
-                                    <input type="radio" name="assignment_type" value="assign" 
+                                    <input type="radio" name="assignment_type" value="ASSIGN" 
                                            class="border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                            x-model="assignmentType">
                                     <span class="ml-2 text-gray-700 uppercase font-bold">DEPLOYMENT</span>
                                 </label>
                             </div>
 
-                            <div x-show="assignmentType === 'assign'" class="bg-gray-50 p-4 rounded-md">
+                            <div x-show="assignmentType === 'ASSIGN'" class="bg-gray-50 p-4 rounded-md">
                                 <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">SELECT EMPLOYEE</label>
                                 <select name="employee_id" x-init="new Choices($el, { searchPlaceholderValue: 'SEARCH NAME, DEPARTMENT...' })" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                                     <option value="">-- CHOOSE EMPLOYEE --</option>
@@ -223,3 +223,5 @@
         </div>
     </div>
 </x-app-layout>
+
+

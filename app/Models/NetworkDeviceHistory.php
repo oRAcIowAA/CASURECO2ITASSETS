@@ -24,12 +24,12 @@ class NetworkDeviceHistory extends Model
 
     public function employee()
     {
-        return $this->belongsTo(Employee::class);
+        return $this->belongsTo(Employee::class, 'employee_id', 'emp_id')->withDefault();
     }
 
     public function previousEmployee()
     {
-        return $this->belongsTo(Employee::class , 'previous_employee_id');
+        return $this->belongsTo(Employee::class , 'previous_employee_id')->withDefault();
     }
 
     public function createdBy()

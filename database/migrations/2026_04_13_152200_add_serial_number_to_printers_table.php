@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('printers', function (Blueprint $table) {
-            $table->string('serial_number')->nullable()->after('model');
-        });
+        if (!Schema::hasColumn('printers', 'serial_number')) {
+            Schema::table('printers', function (Blueprint $table) {
+                $table->string('serial_number')->nullable()->after('model');
+            });
+        }
     }
 
     /**

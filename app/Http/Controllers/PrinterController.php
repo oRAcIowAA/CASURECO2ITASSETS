@@ -39,22 +39,51 @@ class PrinterController extends Controller
                     ->orWhere('model', 'like', "%{$searchTerm}%")
                     ->orWhere('type', 'like', "%{$searchTerm}%")
                     ->orWhere('ip_address', 'like', "%{$searchTerm}%")
-                    ->orWhere('group', 'like', "%{$searchTerm}%")
+                    ->orWhere('location', 'like', "%{$searchTerm}%")
                     ->orWhere('division', 'like', "%{$searchTerm}%")
-                    ->orWhere('department', 'like', "%{$searchTerm}%");
+                    ->orWhere('department', 'like', "%{$searchTerm}%")
+                    ->orWhereHas('employee', function ($sq) use ($searchTerm) {
+                        $sq->where('fname', 'like', "%{$searchTerm}%")
+                           ->orWhere('lname', 'like', "%{$searchTerm}%")
+                           ->orWhere('emp_id', 'like', "%{$searchTerm}%");
+                    });
             });
         }
 
-        if ($request->filled('group')) {
-            $query->where('group', $request->group);
+        // Location filter
+        if ($request->filled('location') && $request->location !== 'All Locations') {
+            $val = $request->location;
+            $query->where(function($q) use ($val) {
+                $q->where(function($sq) use ($val) {
+                    $sq->whereNull('employee_id')->where('location', $val);
+                })->orWhereHas('employee', function($sq) use ($val) {
+                    $sq->where('location', $val);
+                });
+            });
         }
 
-        if ($request->filled('division')) {
-            $query->where('division', $request->division);
+        // Division filter
+        if ($request->filled('division') && $request->division !== 'All Divisions') {
+            $val = $request->division;
+            $query->where(function($q) use ($val) {
+                $q->where(function($sq) use ($val) {
+                    $sq->whereNull('employee_id')->where('division', $val);
+                })->orWhereHas('employee', function($sq) use ($val) {
+                    $sq->where('division', $val);
+                });
+            });
         }
 
-        if ($request->filled('department')) {
-            $query->where('department', $request->department);
+        // Department filter
+        if ($request->filled('department') && $request->department !== 'All Departments') {
+            $val = $request->department;
+            $query->where(function($q) use ($val) {
+                $q->where(function($sq) use ($val) {
+                    $sq->whereNull('employee_id')->where('department', $val);
+                })->orWhereHas('employee', function($sq) use ($val) {
+                    $sq->where('department', $val);
+                });
+            });
         }
 
         if ($request->filled('status')) {
@@ -81,7 +110,7 @@ class PrinterController extends Controller
     public function create()
     {
         $groups = \App\Constants\Organization::LOCATIONS;
-        $employees = Employee::orderBy('full_name')->get();
+        $employees = Employee::orderBy('lname')->orderBy('fname')->get();
         $nextAssetTag = \App\Services\AssetTagService::generateNextTag(Printer::class, 'CAS-PR-');
         return view('printers.create', compact('groups', 'employees', 'nextAssetTag'));
     }
@@ -143,7 +172,7 @@ class PrinterController extends Controller
     public function edit(Printer $printer)
     {
         $groups = \App\Constants\Organization::LOCATIONS;
-        $employees = Employee::orderBy('full_name')->get();
+        $employees = Employee::orderBy('lname')->orderBy('fname')->get();
         return view('printers.edit', compact('printer', 'groups', 'employees'));
     }
 

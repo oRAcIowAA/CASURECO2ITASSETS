@@ -22,12 +22,17 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
                                 {{ $employee->full_name }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $employee->position ?? 'N/A' }}
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-semibold">
+                                {{ strtoupper($employee->position ?? 'N/A') }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-bold text-gray-900 uppercase">{{ strtoupper($employee->department ?? 'N/A') }}</div>
-                                <div class="text-xs text-gray-500">{{ strtoupper($employee->division ?? 'N/A') }} / {{ strtoupper($employee->group ?? 'N/A') }}</div>
+                                <div class="text-xs text-gray-500 italic">
+                                    @php
+                                        $locParts = array_filter([$employee->division, $employee->location, $employee->group]);
+                                        echo strtoupper(implode(' / ', array_unique($locParts))) ?: 'N/A';
+                                    @endphp
+                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <a href="{{ route('employees.show', $employee) }}" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
@@ -57,3 +62,5 @@
         {{ $employees->links() }}
     @endif
 </div>
+
+

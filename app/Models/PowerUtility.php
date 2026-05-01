@@ -18,7 +18,7 @@ class PowerUtility extends Model
         'input_voltage',
         'output_voltage',
         'status',
-        'group',
+        'location',
         'division',
         'department',
         'employee_id',
@@ -38,7 +38,7 @@ class PowerUtility extends Model
 
     public function employee(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Employee::class);
+        return $this->belongsTo(Employee::class, 'employee_id', 'emp_id')->withDefault();
     }
 
     public function updatedBy(): \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -66,5 +66,34 @@ class PowerUtility extends Model
     public function getPublicUrlAttribute()
     {
         return route('public.asset.show', $this->tracking_uuid);
+    }
+
+    public function getLocationAttribute($value)
+    {
+        if ($this->status === 'assigned' && $this->employee && $this->employee->exists) {
+            return $this->employee->location;
+        }
+        return $value ?? 'N/A';
+    }
+
+    public function getDepartmentAttribute($value)
+    {
+        if ($this->status === 'assigned' && $this->employee && $this->employee->exists) {
+            return $this->employee->department;
+        }
+        return $value ?? 'N/A';
+    }
+
+    public function getDivisionAttribute($value)
+    {
+        if ($this->status === 'assigned' && $this->employee && $this->employee->exists) {
+            return $this->employee->division;
+        }
+        return $value ?? 'N/A';
+    }
+
+    public function getGroupAttribute()
+    {
+        return $this->location;
     }
 }

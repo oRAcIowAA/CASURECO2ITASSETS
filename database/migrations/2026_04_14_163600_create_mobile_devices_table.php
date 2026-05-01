@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::dropIfExists('mobile_devices');
         Schema::create('mobile_devices', function (Blueprint $table) {
             $table->id();
             $table->string('asset_tag')->unique();
@@ -27,7 +28,8 @@ return new class extends Migration
             $table->string('group')->nullable(); // Location
             $table->string('division')->nullable();
             $table->string('department')->nullable();
-            $table->foreignId('employee_id')->nullable()->constrained('employees')->onDelete('set null');
+            $table->string('employee_id')->nullable();
+            $table->foreign('employee_id')->references('emp_id')->on('employees')->onDelete('set null');
             
             $table->date('date_issued')->nullable();
             $table->date('date_assigned')->nullable();

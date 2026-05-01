@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::dropIfExists('employee_histories');
         Schema::create('employee_histories', function (Blueprint $header) {
             $header->id();
-            $header->foreignId('employee_id')->constrained()->onDelete('cascade');
+            $header->string('employee_id');
+            $header->foreign('employee_id')->references('emp_id')->on('employees')->onDelete('cascade');
             $header->string('action');
             $header->text('notes')->nullable();
             $header->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');

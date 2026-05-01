@@ -40,7 +40,7 @@ class UpdatePrinterRequest extends FormRequest
             'brand' => 'required|string|max:255',
             'model' => 'required|string|max:255',
             'serial_number' => 'required_if:type,PORTABLE PRINTER|nullable|string|max:255',
-            'group' => ['required', Rule::in(Organization::LOCATIONS)],
+            'location' => ['required', Rule::in(Organization::LOCATIONS)],
             'department' => ['nullable', Rule::in(Organization::DEPARTMENTS)],
             'division' => ['nullable', Rule::in(Organization::DIVISIONS)],
             'has_network_port' => 'required|boolean',
@@ -57,7 +57,7 @@ class UpdatePrinterRequest extends FormRequest
                 new \App\Rules\GlobalUniqueMac($this->route('printer') ? $this->route('printer')->id : null, \App\Models\Printer::class)
             ],
             'network_segment' => 'nullable|string|max:255',
-            'employee_id' => 'nullable|exists:employees,id',
+            'employee_id' => 'nullable|exists:employees,emp_id',
             'date_issued' => 'required|date',
             'assignment_type' => 'required|in:STANDBY,ASSIGN',
         ];
