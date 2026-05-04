@@ -47,13 +47,13 @@ return new class extends Migration
         // Separate closure for dropping columns to ensure we don't conflict with adding
         try {
             Schema::table('employees', function (Blueprint $table) {
-                $table->dropForeign(['department_id']);
+                $table->dropForeign('employees_department_id_foreign');
             });
         } catch (\Exception $e) {}
         
         try {
             Schema::table('employees', function (Blueprint $table) {
-                $table->dropForeign(['division_id']);
+                $table->dropForeign('employees_division_id_foreign');
             });
         } catch (\Exception $e) {}
 

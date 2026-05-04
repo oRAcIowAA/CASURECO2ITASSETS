@@ -8,15 +8,14 @@
         <title>{{ config('app.name', 'Laravel') }}</title>
 
         <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <link href="{{ asset('css/figtree.css') }}" rel="stylesheet" />
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-        <!-- Choices.js CDN -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
-        <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+        <!-- Choices.js -->
+        <link rel="stylesheet" href="{{ asset('css/choices.min.css') }}" />
+        <script src="{{ asset('js/choices.min.js') }}"></script>
     </head>
     <body class="font-sans antialiased bg-gray-50 text-gray-900 w-full min-h-screen" x-data="{ sidebarOpen: false }">
         <div class="flex h-screen overflow-hidden">
