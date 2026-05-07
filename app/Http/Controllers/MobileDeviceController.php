@@ -279,6 +279,10 @@ class MobileDeviceController extends Controller
      */
     public function transfer(MobileDevice $mobileDevice)
     {
+        if (in_array(strtolower($mobileDevice->status), ['condemned', 'disposed'])) {
+            return back()->with('error', 'Condemned/Disposed devices cannot be transferred.');
+        }
+
         $employees = Employee::orderBy('lname')->orderBy('fname')->get();
         return view('mobile-devices.transfer', compact('mobileDevice', 'employees'));
     }
@@ -288,6 +292,10 @@ class MobileDeviceController extends Controller
      */
     public function reassign(TransferDeviceRequest $request, MobileDevice $mobileDevice)
     {
+        if (in_array(strtolower($mobileDevice->status), ['condemned', 'disposed'])) {
+            return back()->with('error', 'Condemned/Disposed devices cannot be transferred.');
+        }
+
         $oldEmployeeId = $mobileDevice->employee_id;
         $employee = Employee::find($request->employee_id);
 
@@ -314,6 +322,10 @@ class MobileDeviceController extends Controller
      */
     public function assign(Request $request, MobileDevice $mobileDevice)
     {
+        if (in_array(strtolower($mobileDevice->status), ['condemned', 'disposed'])) {
+            return back()->with('error', 'Condemned/Disposed devices cannot be assigned.');
+        }
+
         $request->validate([
             'employee_id' => 'required|exists:employees,emp_id',
             'assignment_notes' => 'nullable|string'

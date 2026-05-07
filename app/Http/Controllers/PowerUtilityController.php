@@ -292,6 +292,10 @@ class PowerUtilityController extends Controller
      */
     public function transfer(PowerUtility $powerUtility)
     {
+        if (in_array(strtolower($powerUtility->status), ['condemned', 'disposed'])) {
+            return back()->with('error', 'Condemned/Disposed units cannot be transferred.');
+        }
+
         $employees = Employee::orderBy('lname')->orderBy('fname')->get();
         return view('power-utilities.transfer', compact('powerUtility', 'employees'));
     }
@@ -301,6 +305,10 @@ class PowerUtilityController extends Controller
      */
     public function reassign(TransferDeviceRequest $request, PowerUtility $powerUtility)
     {
+        if (in_array(strtolower($powerUtility->status), ['condemned', 'disposed'])) {
+            return back()->with('error', 'Condemned/Disposed units cannot be transferred.');
+        }
+
         $oldEmployeeId = $powerUtility->employee_id;
         $employee = Employee::find($request->employee_id);
 
@@ -327,6 +335,10 @@ class PowerUtilityController extends Controller
      */
     public function assign(Request $request, PowerUtility $powerUtility)
     {
+        if (in_array(strtolower($powerUtility->status), ['condemned', 'disposed'])) {
+            return back()->with('error', 'Condemned/Disposed units cannot be assigned.');
+        }
+
         $request->validate([
             'employee_id' => 'required|exists:employees,emp_id',
             'assignment_notes' => 'nullable|string'

@@ -301,6 +301,10 @@ class PcUnitController extends Controller
      */
     public function assign(Request $request, PcUnit $pcUnit)
     {
+        if (in_array(strtolower($pcUnit->status), ['condemned', 'disposed'])) {
+            return back()->with('error', 'Condemned/Disposed units cannot be assigned.');
+        }
+
         $request->validate([
             'employee_id' => 'required|exists:employees,emp_id',
             'assignment_notes' => 'nullable|string'
@@ -398,6 +402,10 @@ class PcUnitController extends Controller
      */
     public function transfer(PcUnit $pcUnit)
     {
+        if (in_array(strtolower($pcUnit->status), ['condemned', 'disposed'])) {
+            return back()->with('error', 'Condemned/Disposed units cannot be transferred.');
+        }
+
         $employees = Employee::orderBy('lname')->orderBy('fname')->get();
         return view('pc-units.transfer', compact('pcUnit', 'employees'));
     }
@@ -407,6 +415,10 @@ class PcUnitController extends Controller
      */
     public function reassign(TransferDeviceRequest $request, PcUnit $pcUnit)
     {
+        if (in_array(strtolower($pcUnit->status), ['condemned', 'disposed'])) {
+            return back()->with('error', 'Condemned/Disposed units cannot be transferred.');
+        }
+
         // Validation handled by TransferDeviceRequest
 
         $oldEmployeeId = $pcUnit->employee_id;

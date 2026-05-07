@@ -353,6 +353,10 @@ class NetworkDeviceController extends Controller
      */
     public function transfer(NetworkDevice $networkDevice)
     {
+        if (in_array(strtolower($networkDevice->status), ['condemned', 'disposed'])) {
+            return back()->with('error', 'Condemned/Disposed devices cannot be transferred.');
+        }
+
         $employees = Employee::orderBy('lname')->orderBy('fname')->get();
         return view('network-devices.transfer', compact('networkDevice', 'employees'));
     }
@@ -362,6 +366,10 @@ class NetworkDeviceController extends Controller
      */
     public function reassign(TransferDeviceRequest $request, NetworkDevice $networkDevice)
     {
+        if (in_array(strtolower($networkDevice->status), ['condemned', 'disposed'])) {
+            return back()->with('error', 'Condemned/Disposed devices cannot be transferred.');
+        }
+
         // Validation handled by TransferDeviceRequest
 
         $oldEmployeeId = $networkDevice->employee_id;

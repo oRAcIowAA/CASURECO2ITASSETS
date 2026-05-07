@@ -8,6 +8,7 @@ use App\Models\NetworkDevice;
 use App\Models\PowerUtility;
 use App\Models\MobileDevice;
 use App\Services\DeviceHistoryService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class PartsController extends Controller

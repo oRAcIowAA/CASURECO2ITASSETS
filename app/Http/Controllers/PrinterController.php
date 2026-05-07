@@ -336,6 +336,10 @@ class PrinterController extends Controller
      */
     public function transfer(Printer $printer)
     {
+        if (in_array(strtolower($printer->status), ['condemned', 'disposed'])) {
+            return back()->with('error', 'Condemned/Disposed printers cannot be transferred.');
+        }
+
         $employees = Employee::orderBy('lname')->orderBy('fname')->get();
         return view('printers.transfer', compact('printer', 'employees'));
     }
@@ -345,6 +349,10 @@ class PrinterController extends Controller
      */
     public function reassign(TransferDeviceRequest $request, Printer $printer)
     {
+        if (in_array(strtolower($printer->status), ['condemned', 'disposed'])) {
+            return back()->with('error', 'Condemned/Disposed printers cannot be transferred.');
+        }
+
         // Validation handled by TransferDeviceRequest
 
         $oldEmployeeId = $printer->employee_id;
