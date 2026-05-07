@@ -90,9 +90,15 @@
                                             @endif
                                             
                                             @if($record->notes)
-                                            <p class="mt-1 text-sm text-gray-600">
-                                                <span class="font-medium">Notes:</span> {{ $record->notes }}
-                                            </p>
+                                                @if(str_contains($record->notes, 'EDITED RECORD DETAILS'))
+                                                    <div class="font-mono text-[10px] text-indigo-600 bg-indigo-50 p-2 rounded border border-indigo-100 leading-relaxed shadow-sm mt-2">
+                                                        {!! str_replace(', ', '<br>', str_replace('EDITED RECORD DETAILS: ', '', $record->notes)) !!}
+                                                    </div>
+                                                @else
+                                                    <p class="mt-1 text-sm text-gray-600">
+                                                        <span class="font-medium">Notes:</span> {{ $record->notes }}
+                                                    </p>
+                                                @endif
                                             @endif
                                             
                                             @if($record->createdBy)

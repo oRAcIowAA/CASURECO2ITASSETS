@@ -7,10 +7,18 @@ use App\Models\Printer;
 use App\Models\NetworkDevice;
 use App\Models\PowerUtility;
 use App\Models\MobileDevice;
-use Illuminate\Http\Request;
+use App\Services\DeviceHistoryService;
+use Illuminate\Support\Facades\DB;
 
 class PartsController extends Controller
 {
+    protected $historyService;
+
+    public function __construct(DeviceHistoryService $historyService)
+    {
+        $this->historyService = $historyService;
+    }
+
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -97,7 +105,16 @@ class PartsController extends Controller
         }
 
         $device = $modelMap[$type]::findOrFail($id);
-        $device->update(['spare_parts' => $request->spare_parts]);
+        
+        DB::transaction(function () use ($device, $request) {
+            $device->fill(['spare_parts' => $request->spare_parts]);
+            $summary = $this->historyService->generateChangesSummary($device);
+            
+            if ($summary) {
+                $device->save();
+                $this->historyService->log($device, 'edited', $summary);
+            }
+        });
 
         return back()->with('success', 'Spare parts updated successfully.');
     }

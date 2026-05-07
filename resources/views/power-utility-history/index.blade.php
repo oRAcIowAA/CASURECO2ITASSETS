@@ -105,8 +105,14 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 max-w-xs">
-                                        <div class="text-[11px] text-gray-600 uppercase line-clamp-2 leading-relaxed">
-                                            {{ $record->notes }}
+                                        <div class="text-[11px] text-gray-600 leading-relaxed">
+                                            @if(str_contains($record->notes, 'EDITED RECORD DETAILS'))
+                                                <div class="font-mono text-[10px] text-indigo-600 bg-indigo-50 p-2 rounded border border-indigo-100 leading-relaxed shadow-sm">
+                                                    {!! str_replace(', ', '<br>', str_replace('EDITED RECORD DETAILS: ', '', $record->notes)) !!}
+                                                </div>
+                                            @else
+                                                {{ $record->notes ?? 'N/A' }}
+                                            @endif
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">

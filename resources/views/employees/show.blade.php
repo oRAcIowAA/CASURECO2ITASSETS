@@ -163,7 +163,13 @@
                                                     @endif
                                                 </p>
                                                 @if($log->notes)
-                                                    <p class="text-xs text-gray-500 mt-1 italic">"{{ $log->notes }}"</p>
+                                                    @if(str_contains($log->notes, 'EDITED RECORD DETAILS'))
+                                                        <div class="font-mono text-[10px] text-indigo-600 bg-indigo-50 p-2 rounded border border-indigo-100 leading-relaxed shadow-sm mt-1">
+                                                            {!! str_replace(', ', '<br>', str_replace('EDITED RECORD DETAILS: ', '', $log->notes)) !!}
+                                                        </div>
+                                                    @else
+                                                        <p class="text-xs text-gray-500 mt-1 italic">"{{ $log->notes }}"</p>
+                                                    @endif
                                                 @endif
                                                 <p class="text-[10px] text-gray-400 mt-0.5">Logged by: {{ $log->createdBy->name ?? 'System' }}</p>
                                             </div>
@@ -201,9 +207,13 @@
                                                     RECORD {{ strtoupper($log->action) }}
                                                 </p>
                                                 @if($log->notes)
-                                                    <p class="text-xs text-gray-600 mt-1 font-mono bg-gray-50 p-2 rounded border border-gray-100 leading-relaxed">
-                                                        {!! str_replace(', ', '<br>', $log->notes) !!}
-                                                    </p>
+                                                    @if(str_contains($log->notes, 'EDITED RECORD DETAILS'))
+                                                        <div class="font-mono text-[10px] text-indigo-600 bg-indigo-50 p-2 rounded border border-indigo-100 leading-relaxed shadow-sm mt-1">
+                                                            {!! str_replace(', ', '<br>', str_replace('EDITED RECORD DETAILS: ', '', $log->notes)) !!}
+                                                        </div>
+                                                    @else
+                                                        <p class="text-xs text-gray-500 mt-1 italic">"{{ $log->notes }}"</p>
+                                                    @endif
                                                 @endif
                                                 <p class="text-[10px] text-gray-400 mt-1">Updated by: {{ $log->createdBy->name ?? 'System' }}</p>
                                             </div>

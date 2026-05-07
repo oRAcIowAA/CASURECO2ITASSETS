@@ -91,7 +91,7 @@
                                             
                                             <div class="mt-1 text-xs text-gray-600 leading-relaxed font-medium">
                                                 @if(str_contains($record->notes, 'EDITED RECORD DETAILS'))
-                                                    <div class="font-mono text-[9px] text-indigo-600 bg-indigo-50 p-2 rounded border border-indigo-100 mt-2">
+                                                    <div class="font-mono text-[10px] text-indigo-600 bg-indigo-50 p-2 rounded border border-indigo-100 leading-relaxed shadow-sm mt-2">
                                                         {!! str_replace(', ', '<br>', str_replace('EDITED RECORD DETAILS: ', '', $record->notes)) !!}
                                                     </div>
                                                 @else

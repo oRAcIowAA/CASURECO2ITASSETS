@@ -141,8 +141,14 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ $record->previousEmployee->full_name ?? 'N/A' }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $record->notes ?? 'N/A' }}
+                                <td class="px-6 py-4 text-sm text-gray-500">
+                                    @if(str_contains($record->notes, 'EDITED RECORD DETAILS'))
+                                        <div class="font-mono text-[10px] text-indigo-600 bg-indigo-50 p-2 rounded border border-indigo-100 leading-relaxed shadow-sm">
+                                            {!! str_replace(', ', '<br>', str_replace('EDITED RECORD DETAILS: ', '', $record->notes)) !!}
+                                        </div>
+                                    @else
+                                        {{ $record->notes ?? 'N/A' }}
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ $record->createdBy->name ?? 'N/A' }}

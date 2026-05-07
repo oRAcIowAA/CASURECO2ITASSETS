@@ -118,7 +118,13 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 text-sm text-gray-500">
-                                        {{ Str::limit($log->notes, 50) }}
+                                        @if(str_contains($log->notes, 'EDITED RECORD DETAILS'))
+                                            <div class="font-mono text-[10px] text-indigo-600 bg-indigo-50 p-2 rounded border border-indigo-100 leading-relaxed shadow-sm">
+                                                {!! str_replace(', ', '<br>', str_replace('EDITED RECORD DETAILS: ', '', $log->notes)) !!}
+                                            </div>
+                                        @else
+                                            {{ $log->notes ?? 'N/A' }}
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {{ $log->createdBy ? $log->createdBy->name : 'System' }}

@@ -454,8 +454,8 @@
                                                 </td>
                                                 <td class="px-6 py-4 text-sm text-gray-500 min-w-[200px]">
                                                     @if(str_contains($history->notes, 'EDITED RECORD DETAILS'))
-                                                        <div class="font-mono text-[10px] leading-relaxed">
-                                                            {!! str_replace(', ', '<br>', $history->notes) !!}
+                                                        <div class="font-mono text-[10px] text-indigo-600 bg-indigo-50 p-2 rounded border border-indigo-100 leading-relaxed shadow-sm">
+                                                            {!! str_replace(', ', '<br>', str_replace('EDITED RECORD DETAILS: ', '', $history->notes)) !!}
                                                         </div>
                                                     @else
                                                         {{ $history->notes ?? 'N/A' }}
