@@ -68,10 +68,18 @@ class ReportController extends Controller
             ['path' => $request->url(), 'query' => $request->query()]
         );
 
-        $groups = \App\Constants\Organization::LOCATIONS;
-        $divisions = \App\Constants\Organization::DIVISIONS;
-        $departments = \App\Constants\Organization::DEPARTMENTS;
-        $deptDivisions = \App\Constants\Organization::DEPT_DIVISIONS;
+        $groups = \Illuminate\Support\Facades\DB::table('locations')->pluck('name', 'id');
+        $divisions = \Illuminate\Support\Facades\DB::table('divisions')->pluck('name', 'id');
+        $departments = \Illuminate\Support\Facades\DB::table('departments')->pluck('name', 'id');
+        
+        $deptDivisions = [];
+        $allDepartments = \Illuminate\Support\Facades\DB::table('departments')->get();
+        foreach ($allDepartments as $dept) {
+            $deptDivisions[$dept->id] = \Illuminate\Support\Facades\DB::table('divisions')
+                ->where('department_id', $dept->id)
+                ->pluck('name', 'id')
+                ->toArray();
+        }
 
         return view('reports.index', compact('paginatedItems', 'groups', 'divisions', 'departments', 'deptDivisions', 'stats'));
     }
@@ -264,21 +272,22 @@ class ReportController extends Controller
         }
 
         // Status
-        if ($request->filled('status') && $request->status !== 'All Statuses') {
-            $status = strtolower(str_replace(' ', '_', $request->status));
-            $query->where(function ($q) use ($status) {
-                $q->where('status', $status)
-                    ->orWhere('status', ucfirst($status));
-            });
+        if ($request->filled('status')) {
+            $statuses = (array) $request->status;
+            $statuses = array_filter($statuses, fn($s) => !empty($s) && $s !== 'All Statuses');
+            
+            if (!empty($statuses)) {
+                $query->whereIn('status', array_map(fn($s) => strtolower(str_replace(' ', '_', $s)), $statuses));
+            }
         }
 
         // Group
         if ($request->filled('group') && $request->group !== 'All Groups' && $request->group !== 'All Locations') {
             $query->where(function ($q) use ($request) {
                 $q->where(function ($sub) use ($request) {
-                    $sub->whereNull('employee_id')->where('location', $request->group);
+                    $sub->whereNull('employee_id')->where('location_id', $request->group);
                 })->orWhereHas('employee', function ($eq) use ($request) {
-                    $eq->where('location', $request->group);
+                    $eq->where('location_id', $request->group);
                 });
             });
         }
@@ -287,9 +296,9 @@ class ReportController extends Controller
         if ($request->filled('division') && $request->division !== 'All Divisions') {
             $query->where(function ($q) use ($request) {
                 $q->where(function ($sub) use ($request) {
-                    $sub->whereNull('employee_id')->where('division', $request->division);
+                    $sub->whereNull('employee_id')->where('division_id', $request->division);
                 })->orWhereHas('employee', function ($eq) use ($request) {
-                    $eq->where('division', $request->division);
+                    $eq->where('division_id', $request->division);
                 });
             });
         }
@@ -298,9 +307,9 @@ class ReportController extends Controller
         if ($request->filled('department') && $request->department !== 'All Departments') {
             $query->where(function ($q) use ($request) {
                 $q->where(function ($sub) use ($request) {
-                    $sub->whereNull('employee_id')->where('department', $request->department);
+                    $sub->whereNull('employee_id')->where('department_id', $request->department);
                 })->orWhereHas('employee', function ($eq) use ($request) {
-                    $eq->where('department', $request->department);
+                    $eq->where('department_id', $request->department);
                 });
             });
         }
@@ -441,9 +450,9 @@ class ReportController extends Controller
             ]
         ];
 
-        $groups = \App\Constants\Organization::LOCATIONS;
-        $divisions = \App\Constants\Organization::DIVISIONS;
-        $departments = \App\Constants\Organization::DEPARTMENTS;
+        $groups = \Illuminate\Support\Facades\DB::table('locations')->pluck('name', 'id');
+        $divisions = \Illuminate\Support\Facades\DB::table('divisions')->pluck('name', 'id');
+        $departments = \Illuminate\Support\Facades\DB::table('departments')->pluck('name', 'id');
 
         $locationRows = [];
         foreach ($items as $item) {
@@ -500,8 +509,16 @@ class ReportController extends Controller
 
         $totals['col_totals'] = $colTotals;
 
-        $departments = \App\Constants\Organization::DEPARTMENTS;
-        $deptDivisions = \App\Constants\Organization::DEPT_DIVISIONS;
+        $departments = \Illuminate\Support\Facades\DB::table('departments')->pluck('name', 'id');
+        
+        $deptDivisions = [];
+        $allDepartments = \Illuminate\Support\Facades\DB::table('departments')->get();
+        foreach ($allDepartments as $dept) {
+            $deptDivisions[$dept->id] = \Illuminate\Support\Facades\DB::table('divisions')
+                ->where('department_id', $dept->id)
+                ->pluck('name', 'id')
+                ->toArray();
+        }
 
         return view('reports.department', compact('reportMatrix', 'deviceColumns', 'locationRows', 'totals', 'stats', 'groups', 'divisions', 'departments', 'deptDivisions', 'items', 'selectedTypes'));
     }

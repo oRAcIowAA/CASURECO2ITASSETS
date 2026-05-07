@@ -334,16 +334,63 @@
                     </div>
 
                     <!-- Status -->
-                    <div>
-                        <label for="status" class="block text-sm font-medium text-gray-700 mb-1">STATUS</label>
-                        <select name="status" id="status" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-semibold text-xs h-10">
-                            <option value="">ALL STATUSES</option>
-                            <option value="Assigned" {{ request('status') == 'Assigned' ? 'selected' : '' }}>ASSIGNED</option>
-                            <option value="Available" {{ request('status') == 'Available' ? 'selected' : '' }}>AVAILABLE</option>
-                            <option value="Defective" {{ request('status') == 'Defective' ? 'selected' : '' }}>DEFECTIVE</option>
-                            <option value="Condemned" {{ request('status') == 'Condemned' ? 'selected' : '' }}>CONDEMNED</option>
-                            <option value="Disposed" {{ request('status') == 'Disposed' ? 'selected' : '' }}>DISPOSED</option>
-                        </select>
+                    <div x-data="{
+                            statusOpen: false,
+                            selectedStatuses: {{ json_encode((array)request('status', [])) }},
+                            availableStatuses: ['Assigned', 'Available', 'Defective', 'Condemned', 'Disposed'],
+                            toggleStatus(status) {
+                                if (this.selectedStatuses.includes(status)) {
+                                    this.selectedStatuses = this.selectedStatuses.filter(s => s !== status);
+                                } else {
+                                    this.selectedStatuses.push(status);
+                                }
+                            },
+                            toggleAll() {
+                                this.selectedStatuses = [];
+                            },
+                            isStatusSelected(status) {
+                                return this.selectedStatuses.includes(status);
+                            },
+                            isAllSelected() {
+                                return this.selectedStatuses.length === 0;
+                            }
+                        }" class="relative col-span-1" @click.away="statusOpen = false">
+                        
+                        <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">STATUS</label>
+                        
+                        <button type="button" @click="statusOpen = !statusOpen" 
+                            class="bg-white relative w-full border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm h-10 font-semibold text-xs uppercase">
+                            <span class="block truncate uppercase font-semibold" x-text="selectedStatuses.length ? selectedStatuses.join(', ').toUpperCase() : 'ALL STATUSES'"></span>
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </span>
+                        </button>
+                    
+                        <div x-show="statusOpen" 
+                            class="absolute z-50 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                            
+                            <div @click="toggleAll()" class="px-3 py-2 bg-gray-50 border-b border-gray-200">
+                                <div class="flex items-center justify-between font-bold text-gray-900 cursor-pointer hover:bg-gray-100 rounded p-1 uppercase">
+                                    <span>ALL STATUSES</span>
+                                    <input type="checkbox" :checked="isAllSelected()" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                                </div>
+                            </div>
+
+                            <div class="space-y-1 p-1">
+                                <template x-for="status in availableStatuses">
+                                    <div @click="toggleStatus(status)" class="flex items-center cursor-pointer hover:bg-gray-50 rounded p-2 transition-colors uppercase">
+                                        <input type="checkbox" :checked="isStatusSelected(status)" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-2">
+                                        <span x-text="status" class="text-gray-700 font-semibold"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                        <!-- Hidden Inputs for Form Submission -->
+                        <template x-for="status in selectedStatuses">
+                            <input type="hidden" name="status[]" :value="status">
+                        </template>
                     </div>
 
                     <!-- Buttons -->

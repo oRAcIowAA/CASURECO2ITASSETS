@@ -47,8 +47,13 @@ class PcUnitController extends Controller
         }
 
         // Status filter
-        if ($request->filled('status') && $request->status !== 'All Statuses') {
-            $query->where('status', strtolower(str_replace(' ', '_', $request->status)));
+        if ($request->filled('status')) {
+            $statuses = (array) $request->status;
+            $statuses = array_filter($statuses, fn($s) => !empty($s) && $s !== 'All Statuses');
+            
+            if (!empty($statuses)) {
+                $query->whereIn('status', array_map(fn($s) => strtolower(str_replace(' ', '_', $s)), $statuses));
+            }
         }
 
         // Type filter
@@ -61,9 +66,9 @@ class PcUnitController extends Controller
             $val = $request->location;
             $query->where(function($q) use ($val) {
                 $q->where(function($sq) use ($val) {
-                    $sq->whereNull('employee_id')->where('location', $val);
+                    $sq->whereNull('employee_id')->where('location_id', $val);
                 })->orWhereHas('employee', function($sq) use ($val) {
-                    $sq->where('location', $val);
+                    $sq->where('location_id', $val);
                 });
             });
         }
@@ -73,9 +78,9 @@ class PcUnitController extends Controller
             $val = $request->division;
             $query->where(function($q) use ($val) {
                 $q->where(function($sq) use ($val) {
-                    $sq->whereNull('employee_id')->where('division', $val);
+                    $sq->whereNull('employee_id')->where('division_id', $val);
                 })->orWhereHas('employee', function($sq) use ($val) {
-                    $sq->where('division', $val);
+                    $sq->where('division_id', $val);
                 });
             });
         }
@@ -85,19 +90,27 @@ class PcUnitController extends Controller
             $val = $request->department;
             $query->where(function($q) use ($val) {
                 $q->where(function($sq) use ($val) {
-                    $sq->whereNull('employee_id')->where('department', $val);
+                    $sq->whereNull('employee_id')->where('department_id', $val);
                 })->orWhereHas('employee', function($sq) use ($val) {
-                    $sq->where('department', $val);
+                    $sq->where('department_id', $val);
                 });
             });
         }
 
         $pcUnits = $query->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
 
-        $groups = \App\Constants\Organization::LOCATIONS;
-        $divisions = \App\Constants\Organization::DIVISIONS;
-        $departments = \App\Constants\Organization::DEPARTMENTS;
-        $deptDivisions = \App\Constants\Organization::DEPT_DIVISIONS;
+        $groups = DB::table('locations')->pluck('name', 'id');
+        $divisions = DB::table('divisions')->pluck('name', 'id');
+        $departments = DB::table('departments')->pluck('name', 'id');
+        
+        $deptDivisions = [];
+        $allDepartments = DB::table('departments')->get();
+        foreach ($allDepartments as $dept) {
+            $deptDivisions[$dept->id] = DB::table('divisions')
+                ->where('department_id', $dept->id)
+                ->pluck('name', 'id')
+                ->toArray();
+        }
 
         return view('pc-units.index', compact('pcUnits', 'groups', 'divisions', 'departments', 'deptDivisions'));
     }
@@ -113,7 +126,7 @@ class PcUnitController extends Controller
             return view('pc-units.select-type');
         }
 
-        $groups = \App\Constants\Organization::LOCATIONS;
+        $groups = DB::table('locations')->pluck('name', 'id');
         $employees = Employee::orderBy('lname')->orderBy('fname')->get();
 
         $nextAssetTag = \App\Services\AssetTagService::generateNextTag(PcUnit::class, 'CAS-PC-');
@@ -168,7 +181,7 @@ class PcUnitController extends Controller
      */
     public function edit(PcUnit $pcUnit)
     {
-        $groups = \App\Constants\Organization::LOCATIONS;
+        $groups = DB::table('locations')->pluck('name', 'id');
         $employees = Employee::all();
 
         return view('pc-units.edit', compact('pcUnit', 'groups', 'employees'));
@@ -181,10 +194,7 @@ class PcUnitController extends Controller
     {
         $validated = $request->validated();
 
-        // Prevent modification of date_issued if already set
-        if ($pcUnit->date_issued) {
-            unset($validated['date_issued']);
-        }
+
 
         // Handle Assignment & Status Logic
         $specialStatuses = ['disposed', 'condemned', 'defective'];

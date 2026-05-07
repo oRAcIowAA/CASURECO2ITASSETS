@@ -28,6 +28,9 @@ class PowerUtility extends Model
         'spare_parts',
         'tracking_uuid',
         'updated_by',
+        'department_id',
+        'location_id',
+        'division_id'
     ];
 
     protected $casts = [
@@ -70,30 +73,45 @@ class PowerUtility extends Model
 
     public function getLocationAttribute($value)
     {
-        if ($this->status === 'assigned' && $this->employee && $this->employee->exists) {
+        if (strtolower($this->status) === 'assigned' && $this->employee && $this->employee->exists) {
             return $this->employee->location;
         }
-        return $value ?? 'N/A';
+        return $this->locationRel->name ?? $value ?? 'N/A';
     }
 
     public function getDepartmentAttribute($value)
     {
-        if ($this->status === 'assigned' && $this->employee && $this->employee->exists) {
+        if (strtolower($this->status) === 'assigned' && $this->employee && $this->employee->exists) {
             return $this->employee->department;
         }
-        return $value ?? 'N/A';
+        return $this->departmentRel->name ?? $value ?? 'N/A';
     }
 
     public function getDivisionAttribute($value)
     {
-        if ($this->status === 'assigned' && $this->employee && $this->employee->exists) {
+        if (strtolower($this->status) === 'assigned' && $this->employee && $this->employee->exists) {
             return $this->employee->division;
         }
-        return $value ?? 'N/A';
+        return $this->divisionRel->name ?? $value ?? 'N/A';
     }
 
     public function getGroupAttribute()
     {
         return $this->location;
+    }
+
+    public function departmentRel()
+    {
+        return $this->belongsTo(Department::class, 'department_id', 'id');
+    }
+
+    public function locationRel()
+    {
+        return $this->belongsTo(Location::class, 'location_id', 'id');
+    }
+
+    public function divisionRel()
+    {
+        return $this->belongsTo(Division::class, 'division_id', 'id');
     }
 }

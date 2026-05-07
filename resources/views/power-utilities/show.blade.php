@@ -132,6 +132,15 @@
 
                     <!-- Advanced Actions Bar -->
                     <div class="flex flex-col sm:flex-row flex-wrap gap-2 mb-6 pt-4 border-t border-gray-100">
+                        <a href="{{ route('power-utility-history.show', $powerUtility->id) }}"
+                            class="w-full sm:w-auto justify-center inline-flex items-center px-3 py-1.5 border border-blue-200 text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 font-bold">
+                            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            View History
+                        </a>
+
                         @if($statusStr === 'disposed')
                             <div x-data="{ showRestoreModal: false }" class="inline w-full sm:w-auto">
                                 <button type="button" @click="showRestoreModal = true"
@@ -213,14 +222,6 @@
                                 </div>
                             </div>
                         @else
-                            <a href="{{ route('power-utility-history.show', $powerUtility->id) }}"
-                                class="w-full sm:w-auto justify-center inline-flex items-center px-3 py-1.5 border border-blue-200 text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 font-bold">
-                                <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                View History
-                            </a>
 
                             @if(!in_array($statusStr, ['disposed', 'condemned']))
                                 <a href="{{ route('power-utilities.transfer', $powerUtility) }}"
@@ -276,18 +277,6 @@
                             Print QR Label
                         </a>
 
-                        @if($statusStr === 'disposed')
-                            <a href="{{ route('power-utilities.print-disposal', $powerUtility) }}" target="_blank"
-                                class="w-full sm:w-auto justify-center inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-semibold rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                                <svg class="mr-2 h-4 w-4 text-red-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                    </path>
-                                </svg>
-                                Print Disposal Certificate
-                            </a>
-                        @endif
                     </div>
 
                     <!-- Hardware Specifications -->
@@ -514,13 +503,6 @@
             @endif
         </div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            @if(session('print_disposal'))
-                window.open("{{ route('power-utilities.print-disposal', $powerUtility) }}", '_blank');
-            @endif
-        });
-    </script>
 </x-app-layout>
 
 

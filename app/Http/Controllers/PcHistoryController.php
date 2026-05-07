@@ -21,21 +21,21 @@ class PcHistoryController extends Controller
         // Filter by Group (current location of the unit)
         if ($request->filled('group')) {
             $query->whereHas('pcUnit', function ($q) use ($request) {
-                $q->where('location', $request->group);
+                $q->where('location_id', $request->group);
             });
         }
 
         // Filter by Division (current location of the unit)
         if ($request->filled('division')) {
             $query->whereHas('pcUnit', function ($q) use ($request) {
-                $q->where('division', $request->division);
+                $q->where('division_id', $request->division);
             });
         }
 
         // Filter by Department (current location of the unit)
         if ($request->filled('department')) {
             $query->whereHas('pcUnit', function ($q) use ($request) {
-                $q->where('department', $request->department);
+                $q->where('department_id', $request->department);
             });
         }
 
@@ -64,9 +64,9 @@ class PcHistoryController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        $groups = \App\Constants\Organization::LOCATIONS;
-        $divisions = \App\Constants\Organization::DIVISIONS;
-        $departments = \App\Constants\Organization::DEPARTMENTS;
+        $groups = \Illuminate\Support\Facades\DB::table('locations')->pluck('name', 'id');
+        $divisions = \Illuminate\Support\Facades\DB::table('divisions')->pluck('name', 'id');
+        $departments = \Illuminate\Support\Facades\DB::table('departments')->pluck('name', 'id');
 
         return view('pc-history.index', compact('history', 'groups', 'divisions', 'departments'));
     }

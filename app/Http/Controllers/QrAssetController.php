@@ -25,9 +25,9 @@ class QrAssetController extends Controller
             if ($request->filled('group')) {
                 $query->where(function ($q) use ($request) {
                     $q->where(function ($sub) use ($request) {
-                        $sub->whereNull('employee_id')->where('location', $request->group);
+                        $sub->whereNull('employee_id')->where('location_id', $request->group);
                     })->orWhereHas('employee', function ($eq) use ($request) {
-                        $eq->where('location', $request->group);
+                        $eq->where('location_id', $request->group);
                     });
                 });
             }
@@ -35,9 +35,9 @@ class QrAssetController extends Controller
             if ($request->filled('division')) {
                 $query->where(function ($q) use ($request) {
                     $q->where(function ($sub) use ($request) {
-                        $sub->whereNull('employee_id')->where('division', $request->division);
+                        $sub->whereNull('employee_id')->where('division_id', $request->division);
                     })->orWhereHas('employee', function ($eq) use ($request) {
-                        $eq->where('division', $request->division);
+                        $eq->where('division_id', $request->division);
                     });
                 });
             }
@@ -45,15 +45,20 @@ class QrAssetController extends Controller
             if ($request->filled('department')) {
                 $query->where(function ($q) use ($request) {
                     $q->where(function ($sub) use ($request) {
-                        $sub->whereNull('employee_id')->where('department', $request->department);
+                        $sub->whereNull('employee_id')->where('department_id', $request->department);
                     })->orWhereHas('employee', function ($eq) use ($request) {
-                        $eq->where('department', $request->department);
+                        $eq->where('department_id', $request->department);
                     });
                 });
             }
 
             if ($request->filled('status')) {
-                $query->where('status', strtolower(str_replace(' ', '_', $request->status)));
+                $statuses = (array) $request->status;
+                $statuses = array_filter($statuses, fn($s) => !empty($s) && $s !== 'All Statuses');
+                
+                if (!empty($statuses)) {
+                    $query->whereIn('status', array_map(fn($s) => strtolower(str_replace(' ', '_', $s)), $statuses));
+                }
             }
         };
 
@@ -163,10 +168,18 @@ class QrAssetController extends Controller
         $powerUtilities = $powerQuery->with('employee')->orderBy('asset_tag')->get();
         $mobileDevices = $mobileQuery->with('employee')->orderBy('asset_tag')->get();
 
-        $groups = \App\Constants\Organization::LOCATIONS;
-        $divisions = \App\Constants\Organization::DIVISIONS;
-        $departments = \App\Constants\Organization::DEPARTMENTS;
-        $deptDivisions = \App\Constants\Organization::DEPT_DIVISIONS;
+        $groups = \Illuminate\Support\Facades\DB::table('locations')->pluck('name', 'id');
+        $divisions = \Illuminate\Support\Facades\DB::table('divisions')->pluck('name', 'id');
+        $departments = \Illuminate\Support\Facades\DB::table('departments')->pluck('name', 'id');
+        
+        $deptDivisions = [];
+        $allDepartments = \Illuminate\Support\Facades\DB::table('departments')->get();
+        foreach ($allDepartments as $dept) {
+            $deptDivisions[$dept->id] = \Illuminate\Support\Facades\DB::table('divisions')
+                ->where('department_id', $dept->id)
+                ->pluck('name', 'id')
+                ->toArray();
+        }
 
         return view('qr-assets.index', compact('pcUnits', 'printers', 'networkDevices', 'powerUtilities', 'mobileDevices', 'groups', 'divisions', 'departments', 'deptDivisions'));
     }

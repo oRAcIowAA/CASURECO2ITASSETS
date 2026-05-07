@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use App\Constants\Organization;
 
 class UpdateMobileDeviceRequest extends FormRequest
 {
@@ -19,11 +18,28 @@ class UpdateMobileDeviceRequest extends FormRequest
     protected function prepareForValidation()
     {
         $data = $this->all();
+        
         foreach ($data as $key => $value) {
-            if (is_string($value)) {
+            if (is_string($value) && !str_ends_with($key, '_id')) {
                 $data[$key] = strtoupper($value);
             }
         }
+
+        if ($this->has('location_id')) {
+            $locationName = \Illuminate\Support\Facades\DB::table('locations')->where('id', $this->location_id)->value('name');
+            $data['location'] = $locationName;
+        }
+
+        if ($this->has('department_id')) {
+            $deptName = \Illuminate\Support\Facades\DB::table('departments')->where('id', $this->department_id)->value('name');
+            $data['department'] = $deptName;
+        }
+
+        if ($this->has('division_id')) {
+            $divName = \Illuminate\Support\Facades\DB::table('divisions')->where('id', $this->division_id)->value('name');
+            $data['division'] = $divName;
+        }
+
         $this->merge($data);
     }
 
@@ -42,12 +58,15 @@ class UpdateMobileDeviceRequest extends FormRequest
             'ram' => 'nullable|string|max:255',
             'storage' => 'nullable|string|max:255',
             'serial_number' => 'nullable|string|max:255',
-            'location' => ['nullable', Rule::in(Organization::LOCATIONS)],
-            'department' => ['nullable', Rule::in(Organization::DEPARTMENTS)],
-            'division' => ['nullable', Rule::in(Organization::DIVISIONS)],
+            'location_id' => 'required|exists:locations,id',
+            'department_id' => 'nullable|exists:departments,id',
+            'division_id' => 'nullable|exists:divisions,id',
+            'location' => 'nullable|string|max:255',
+            'department' => 'nullable|string|max:255',
+            'division' => 'nullable|string|max:255',
             'assignment_type' => 'required|in:AVAILABLE,ASSIGN',
             'employee_id' => 'required_if:assignment_type,ASSIGN|nullable|exists:employees,emp_id',
-            'date_issued' => 'required|date',
+            'date_issued' => 'nullable|date',
             'status' => 'nullable|string|max:255',
             'spare_parts' => 'nullable|string',
         ];

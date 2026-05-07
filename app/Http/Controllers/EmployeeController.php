@@ -8,7 +8,6 @@ use App\Models\PrinterHistory;
 use App\Models\NetworkDeviceHistory;
 use App\Models\EmployeeHistory;
 use Illuminate\Http\Request;
-use App\Constants\Organization;
 use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
 use App\Services\DeviceHistoryService;
@@ -40,6 +39,16 @@ class EmployeeController extends Controller
             });
         }
 
+        // Sorting
+        $sort = $request->get('sort', 'emp_id');
+        $direction = $request->get('direction', 'asc');
+
+        if ($sort === 'full_name') {
+            $query->orderBy('fname', $direction)->orderBy('lname', $direction);
+        } else {
+            $query->orderBy($sort, $direction);
+        }
+
         $employees = $query->paginate(15)->withQueryString();
 
         return view('employees.index', compact('employees'));
@@ -47,9 +56,18 @@ class EmployeeController extends Controller
 
     public function create()
     {
-        $groups = Organization::LOCATIONS;
-        $departments = Organization::DEPARTMENTS;
-        $deptDivisions = Organization::DEPT_DIVISIONS;
+        $groups = DB::table('locations')->pluck('name', 'id');
+        $departments = DB::table('departments')->pluck('name', 'id');
+        
+        // Reconstruct the mapping for Alpine.js
+        $deptDivisions = [];
+        $allDepartments = DB::table('departments')->get();
+        foreach ($allDepartments as $dept) {
+            $deptDivisions[$dept->id] = DB::table('divisions')
+                ->where('department_id', $dept->id)
+                ->pluck('name', 'id')
+                ->toArray();
+        }
 
         return view('employees.create', compact('groups', 'departments', 'deptDivisions'));
     }
@@ -94,9 +112,17 @@ class EmployeeController extends Controller
 
     public function edit(Employee $employee)
     {
-        $groups = Organization::LOCATIONS;
-        $departments = Organization::DEPARTMENTS;
-        $deptDivisions = Organization::DEPT_DIVISIONS;
+        $groups = DB::table('locations')->pluck('name', 'id');
+        $departments = DB::table('departments')->pluck('name', 'id');
+        
+        $deptDivisions = [];
+        $allDepartments = DB::table('departments')->get();
+        foreach ($allDepartments as $dept) {
+            $deptDivisions[$dept->id] = DB::table('divisions')
+                ->where('department_id', $dept->id)
+                ->pluck('name', 'id')
+                ->toArray();
+        }
 
         return view('employees.edit', compact('employee', 'groups', 'departments', 'deptDivisions'));
     }

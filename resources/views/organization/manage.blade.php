@@ -1,359 +1,217 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col gap-4">
-            <h2 class="font-bold text-2xl text-gray-800 leading-tight">
-                {{ __('Manage Organization Structure') }}
-            </h2>
-            <div>
-                <a href="{{ route('admins.index') }}"
-                    class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-bold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                    </svg>
-                    Back to System Admins
-                </a>
-            </div>
-        </div>
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
+            <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+            {{ __('Manage Organizational Structure') }}
+        </h2>
     </x-slot>
 
-    <div class="py-12" x-data="{ 
-        activeTab: 'departments',
-        showModal: false,
-        modalType: '',
-        modalData: {},
-        openModal(type, data = {}) {
-            this.modalType = type;
-            this.modalData = data;
-            this.showModal = true;
-        }
-    }">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-
-            @if(session('success'))
-                <div class="mb-6 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 shadow-sm" role="alert">
-                    <p class="font-bold">Success</p>
-                    <p>{{ session('success') }}</p>
+    <div class="py-12" x-data="{ activeTab: 'departments', modalOpen: false, modalType: '', modalAction: '', currentItem: {} }">
+        <div class="w-full sm:px-6 lg:px-8">
+            
+            @if (session('success'))
+                <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative flex items-center shadow-sm" role="alert">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                    <span class="block sm:inline font-medium">{{ session('success') }}</span>
                 </div>
             @endif
 
-            @if(session('error'))
-                <div class="mb-6 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 shadow-sm" role="alert">
-                    <p class="font-bold">Error</p>
-                    <p>{{ session('error') }}</p>
+            @if (session('error'))
+                <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative flex items-center shadow-sm" role="alert">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                    <span class="block sm:inline font-medium">{{ session('error') }}</span>
                 </div>
             @endif
 
             <!-- Tabs Navigation -->
-            <div class="border-b border-gray-200 mb-6 font-bold">
-                <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-                    <button @click="activeTab = 'departments'"
-                        :class="activeTab === 'departments' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                        class="whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm uppercase transition-colors">
+            <div class="bg-white rounded-lg shadow-sm mb-6 border border-gray-200 overflow-hidden">
+                <div class="flex border-b border-gray-200">
+                    <button @click="activeTab = 'departments'" :class="activeTab === 'departments' ? 'border-blue-500 text-blue-600 bg-blue-50 font-bold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'" class="flex-1 py-4 px-6 text-center border-b-2 transition-all duration-200 uppercase tracking-wider text-xs">
                         Departments
                     </button>
-                    <button @click="activeTab = 'divisions'"
-                        :class="activeTab === 'divisions' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                        class="whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm uppercase transition-colors">
+                    <button @click="activeTab = 'divisions'" :class="activeTab === 'divisions' ? 'border-blue-500 text-blue-600 bg-blue-50 font-bold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'" class="flex-1 py-4 px-6 text-center border-b-2 transition-all duration-200 uppercase tracking-wider text-xs">
                         Divisions
                     </button>
-                    <button @click="activeTab = 'locations'"
-                        :class="activeTab === 'locations' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                        class="whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm uppercase transition-colors">
+                    <button @click="activeTab = 'locations'" :class="activeTab === 'locations' ? 'border-blue-500 text-blue-600 bg-blue-50 font-bold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'" class="flex-1 py-4 px-6 text-center border-b-2 transition-all duration-200 uppercase tracking-wider text-xs">
                         Locations
                     </button>
-                </nav>
-            </div>
-
-            <!-- TAB: DEPARTMENTS -->
-            <div x-show="activeTab === 'departments'" class="space-y-4">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-medium text-gray-900">Departments List</h3>
-                    <button @click="openModal('add_department')"
-                        class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 text-sm font-bold transition-all">
-                        + Add Department
-                    </button>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    @foreach(array_keys($deptDivisions) as $dept)
-                        <div
-                            class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex justify-between items-center group hover:shadow-md transition-shadow">
-                            <span class="font-medium text-gray-800 uppercase">{{ $dept }}</span>
-                            <div class="flex space-x-2 transition-opacity">
-                                <button @click="openModal('edit_department', { name: '{{ $dept }}' })"
-                                    class="text-blue-500 hover:text-blue-700 p-1">
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path
-                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
-                                    </svg>
-                                </button>
-                                <button @click="openModal('delete_department', { name: '{{ $dept }}' })"
-                                    class="text-red-500 hover:text-red-700 p-1">
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path
-                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
-                                    </svg>
-                                </button>
-                            </div>
+                <div class="p-6">
+                    <!-- Departments Tab -->
+                    <div x-show="activeTab === 'departments'" x-transition>
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-lg font-bold text-gray-900 uppercase">Registered Departments</h3>
+                            <button @click="modalType = 'department'; modalAction = 'create'; currentItem = {name: ''}; modalOpen = true" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-bold text-xs text-white uppercase tracking-widest hover:bg-blue-700 shadow-sm transition duration-150 ease-in-out">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                Add Department
+                            </button>
                         </div>
-                    @endforeach
-                </div>
-            </div>
-
-            <!-- TAB: DIVISIONS -->
-            <div x-show="activeTab === 'divisions'" class="space-y-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-medium text-gray-900">Divisions by Department</h3>
-                </div>
-
-                <div class="space-y-6">
-                    @foreach($deptDivisions as $dept => $divisions)
-                        <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 shadow-sm">
-                            <div class="flex justify-between items-center mb-4 border-b pb-2 border-gray-300">
-                                <h4 class="font-bold text-gray-900 uppercase">{{ $dept }}</h4>
-                                <button @click="openModal('add_division', { department: '{{ $dept }}' })"
-                                    class="text-blue-600 hover:text-blue-800 text-sm font-bold flex items-center">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 4v16m8-8H4" />
-                                    </svg>
-                                    Add Division
-                                </button>
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                @forelse($divisions as $div)
-                                    <div
-                                        class="bg-white p-3 rounded-md shadow-sm border border-gray-100 flex justify-between items-center group hover:border-blue-200 transition-colors">
-                                        <span class="text-sm text-gray-700 uppercase">{{ $div }}</span>
-                                        <div class="flex space-x-1 transition-opacity">
-                                            <button
-                                                @click="openModal('edit_division', { department: '{{ $dept }}', name: '{{ $div }}' })"
-                                                class="text-blue-500 hover:text-blue-700 p-1">
-                                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path
-                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                                        stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
-                                                </svg>
-                                            </button>
-                                            <button
-                                                @click="openModal('delete_division', { department: '{{ $dept }}', name: '{{ $div }}' })"
-                                                class="text-red-500 hover:text-red-700 p-1">
-                                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path
-                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                        stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </div>
-                                @empty
-                                    <div class="col-span-full py-4 text-center text-gray-400 italic text-sm">No divisions added
-                                        yet.</div>
-                                @endforelse
-                            </div>
+                        <div class="overflow-x-auto rounded-lg border border-gray-200">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">ID</th>
+                                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
+                                        <th class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @foreach($departments as $dept)
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">{{ str_pad($dept->id, 2, '0', STR_PAD_LEFT) }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 uppercase">{{ $dept->name }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button @click="modalType = 'department'; modalAction = 'edit'; currentItem = {id: '{{ $dept->id }}', name: '{{ $dept->name }}'}; modalOpen = true" class="text-indigo-600 hover:text-indigo-900 mr-4 font-bold uppercase text-xs">Edit</button>
+                                            <form action="{{ route('organization.departments.destroy', $dept->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Delete this department? Action cannot be undone.');">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900 font-bold uppercase text-xs">Delete</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
-                    @endforeach
-                </div>
-            </div>
+                    </div>
 
-            <!-- TAB: LOCATIONS -->
-            <div x-show="activeTab === 'locations'" class="space-y-4">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-medium text-gray-900">Locations List</h3>
-                    <button @click="openModal('add_location')"
-                        class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 text-sm font-bold transition-all">
-                        + Add Location
-                    </button>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    @foreach($locations as $loc)
-                        <div
-                            class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex justify-between items-center group hover:shadow-md transition-shadow">
-                            <span class="font-medium text-gray-800 uppercase">{{ $loc }}</span>
-                            <div class="flex space-x-2 transition-opacity">
-                                <button @click="openModal('edit_location', { name: '{{ $loc }}' })"
-                                    class="text-blue-500 hover:text-blue-700 p-1">
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path
-                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
-                                    </svg>
-                                </button>
-                                <button @click="openModal('delete_location', { name: '{{ $loc }}' })"
-                                    class="text-red-500 hover:text-red-700 p-1">
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path
-                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
-                                    </svg>
-                                </button>
-                            </div>
+                    <!-- Divisions Tab -->
+                    <div x-show="activeTab === 'divisions'" x-transition style="display: none;">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-lg font-bold text-gray-900 uppercase">Registered Divisions</h3>
+                            <button @click="modalType = 'division'; modalAction = 'create'; currentItem = {name: '', department_id: ''}; modalOpen = true" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-bold text-xs text-white uppercase tracking-widest hover:bg-blue-700 shadow-sm transition duration-150 ease-in-out">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                Add Division
+                            </button>
                         </div>
-                    @endforeach
+                        <div class="overflow-x-auto rounded-lg border border-gray-200">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">ID</th>
+                                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
+                                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Department</th>
+                                        <th class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @foreach($divisions as $div)
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">{{ str_pad($div->id, 2, '0', STR_PAD_LEFT) }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 uppercase">{{ $div->name }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-bold uppercase">
+                                                {{ $div->department->name ?? 'N/A' }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button @click="modalType = 'division'; modalAction = 'edit'; currentItem = {id: '{{ $div->id }}', name: '{{ $div->name }}', department_id: '{{ $div->department_id }}'}; modalOpen = true" class="text-indigo-600 hover:text-indigo-900 mr-4 font-bold uppercase text-xs">Edit</button>
+                                            <form action="{{ route('organization.divisions.destroy', $div->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Delete this division?');">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900 font-bold uppercase text-xs">Delete</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Locations Tab -->
+                    <div x-show="activeTab === 'locations'" x-transition style="display: none;">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-lg font-bold text-gray-900 uppercase">Registered Locations</h3>
+                            <button @click="modalType = 'location'; modalAction = 'create'; currentItem = {name: ''}; modalOpen = true" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-bold text-xs text-white uppercase tracking-widest hover:bg-blue-700 shadow-sm transition duration-150 ease-in-out">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                Add Location
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto rounded-lg border border-gray-200">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">ID</th>
+                                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
+                                        <th class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @foreach($locations as $loc)
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">{{ str_pad($loc->id, 2, '0', STR_PAD_LEFT) }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 uppercase">{{ $loc->name }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button @click="modalType = 'location'; modalAction = 'edit'; currentItem = {id: '{{ $loc->id }}', name: '{{ $loc->name }}'}; modalOpen = true" class="text-indigo-600 hover:text-indigo-900 mr-4 font-bold uppercase text-xs">Edit</button>
+                                            <form action="{{ route('organization.locations.destroy', $loc->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Delete this location?');">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900 font-bold uppercase text-xs">Delete</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
-
         </div>
 
-        <!-- MODAL -->
-        <div x-show="showModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
-            <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div @click="showModal = false" class="fixed inset-0 transition-opacity" aria-hidden="true">
+        <!-- Unified Modal -->
+        <div x-show="modalOpen" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+            <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+                <div x-show="modalOpen" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 transition-opacity" aria-hidden="true">
                     <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
                 </div>
 
                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-                <div x-show="showModal" x-transition:enter="ease-out duration-300"
-                    x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                    x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                    class="inline-block align-middle bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div x-show="modalOpen" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+                    <div>
+                        <div class="mt-3 text-center sm:mt-5">
+                            <h3 class="text-lg leading-6 font-bold text-gray-900 uppercase" x-text="modalAction === 'create' ? 'Add New ' + modalType : 'Edit ' + modalType"></h3>
+                            
+                            <form :action="modalAction === 'create' ? '{{ url('organization') }}/' + modalType + 's' : '{{ url('organization') }}/' + modalType + 's/' + currentItem.id" method="POST" class="mt-6">
+                                @csrf
+                                <template x-if="modalAction === 'edit'">
+                                    <input type="hidden" name="_method" value="PATCH">
+                                </template>
 
-                    <form action="{{ route('organization.update-structure') }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="action" :value="modalType">
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Name</label>
+                                        <input type="text" name="name" x-model="currentItem.name" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 font-bold text-sm uppercase h-12">
+                                    </div>
 
-                        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                            <!-- TITLE -->
-                            <h3 class="text-lg leading-6 font-bold text-gray-900 mb-4" x-text="
-                                modalType === 'add_department' ? 'Add New Department' :
-                                modalType === 'edit_department' ? 'Edit Department' :
-                                modalType === 'delete_department' ? 'Delete Department' :
-                                modalType === 'add_division' ? 'Add Division' :
-                                modalType === 'edit_division' ? 'Edit Division' :
-                                modalType === 'delete_division' ? 'Delete Division' :
-                                modalType === 'add_location' ? 'Add New Location' :
-                                modalType === 'edit_location' ? 'Edit Location' :
-                                modalType === 'delete_location' ? 'Delete Location' : ''
-                            "></h3>
-
-                            <!-- DEPT FORMS -->
-                            <template x-if="modalType === 'add_department'">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 uppercase">Department
-                                        Name</label>
-                                    <input type="text" name="name" required
-                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 uppercase">
+                                    <template x-if="modalType === 'division'">
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Department</label>
+                                            <select name="department_id" x-model="currentItem.department_id" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 font-bold text-sm h-12">
+                                                <option value="">SELECT DEPARTMENT</option>
+                                                @foreach($departments as $dept)
+                                                    <option value="{{ $dept->id }}">{{ $dept->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </template>
                                 </div>
-                            </template>
 
-                            <template x-if="modalType === 'edit_department'">
-                                <div>
-                                    <input type="hidden" name="old_name" :value="modalData.name">
-                                    <label class="block text-sm font-medium text-gray-700 uppercase">New Department
-                                        Name</label>
-                                    <input type="text" name="new_name" :value="modalData.name" required
-                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 uppercase">
+                                <div class="mt-8 sm:flex sm:flex-row-reverse">
+                                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-6 py-3 bg-blue-600 text-base font-bold text-white hover:bg-blue-700 sm:ml-3 sm:w-auto sm:text-sm uppercase tracking-widest">
+                                        Save Changes
+                                    </button>
+                                    <button type="button" @click="modalOpen = false" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-6 py-3 bg-white text-base font-bold text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm uppercase tracking-widest">
+                                        Cancel
+                                    </button>
                                 </div>
-                            </template>
-
-                            <template x-if="modalType === 'delete_department'">
-                                <div>
-                                    <input type="hidden" name="name" :value="modalData.name">
-                                    <p class="text-sm text-gray-500 flex items-start gap-2">
-                                        <svg class="h-10 w-10 text-red-500 flex-shrink-0" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                        </svg>
-                                        Are you sure you want to delete <span class="font-bold text-gray-900"
-                                            x-text="modalData.name"></span>? This will also remove all its divisions
-                                        from the lists.
-                                    </p>
-                                </div>
-                            </template>
-
-                            <!-- DIVISION FORMS -->
-                            <template x-if="modalType === 'add_division'">
-                                <div>
-                                    <input type="hidden" name="department" :value="modalData.department">
-                                    <label class="block text-sm font-medium text-gray-700 uppercase">Division
-                                        Name</label>
-                                    <input type="text" name="name" required
-                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 uppercase">
-                                </div>
-                            </template>
-
-                            <template x-if="modalType === 'edit_division'">
-                                <div>
-                                    <input type="hidden" name="department" :value="modalData.department">
-                                    <input type="hidden" name="old_name" :value="modalData.name">
-                                    <label class="block text-sm font-medium text-gray-700 uppercase">New Division
-                                        Name</label>
-                                    <input type="text" name="new_name" :value="modalData.name" required
-                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 uppercase">
-                                </div>
-                            </template>
-
-                            <template x-if="modalType === 'delete_division'">
-                                <div>
-                                    <input type="hidden" name="department" :value="modalData.department">
-                                    <input type="hidden" name="name" :value="modalData.name">
-                                    <p class="text-sm text-gray-500">
-                                        Are you sure you want to delete <span class="font-bold text-gray-900"
-                                            x-text="modalData.name"></span> from <span class="font-bold text-gray-900"
-                                            x-text="modalData.department"></span>?
-                                    </p>
-                                </div>
-                            </template>
-
-                            <!-- LOCATION FORMS -->
-                            <template x-if="modalType === 'add_location'">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 uppercase">Location
-                                        Name</label>
-                                    <input type="text" name="name" required
-                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 uppercase">
-                                </div>
-                            </template>
-
-                            <template x-if="modalType === 'edit_location'">
-                                <div>
-                                    <input type="hidden" name="old_name" :value="modalData.name">
-                                    <label class="block text-sm font-medium text-gray-700 uppercase">New Location
-                                        Name</label>
-                                    <input type="text" name="new_name" :value="modalData.name" required
-                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 uppercase">
-                                </div>
-                            </template>
-
-                            <template x-if="modalType === 'delete_location'">
-                                <div>
-                                    <input type="hidden" name="name" :value="modalData.name">
-                                    <p class="text-sm text-gray-500 flex items-start gap-2">
-                                        <svg class="h-10 w-10 text-red-500 flex-shrink-0" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                        </svg>
-                                        Are you sure you want to delete location <span class="font-bold text-gray-900"
-                                            x-text="modalData.name"></span>?
-                                    </p>
-                                </div>
-                            </template>
+                            </form>
                         </div>
-
-                        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                            <button type="submit"
-                                :class="modalType.includes('delete') ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'"
-                                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-bold text-white focus:outline-none sm:ml-3 sm:w-auto sm:text-sm uppercase transition-all">
-                                <span x-text="modalType.includes('delete') ? 'Delete' : 'Save Changes'"></span>
-                            </button>
-                            <button @click="showModal = false" type="button"
-                                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-bold text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm uppercase transition-all">
-                                Cancel
-                            </button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </x-app-layout>
-
-

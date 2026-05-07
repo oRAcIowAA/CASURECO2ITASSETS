@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use App\Constants\Organization;
 
 class UpdateEmployeeRequest extends FormRequest
 {
@@ -47,15 +46,31 @@ class UpdateEmployeeRequest extends FormRequest
             }
         }
 
-        // Map 'group' to 'location' if it comes from the UI as group
-        if ($this->has('group') && !$this->has('location')) {
-            $this->merge(['location' => $this->group]);
+        // Map 'location_id' to 'group' for backward compatibility if needed, 
+        // and map 'location_id' to 'location' if present
+        if ($this->has('location_id')) {
+            $locationName = \Illuminate\Support\Facades\DB::table('locations')->where('id', $this->location_id)->value('name');
+            $this->merge(['location' => $locationName, 'group' => $locationName]);
         }
 
-        // Convert string fields to UPPERCASE for consistency
-        $this->merge(array_map(function($value) {
-            return is_string($value) ? strtoupper($value) : $value;
-        }, $this->all()));
+        if ($this->has('department_id')) {
+            $deptName = \Illuminate\Support\Facades\DB::table('departments')->where('id', $this->department_id)->value('name');
+            $this->merge(['department' => $deptName]);
+        }
+
+        if ($this->has('division_id')) {
+            $divName = \Illuminate\Support\Facades\DB::table('divisions')->where('id', $this->division_id)->value('name');
+            $this->merge(['division' => $divName]);
+        }
+
+        // Convert string fields to UPPERCASE for consistency (excluding IDs)
+        $data = $this->all();
+        foreach ($data as $key => $value) {
+            if (is_string($value) && !str_ends_with($key, '_id')) {
+                $data[$key] = strtoupper($value);
+            }
+        }
+        $this->merge($data);
     }
 
     /**
@@ -74,15 +89,17 @@ class UpdateEmployeeRequest extends FormRequest
             ],
             'full_name' => 'required|string|max:255',
             'position' => 'nullable|string|max:255',
-            'department' => ['required', Rule::in(Organization::DEPARTMENTS)],
-            'group' => ['required', Rule::in(Organization::LOCATIONS)],
-            'division' => ['required', Rule::in(Organization::DIVISIONS)],
+            'department_id' => 'required|exists:departments,id',
+            'location_id' => 'required|exists:locations,id',
+            'division_id' => 'required|exists:divisions,id',
             // Database columns for mass assignment
             'emp_id' => 'sometimes',
             'fname' => 'sometimes',
             'lname' => 'sometimes',
             'mname' => 'sometimes',
-            'location' => 'sometimes',
+            'location' => 'nullable|string',
+            'department' => 'nullable|string',
+            'division' => 'nullable|string',
         ];
     }
 }

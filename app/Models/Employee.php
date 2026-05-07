@@ -22,7 +22,10 @@ class Employee extends Model
         'position',
         'department',
         'division',
-        'location'
+        'location',
+        'department_id',
+        'division_id',
+        'location_id'
     ];
 
     /**
@@ -54,17 +57,17 @@ class Employee extends Model
 
     public function getDepartmentAttribute()
     {
-        return $this->attributes['department'] ?? 'N/A';
+        return $this->departmentRel->name ?? $this->attributes['department'] ?? 'N/A';
     }
 
     public function getDivisionAttribute()
     {
-        return $this->attributes['division'] ?? 'N/A';
+        return $this->divisionRel->name ?? $this->attributes['division'] ?? 'N/A';
     }
 
     public function getLocationAttribute()
     {
-        return $this->attributes['location'] ?? 'N/A';
+        return $this->locationRel->name ?? $this->attributes['location'] ?? 'N/A';
     }
 
     public function getGroupAttribute()
@@ -111,5 +114,20 @@ class Employee extends Model
     public function mobileDevices(): HasMany
     {
         return $this->hasMany(MobileDevice::class, 'employee_id', 'emp_id');
+    }
+
+    public function departmentRel()
+    {
+        return $this->belongsTo(Department::class, 'department_id', 'id');
+    }
+
+    public function locationRel()
+    {
+        return $this->belongsTo(Location::class, 'location_id', 'id');
+    }
+
+    public function divisionRel()
+    {
+        return $this->belongsTo(Division::class, 'division_id', 'id');
     }
 }

@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use App\Constants\Organization;
 
 class UpdatePrinterRequest extends FormRequest
 {
@@ -18,9 +17,30 @@ class UpdatePrinterRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        $this->merge(array_map(function($value) {
-            return is_string($value) ? strtoupper($value) : $value;
-        }, $this->all()));
+        $data = $this->all();
+        
+        foreach ($data as $key => $value) {
+            if (is_string($value) && !str_ends_with($key, '_id')) {
+                $data[$key] = strtoupper($value);
+            }
+        }
+
+        if ($this->has('location_id')) {
+            $locationName = \Illuminate\Support\Facades\DB::table('locations')->where('id', $this->location_id)->value('name');
+            $data['location'] = $locationName;
+        }
+
+        if ($this->has('department_id')) {
+            $deptName = \Illuminate\Support\Facades\DB::table('departments')->where('id', $this->department_id)->value('name');
+            $data['department'] = $deptName;
+        }
+
+        if ($this->has('division_id')) {
+            $divName = \Illuminate\Support\Facades\DB::table('divisions')->where('id', $this->division_id)->value('name');
+            $data['division'] = $divName;
+        }
+
+        $this->merge($data);
     }
 
     /**
@@ -40,9 +60,12 @@ class UpdatePrinterRequest extends FormRequest
             'brand' => 'required|string|max:255',
             'model' => 'required|string|max:255',
             'serial_number' => 'required_if:type,PORTABLE PRINTER|nullable|string|max:255',
-            'location' => ['required', Rule::in(Organization::LOCATIONS)],
-            'department' => ['nullable', Rule::in(Organization::DEPARTMENTS)],
-            'division' => ['nullable', Rule::in(Organization::DIVISIONS)],
+            'location_id' => 'required|exists:locations,id',
+            'department_id' => 'nullable|exists:departments,id',
+            'division_id' => 'nullable|exists:divisions,id',
+            'location' => 'nullable|string',
+            'department' => 'nullable|string',
+            'division' => 'nullable|string',
             'has_network_port' => 'required|boolean',
             'ip_type' => 'required|in:STATIC,DYNAMIC',
             'ip_address' => [
@@ -58,7 +81,7 @@ class UpdatePrinterRequest extends FormRequest
             ],
             'network_segment' => 'nullable|string|max:255',
             'employee_id' => 'nullable|exists:employees,emp_id',
-            'date_issued' => 'required|date',
+            'date_issued' => 'nullable|date',
             'assignment_type' => 'required|in:STANDBY,ASSIGN',
         ];
     }

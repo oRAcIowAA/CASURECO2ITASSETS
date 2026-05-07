@@ -23,5 +23,8 @@ class DatabaseSeeder extends Seeder
                 'password' => \Illuminate\Support\Facades\Hash::make('opqrstuvwxyz09218191'),
             ]
         );
+
+        // Seed Organizational Data
+        $this->call(OrganizationSeeder::class);
     }
 }

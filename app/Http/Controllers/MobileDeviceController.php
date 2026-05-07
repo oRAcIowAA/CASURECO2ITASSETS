@@ -35,9 +35,9 @@ class MobileDeviceController extends Controller
             $val = $request->location;
             $query->where(function($q) use ($val) {
                 $q->where(function($sq) use ($val) {
-                    $sq->whereNull('employee_id')->where('location', $val);
+                    $sq->whereNull('employee_id')->where('location_id', $val);
                 })->orWhereHas('employee', function($sq) use ($val) {
-                    $sq->where('location', $val);
+                    $sq->where('location_id', $val);
                 });
             });
         }
@@ -47,9 +47,9 @@ class MobileDeviceController extends Controller
             $val = $request->division;
             $query->where(function($q) use ($val) {
                 $q->where(function($sq) use ($val) {
-                    $sq->whereNull('employee_id')->where('division', $val);
+                    $sq->whereNull('employee_id')->where('division_id', $val);
                 })->orWhereHas('employee', function($sq) use ($val) {
-                    $sq->where('division', $val);
+                    $sq->where('division_id', $val);
                 });
             });
         }
@@ -59,9 +59,9 @@ class MobileDeviceController extends Controller
             $val = $request->department;
             $query->where(function($q) use ($val) {
                 $q->where(function($sq) use ($val) {
-                    $sq->whereNull('employee_id')->where('department', $val);
+                    $sq->whereNull('employee_id')->where('department_id', $val);
                 })->orWhereHas('employee', function($sq) use ($val) {
-                    $sq->where('department', $val);
+                    $sq->where('department_id', $val);
                 });
             });
         }
@@ -89,15 +89,28 @@ class MobileDeviceController extends Controller
 
         // Status filter
         if ($request->filled('status')) {
-            $query->where('status', strtolower($request->status));
+            $statuses = (array) $request->status;
+            $statuses = array_filter($statuses, fn($s) => !empty($s) && $s !== 'All Statuses');
+            
+            if (!empty($statuses)) {
+                $query->whereIn('status', array_map('strtolower', $statuses));
+            }
         }
 
         $mobileDevices = $query->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
 
-        $groups = \App\Constants\Organization::LOCATIONS;
-        $divisions = \App\Constants\Organization::DIVISIONS;
-        $departments = \App\Constants\Organization::DEPARTMENTS;
-        $deptDivisions = \App\Constants\Organization::DEPT_DIVISIONS;
+        $groups = DB::table('locations')->pluck('name', 'id');
+        $divisions = DB::table('divisions')->pluck('name', 'id');
+        $departments = DB::table('departments')->pluck('name', 'id');
+        
+        $deptDivisions = [];
+        $allDepartments = DB::table('departments')->get();
+        foreach ($allDepartments as $dept) {
+            $deptDivisions[$dept->id] = DB::table('divisions')
+                ->where('department_id', $dept->id)
+                ->pluck('name', 'id')
+                ->toArray();
+        }
 
         return view('mobile-devices.index', compact('mobileDevices', 'groups', 'divisions', 'departments', 'deptDivisions'));
     }
@@ -109,7 +122,7 @@ class MobileDeviceController extends Controller
     {
         $type = $request->query('type', 'CELLPHONE');
 
-        $groups = \App\Constants\Organization::LOCATIONS;
+        $groups = DB::table('locations')->pluck('name', 'id');
         $employees = Employee::orderBy('lname')->orderBy('fname')->get();
         $nextAssetTag = \App\Services\AssetTagService::generateNextTag(MobileDevice::class, 'CAS-MD-');
 
@@ -126,13 +139,6 @@ class MobileDeviceController extends Controller
         if ($request->assignment_type === 'ASSIGN') {
             if (empty($validated['employee_id'])) {
                 return back()->withErrors(['employee_id' => 'Please select an employee.'])->withInput();
-            }
-
-            $employee = Employee::find($validated['employee_id']);
-            if ($employee) {
-                $validated['location'] = $employee->location;
-                $validated['department'] = $employee->department;
-                $validated['division'] = $employee->division;
             }
 
             $validated['status'] = 'assigned';
@@ -168,8 +174,8 @@ class MobileDeviceController extends Controller
      */
     public function edit(MobileDevice $mobileDevice)
     {
-        $groups = \App\Constants\Organization::LOCATIONS;
-        $employees = Employee::all();
+        $groups = DB::table('locations')->pluck('name', 'id');
+        $employees = Employee::orderBy('lname')->orderBy('fname')->get();
         return view('mobile-devices.edit', compact('mobileDevice', 'groups', 'employees'));
     }
 
@@ -180,10 +186,7 @@ class MobileDeviceController extends Controller
     {
         $validated = $request->validated();
 
-        // Prevent modification of date_issued if already set
-        if ($mobileDevice->date_issued) {
-            unset($validated['date_issued']);
-        }
+
 
         $specialStatuses = ['disposed', 'condemned', 'defective'];
         $currentStatus = strtolower($mobileDevice->status);
@@ -197,17 +200,12 @@ class MobileDeviceController extends Controller
                     return back()->withErrors(['employee_id' => 'Please select an employee.'])->withInput();
                 }
 
-                $employee = Employee::find($validated['employee_id']);
-                if ($employee) {
-                    $validated['location'] = $employee->location;
-                    $validated['department'] = $employee->department;
-                    $validated['division'] = $employee->division;
-                }
-
                 $validated['status'] = 'assigned';
             } else {
                 $validated['employee_id'] = null;
                 $validated['status'] = 'available';
+                $validated['department'] = null;
+                $validated['division'] = null;
             }
         }
 
@@ -281,7 +279,7 @@ class MobileDeviceController extends Controller
      */
     public function transfer(MobileDevice $mobileDevice)
     {
-        $employees = Employee::orderBy('full_name')->get();
+        $employees = Employee::orderBy('lname')->orderBy('fname')->get();
         return view('mobile-devices.transfer', compact('mobileDevice', 'employees'));
     }
 
@@ -358,6 +356,8 @@ class MobileDeviceController extends Controller
                 'employee_id' => null,
                 'status' => 'available',
                 'date_returned' => now(),
+                'department' => null,
+                'division' => null,
             ]);
 
             $this->historyService->log($mobileDevice, 'returned', 'Mobile Device returned', $oldEmployeeId);
@@ -388,43 +388,34 @@ class MobileDeviceController extends Controller
             // Condemned/Disposed: Unassign.
             $shouldUnassign = in_array(strtolower($status), ['condemned', 'disposed']);
 
-            $mobileDevice->update([
+            $updateData = [
                 'status' => $status,
                 'employee_id' => $shouldUnassign ? null : $oldEmployeeId,
                 'date_returned' => $shouldUnassign ? now() : $mobileDevice->date_returned,
                 'remarks' => ($mobileDevice->remarks ? $mobileDevice->remarks . "\n" : "") . "[" . ucfirst($status) . "]: " . $request->remarks,
                 'spare_parts' => $request->spare_parts ?? $mobileDevice->spare_parts
-            ]);
+            ];
+
+            // If unassigning, clear department and division so it doesn't show old employee's data
+            if ($shouldUnassign) {
+                $updateData['department'] = null;
+                $updateData['division'] = null;
+            }
+
+            $mobileDevice->update($updateData);
 
             $this->historyService->log($mobileDevice, strtolower($request->status), $request->remarks, $oldEmployeeId);
         });
 
         if ($request->status === 'Disposed') {
             return redirect()->route('mobile-devices.show', $mobileDevice)
-                ->with('success', 'Mobile Device marked as Disposed and permanently archived.')
-                ->with('print_disposal', true);
+                ->with('success', 'Mobile Device marked as Disposed and permanently archived.');
         }
 
         return redirect()->route('mobile-devices.show', $mobileDevice)
             ->with('success', 'Mobile Device marked as ' . ucfirst($request->status));
     }
 
-    /**
-     * Generate Certificate of Disposal PDF
-     */
-    public function printDisposal(MobileDevice $mobileDevice)
-    {
-        try {
-            $device = $mobileDevice;
-            $deviceTypeLabel = 'Mobile Device';
-            $pdf = Pdf::loadView('reports.dispose-device', compact('device', 'deviceTypeLabel'));
-            return $pdf->stream('Certificate-of-Disposal-' . ($mobileDevice->asset_tag ?? $mobileDevice->serial_number ?? 'MD') . '.pdf');
-        }
-        catch (\Throwable $e) {
-            Log::error('PDF generation failed: ' . $e->getMessage());
-            return back()->with('error', 'PDF generation failed: ' . $e->getMessage());
-        }
-    }
 
     /**
      * Process repair

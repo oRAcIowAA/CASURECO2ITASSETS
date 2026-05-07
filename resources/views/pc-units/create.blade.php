@@ -22,7 +22,12 @@
             <!-- Form Card -->
             <div class="bg-white rounded-xl shadow-md overflow-hidden">
                 <div class="p-6">
-                    <form method="POST" action="{{ route('pc-units.store') }}" x-data="{ deviceType: '{{ old('device_type', $type ?? 'Desktop') }}' }">
+
+                    <form method="POST" action="{{ route('pc-units.store') }}" x-data="{ 
+                        deviceType: '{{ old('device_type', $type ?? 'Desktop') }}',
+                        assignmentType: '{{ old('assignment_type', 'STANDBY') }}',
+                        location: '{{ old('location') }}'
+                    }">
                         @csrf
                         
                         @php
@@ -32,7 +37,7 @@
                         <!-- Device Type (dropdown: PC / Laptop / Server) -->
                         <div class="mb-6">
                             <label for="device_type" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
-                                DEVICE TYPE
+                                DEVICE TYPE <span class="text-red-500">*</span>
                             </label>
                             <select
                                 id="device_type"
@@ -97,16 +102,16 @@
                                     OPERATING SYSTEM
                                 </label>
                                 @php
-                                    $osOptions = ['Windows 11', 'Windows 10', 'Windows 7', 'Linux', 'macOS'];
+                                    $osOptions = ['WINDOWS 11', 'WINDOWS 10', 'WINDOWS 7', 'LINUX', 'MACOS'];
                                     $oldOs = old('os_version');
-                                    $isCustomOs = $oldOs && !in_array($oldOs, $osOptions);
+                                    $isCustomOs = $oldOs && !in_array(strtoupper($oldOs), $osOptions);
                                 @endphp
                                 <select x-model="osType" id="os_select"
                                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 mb-2 uppercase"
                                         @change="if(osType !== 'Other') { customOs = ''; $refs.hiddenOs.value = osType } else { $refs.hiddenOs.value = customOs }">
                                     <option value="">SELECT OS</option>
                                     @foreach($osOptions as $opt)
-                                        <option value="{{ $opt }}" {{ $oldOs === $opt ? 'selected' : '' }}>{{ strtoupper($opt) }}</option>
+                                        <option value="{{ $opt }}" {{ strtoupper($oldOs) === $opt ? 'selected' : '' }}>{{ $opt }}</option>
                                     @endforeach
                                     <option value="Other" {{ $isCustomOs ? 'selected' : '' }}>OTHER...</option>
                                 </select>
@@ -126,16 +131,16 @@
                                     PROCESSOR
                                 </label>
                                 @php
-                                    $procOptions = ['Intel i3', 'Intel i5', 'Intel i7', 'Intel i9', 'AMD Ryzen 3', 'AMD Ryzen 5', 'AMD Ryzen 7', 'Apple M1', 'Apple M2', 'Apple M3'];
+                                    $procOptions = ['INTEL I3', 'INTEL I5', 'INTEL I7', 'INTEL I9', 'AMD RYZEN 3', 'AMD RYZEN 5', 'AMD RYZEN 7', 'APPLE M1', 'APPLE M2', 'APPLE M3'];
                                     $oldProc = old('processor');
-                                    $isCustomProc = $oldProc && !in_array($oldProc, $procOptions);
+                                    $isCustomProc = $oldProc && !in_array(strtoupper($oldProc), $procOptions);
                                 @endphp
                                 <select x-model="procType" id="processor_select"
                                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 mb-2 uppercase"
                                         @change="if(procType !== 'Other') { customProc = ''; $refs.hiddenProc.value = procType } else { $refs.hiddenProc.value = customProc }">
                                     <option value="">SELECT PROCESSOR</option>
                                     @foreach($procOptions as $opt)
-                                        <option value="{{ $opt }}" {{ $oldProc === $opt ? 'selected' : '' }}>{{ strtoupper($opt) }}</option>
+                                        <option value="{{ $opt }}" {{ strtoupper($oldProc) === $opt ? 'selected' : '' }}>{{ $opt }}</option>
                                     @endforeach
                                     <option value="Other" {{ $isCustomProc ? 'selected' : '' }}>OTHER...</option>
                                 </select>
@@ -157,14 +162,14 @@
                                 @php
                                     $ramOptions = ['4GB', '8GB', '16GB', '32GB', '64GB', '128GB'];
                                     $oldRam = old('ram');
-                                    $isCustomRam = $oldRam && !in_array($oldRam, $ramOptions);
+                                    $isCustomRam = $oldRam && !in_array(strtoupper($oldRam), $ramOptions);
                                 @endphp
                                 <select x-model="ramType" id="ram_select"
                                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 mb-2 uppercase"
                                         @change="if(ramType !== 'Other') { customRam = ''; $refs.hiddenRam.value = ramType } else { $refs.hiddenRam.value = customRam }">
                                     <option value="">SELECT RAM</option>
                                     @foreach($ramOptions as $opt)
-                                        <option value="{{ $opt }}" {{ $oldRam === $opt ? 'selected' : '' }}>{{ strtoupper($opt) }}</option>
+                                        <option value="{{ $opt }}" {{ strtoupper($oldRam) === $opt ? 'selected' : '' }}>{{ $opt }}</option>
                                     @endforeach
                                     <option value="Other" {{ $isCustomRam ? 'selected' : '' }}>OTHER...</option>
                                 </select>
@@ -183,7 +188,7 @@
                                 $storageOptions = ['256GB SSD', '512GB SSD', '1TB SSD', '2TB SSD', '500GB HDD', '1TB HDD', '2TB HDD'];
                                 $oldStorage = old('storage');
                                 $isHybrid = str_contains($oldStorage, '/');
-                                $isCustom = $oldStorage && !in_array($oldStorage, $storageOptions) && !$isHybrid;
+                                $isCustom = $oldStorage && !in_array(strtoupper($oldStorage), $storageOptions) && !$isHybrid;
                                 
                                 $hybridPrimary = '';
                                 $hybridSecondary = '';
@@ -197,10 +202,10 @@
                             <div x-data="{ 
                                 storageType: '{{ $isHybrid ? 'Hybrid' : ($isCustom ? 'Other' : $oldStorage) }}', 
                                 customStorage: '{{ $isCustom ? $oldStorage : '' }}',
-                                hybridPrimary: '{{ $hybridPrimary && in_array($hybridPrimary, $storageOptions) ? $hybridPrimary : ($hybridPrimary ? 'Other' : '') }}',
-                                hybridSecondary: '{{ $hybridSecondary && in_array($hybridSecondary, $storageOptions) ? $hybridSecondary : ($hybridSecondary ? 'Other' : '') }}',
-                                customHybridPrimary: '{{ !in_array($hybridPrimary, $storageOptions) ? $hybridPrimary : '' }}',
-                                customHybridSecondary: '{{ !in_array($hybridSecondary, $storageOptions) ? $hybridSecondary : '' }}',
+                                hybridPrimary: '{{ $hybridPrimary && in_array(strtoupper($hybridPrimary), $storageOptions) ? $hybridPrimary : ($hybridPrimary ? 'Other' : '') }}',
+                                hybridSecondary: '{{ $hybridSecondary && in_array(strtoupper($hybridSecondary), $storageOptions) ? $hybridSecondary : ($hybridSecondary ? 'Other' : '') }}',
+                                customHybridPrimary: '{{ !in_array(strtoupper($hybridPrimary), $storageOptions) ? $hybridPrimary : '' }}',
+                                customHybridSecondary: '{{ !in_array(strtoupper($hybridSecondary), $storageOptions) ? $hybridSecondary : '' }}',
                                 updateHidden() {
                                     if (this.storageType === 'Hybrid') {
                                         let p = this.hybridPrimary === 'Other' ? this.customHybridPrimary : this.hybridPrimary;
@@ -222,7 +227,7 @@
                                         @change="updateHidden()">
                                     <option value="">SELECT STORAGE</option>
                                     @foreach($storageOptions as $opt)
-                                        <option value="{{ $opt }}" {{ $oldStorage === $opt ? 'selected' : '' }}>{{ strtoupper($opt) }}</option>
+                                        <option value="{{ $opt }}" {{ strtoupper($oldStorage) === $opt ? 'selected' : '' }}>{{ strtoupper($opt) }}</option>
                                     @endforeach
                                     <option value="Hybrid" {{ $isHybrid ? 'selected' : '' }}>HYBRID</option>
                                     <option value="Other" {{ $isCustom ? 'selected' : '' }}>OTHER...</option>
@@ -424,26 +429,26 @@
 
                         <!-- Location -->
                         <div class="mb-6">
-                            <label for="location" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
+                            <label for="location_id" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
                                 Location <span class="text-red-500">*</span>
                             </label>
-                            <select name="location" id="location"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('location') border-red-500 @enderror"
+                            <select name="location_id" id="location_id" x-model="location"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('location_id') border-red-500 @enderror"
                                     required>
                                 <option value="">SELECT LOCATION</option>
-                                @foreach($groups as $group)
-                                    <option value="{{ $group }}" {{ old('location') === $group ? 'selected' : '' }}>
-                                        {{ strtoupper($group) }}
+                                @foreach($groups as $id => $name)
+                                    <option value="{{ $id }}" {{ old('location_id') == $id ? 'selected' : '' }}>
+                                        {{ strtoupper($name) }}
                                     </option>
                                 @endforeach
                             </select>
-                            @error('location')
+                            @error('location_id')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <!-- Assignment Section -->
-                        <div class="mb-6 border-t pt-4" x-data="{ assignmentType: '{{ old('assignment_type', 'STANDBY') }}' }">
+                        <div class="mb-6 border-t pt-4">
                             <label class="block text-lg font-bold text-gray-900 mb-2 uppercase tracking-wide">ASSIGNMENT</label>
                             
                             <div class="flex space-x-6 mb-4">
@@ -461,16 +466,61 @@
                                 </label>
                             </div>
 
-                            <div x-show="assignmentType === 'ASSIGN'" class="bg-gray-50 p-4 rounded-md mb-4">
+                            <div x-show="assignmentType === 'ASSIGN'" class="bg-gray-50 p-4 rounded-md mb-4"
+                                 x-data="{ 
+                                    search: '', 
+                                    open: false, 
+                                    selectedId: '{{ old('employee_id') }}',
+                                    employees: @js($employees->map(fn($e) => [
+                                        'id' => $e->emp_id,
+                                        'name' => strtoupper($e->full_name),
+                                        'location_id' => $e->location_id,
+                                        'dept' => strtoupper($e->department ?? 'N/A'),
+                                        'div' => strtoupper($e->division ?? 'N/A')
+                                    ])),
+                                    get filteredEmployees() {
+                                        return this.employees.filter(e => {
+                                            const matchesSearch = e.name.toLowerCase().includes(this.search.toLowerCase());
+                                            const matchesLoc = !this.location || e.location_id == this.location || !e.location_id;
+                                            return matchesSearch && matchesLoc;
+                                        }).slice(0, 10);
+                                    }
+                                 }">
                                 <label class="block text-sm font-bold text-gray-700 mb-1 uppercase">SELECT EMPLOYEE</label>
-                                <select name="employee_id" x-init="new Choices($el, { searchPlaceholderValue: 'SEARCH NAME, DEPARTMENT...' })" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                                    <option value="">-- CHOOSE EMPLOYEE --</option>
-                                    @foreach($employees as $employee)
-                                        <option value="{{ $employee->id }}" {{ old('employee_id') == $employee->id ? 'selected' : '' }}>
-                                            {{ strtoupper($employee->full_name) }} &mdash; {{ strtoupper($employee->department ?? 'N/A') }} / {{ strtoupper($employee->division ?? 'N/A') }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                
+                                <div class="relative">
+                                    <input type="text" 
+                                           x-model="search" 
+                                           @focus="open = true" 
+                                           @click.away="open = false"
+                                           @keydown.escape="open = false"
+                                           placeholder="TYPE TO SEARCH EMPLOYEE..." 
+                                           class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 uppercase font-semibold text-xs h-10">
+                                    
+                                    <input type="hidden" name="employee_id" :value="selectedId">
+                                    
+                                    <div x-show="open && filteredEmployees.length > 0" 
+                                         class="absolute z-50 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm border border-gray-200"
+                                         style="display: none;">
+                                        <template x-for="e in filteredEmployees" :key="e.id">
+                                            <div @click="selectedId = e.id; search = e.name; open = false" 
+                                                 class="cursor-pointer hover:bg-indigo-600 hover:text-white px-4 py-2 transition-colors">
+                                                <div class="font-bold text-xs" x-text="e.name"></div>
+                                                <div class="text-[10px] opacity-80" x-text="e.dept + ' / ' + e.div"></div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                    
+                                    <div x-show="open && filteredEmployees.length === 0" 
+                                         class="absolute z-50 mt-1 w-full bg-white shadow-lg rounded-md py-4 text-center text-gray-500 text-xs border border-gray-200"
+                                         style="display: none;">
+                                        NO EMPLOYEES FOUND
+                                    </div>
+                                </div>
+                                
+                                @error('employee_id')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <!-- Hidden Status Field (Defaults to 'available', controller handles 'assigned') -->
@@ -480,12 +530,11 @@
                         <!-- Date Issued -->
                         <div class="mb-6">
                             <label for="date_issued" class="block text-gray-700 text-sm font-bold mb-2 uppercase">
-                                DATE ISSUED <span class="text-red-500">*</span>
+                                DATE ISSUED
                             </label>
                             <input type="date" name="date_issued" id="date_issued" 
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
-                                   value="{{ old('date_issued') }}"
-                                   required>
+                                   value="{{ old('date_issued') }}">
                         </div>
 
                         <!-- Remarks -->

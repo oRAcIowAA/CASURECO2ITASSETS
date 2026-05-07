@@ -12,11 +12,11 @@
                     
                     <form method="POST" action="{{ route('employees.update', $employee) }}" 
                           x-data="{ 
-                              department: '{{ old('department', $employee->department) }}', 
-                              division: '{{ old('division', $employee->division) }}',
+                              department: '{{ old('department_id', $employee->department_id) }}', 
+                              division: '{{ old('division_id', $employee->division_id) }}',
                               deptDivisions: @js($deptDivisions),
                               get filteredDivisions() {
-                                  return this.department ? (this.deptDivisions[this.department] || []) : [];
+                                  return this.department ? (this.deptDivisions[this.department] || {}) : {};
                               }
                           }">
                         @csrf
@@ -66,38 +66,38 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <!-- Department -->
                             <div>
-                                <label for="department" class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">
+                                <label for="department_id" class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">
                                     Department <span class="text-red-500">*</span>
                                 </label>
-                                <select name="department" id="department" x-model="department" @change="division = ''"
-                                        class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 @error('department') border-red-500 @enderror"
+                                <select name="department_id" id="department_id" x-model="department" @change="division = ''"
+                                        class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 @error('department_id') border-red-500 @enderror"
                                         required>
                                     <option value="">-- SELECT DEPARTMENT --</option>
-                                    @foreach($departments as $dept)
-                                        <option value="{{ $dept }}" :selected="department === '{{ $dept }}'">{{ strtoupper($dept) }}</option>
+                                    @foreach($departments as $id => $name)
+                                        <option value="{{ $id }}">{{ strtoupper($name) }}</option>
                                     @endforeach
                                 </select>
-                                @error('department')
+                                @error('department_id')
                                     <p class="text-red-500 text-xs italic mt-2">{{ $message }}</p>
                                 @enderror
                             </div>
 
                             <!-- Division -->
                             <div>
-                                <label for="division" class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">
+                                <label for="division_id" class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">
                                     Division <span class="text-red-500">*</span>
                                 </label>
-                                <select name="division" id="division" x-model="division"
-                                        class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 @error('division') border-red-500 @enderror"
+                                <select name="division_id" id="division_id" x-model="division"
+                                        class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 @error('division_id') border-red-500 @enderror"
                                         :disabled="!department"
                                         required>
                                     <option value="">-- SELECT DIVISION --</option>
-                                    <template x-for="div in filteredDivisions" :key="div">
-                                        <option :value="div" x-text="div.toUpperCase()" :selected="division === div"></option>
+                                    <template x-for="(name, id) in filteredDivisions" :key="id">
+                                        <option :value="id" x-text="name.toUpperCase()" :selected="division == id"></option>
                                     </template>
                                 </select>
                                 <p x-show="!department" class="text-xs text-gray-500 mt-2 italic">Please select a department first.</p>
-                                @error('division')
+                                @error('division_id')
                                     <p class="text-red-500 text-xs italic mt-2">{{ $message }}</p>
                                 @enderror
                             </div>
@@ -105,20 +105,20 @@
 
                         <div class="mb-8">
                             <!-- Group / Location -->
-                            <label for="group" class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">
+                            <label for="location_id" class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">
                                 Assignment Group/Location <span class="text-red-500">*</span>
                             </label>
-                            <select name="group" id="group"
-                                    class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 @error('group') border-red-500 @enderror"
+                            <select name="location_id" id="location_id"
+                                    class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 @error('location_id') border-red-500 @enderror"
                                     required>
                                 <option value="">-- SELECT LOCATION --</option>
-                                @foreach($groups as $grp)
-                                    <option value="{{ $grp }}" {{ old('group', $employee->group) === $grp ? 'selected' : '' }}>
-                                        {{ strtoupper($grp) }}
+                                @foreach($groups as $id => $name)
+                                    <option value="{{ $id }}" {{ old('location_id', $employee->location_id) == $id ? 'selected' : '' }}>
+                                        {{ strtoupper($name) }}
                                     </option>
                                 @endforeach
                             </select>
-                            @error('group')
+                            @error('location_id')
                                 <p class="text-red-500 text-xs italic mt-2">{{ $message }}</p>
                             @enderror
                         </div>

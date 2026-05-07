@@ -10,7 +10,7 @@ class OrganizationController extends Controller
 {
     public function index()
     {
-        $groupsConst = \App\Constants\Organization::LOCATIONS;
+        $groupsConst = \Illuminate\Support\Facades\DB::table('locations')->pluck('name')->toArray();
 
         // Fetch all employees with PC Units, Printers, Network Devices, Power Utilities, and Mobile Devices, ordered by name
         $allEmployees = Employee::with(['pcUnits', 'printers', 'networkDevices', 'powerUtilities', 'mobileDevices'])->orderBy('lname')->orderBy('fname')->get();

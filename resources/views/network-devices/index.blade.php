@@ -63,9 +63,9 @@
                         <select name="location"
                             class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-semibold text-xs h-10">
                             <option value="">ALL LOCATIONS</option>
-                            @foreach($groups as $group)
-                                <option value="{{ $group }}" {{ request('location') == $group ? 'selected' : '' }}>
-                                    {{ strtoupper($group) }}</option>
+                            @foreach($groups as $id => $name)
+                                <option value="{{ $id }}" {{ request('location') == $id ? 'selected' : '' }}>
+                                    {{ strtoupper($name) }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -74,8 +74,8 @@
                         <select name="department" x-model="department" @change="division = ''"
                             class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-semibold text-xs h-10">
                             <option value="">ALL DEPARTMENTS</option>
-                            @foreach($departments as $department)
-                                <option value="{{ $department }}">{{ strtoupper($department) }}</option>
+                            @foreach($departments as $id => $name)
+                                <option value="{{ $id }}">{{ strtoupper($name) }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -83,8 +83,8 @@
                         <select name="division" x-model="division" :disabled="!department"
                             class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 disabled:bg-gray-100 disabled:text-gray-400 font-semibold text-xs h-10">
                             <option value="">ALL DIVISIONS</option>
-                            <template x-for="div in filteredDivisions" :key="div">
-                                <option :value="div" x-text="div.toUpperCase()" :selected="division === div"></option>
+                            <template x-for="(name, id) in filteredDivisions" :key="id">
+                                <option :value="id" x-text="name.toUpperCase()" :selected="division === id"></option>
                             </template>
                         </select>
                     </div>
@@ -98,22 +98,47 @@
                         </select>
                     </div>
 
-                    <div>
-                        <select name="status"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 font-semibold text-xs h-10">
-                            <option value="">ALL STATUSES</option>
-                            <option value="Assigned" {{ request('status') == 'Assigned' ? 'selected' : '' }}>ASSIGNED
-                            </option>
-                            <option value="Available" {{ request('status') == 'Available' ? 'selected' : '' }}>AVAILABLE
-                            </option>
-                            <option value="Defective" {{ request('status') == 'Defective' ? 'selected' : '' }}>DEFECTIVE
-                            </option>
-                            <option value="Condemned" {{ request('status') == 'Condemned' ? 'selected' : '' }}>CONDEMNED
-                            </option>
-                            <option value="Disposed" {{ request('status') == 'Disposed' ? 'selected' : '' }}>DISPOSED
-                            </option>
-                        </select>
+                    <div class="relative" x-data="{ 
+                        statusOpen: false,
+                        selectedStatuses: {{ json_encode((array)request('status', [])) }},
+                        availableStatuses: ['Assigned', 'Available', 'Defective', 'Condemned', 'Disposed'],
+                        toggleStatus(s) {
+                            if (this.selectedStatuses.includes(s)) {
+                                this.selectedStatuses = this.selectedStatuses.filter(item => item !== s);
+                            } else {
+                                this.selectedStatuses.push(s);
+                            }
+                        }
+                    }" @click.away="statusOpen = false">
+                        <button type="button" @click="statusOpen = !statusOpen" 
+                            class="bg-white relative w-full border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm h-10 font-semibold text-xs uppercase">
+                            <span class="block truncate" x-text="selectedStatuses.length ? selectedStatuses.join(', ').toUpperCase() : 'ALL STATUSES'"></span>
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <div x-show="statusOpen" class="absolute z-50 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                            <template x-for="s in availableStatuses" :key="s">
+                                <div @click="toggleStatus(s)" class="flex items-center px-3 py-2 cursor-pointer hover:bg-indigo-50 transition-colors">
+                                    <input type="checkbox" :checked="selectedStatuses.includes(s)" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-2">
+                                    <span x-text="s.toUpperCase()" class="font-semibold text-xs text-gray-700"></span>
+                                </div>
+                            </template>
+                            <div x-show="selectedStatuses.length > 0" @click="selectedStatuses = []" class="border-t border-gray-100 px-3 py-2 cursor-pointer hover:bg-red-50 text-red-600 text-[10px] font-bold uppercase text-center">
+                                CLEAR ALL
+                            </div>
+                        </div>
+
+                        <!-- Hidden inputs for form submission -->
+                        <template x-for="s in selectedStatuses">
+                            <input type="hidden" name="status[]" :value="s">
+                        </template>
                     </div>
+
+
 
                     <div class="flex justify-end col-span-1 md:col-span-1 lg:col-span-1">
                         <button type="submit"

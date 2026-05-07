@@ -167,7 +167,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::post('power-utilities/{powerUtility}/reassign', [\App\Http\Controllers\PowerUtilityController::class, 'reassign'])->name('power-utilities.reassign');
         Route::post('power-utilities/{powerUtility}/restore', [\App\Http\Controllers\PowerUtilityController::class, 'restore'])->name('power-utilities.restore');
         Route::get('power-utilities/{powerUtility}/print-label', [\App\Http\Controllers\PowerUtilityController::class, 'printLabel'])->name('power-utilities.print-label');
-        Route::get('power-utilities/{powerUtility}/print-disposal', [\App\Http\Controllers\PowerUtilityController::class, 'printDisposal'])->name('power-utilities.print-disposal');
 
         // Mobile Device Management
         Route::resource('mobile-devices', MobileDeviceController::class);
@@ -180,7 +179,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('mobile-devices/{mobileDevice}/reassign', [MobileDeviceController::class, 'reassign'])->name('mobile-devices.reassign');
         Route::post('mobile-devices/{mobileDevice}/restore', [MobileDeviceController::class, 'restore'])->name('mobile-devices.restore');
         Route::get('mobile-devices/{mobileDevice}/print-label', [MobileDeviceController::class, 'printLabel'])->name('mobile-devices.print-label');
-        Route::get('mobile-devices/{mobileDevice}/print-disposal', [MobileDeviceController::class, 'printDisposal'])->name('mobile-devices.print-disposal');
 
         // PC Unit De-assignment
         Route::post('pc-units/{pcUnit}/return', [PcUnitController::class , 'return'])->name('pc-units.return');
@@ -228,8 +226,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('qr-assets/print', [\App\Http\Controllers\QrAssetController::class, 'printLabels'])->name('qr-assets.print');
         Route::post('qr-assets/download', [\App\Http\Controllers\QrAssetController::class, 'downloadLabels'])->name('qr-assets.download');
 
+        // Organization Management
+        Route::get('/organization/manage', [App\Http\Controllers\OrgManagementController::class, 'index'])->name('organization.manage');
+        
+        // Department CRUD
+        Route::post('/organization/departments', [App\Http\Controllers\OrgManagementController::class, 'storeDept'])->name('organization.departments.store');
+        Route::patch('/organization/departments/{department}', [App\Http\Controllers\OrgManagementController::class, 'updateDept'])->name('organization.departments.update');
+        Route::delete('/organization/departments/{department}', [App\Http\Controllers\OrgManagementController::class, 'destroyDept'])->name('organization.departments.destroy');
+        
+        // Division CRUD
+        Route::post('/organization/divisions', [App\Http\Controllers\OrgManagementController::class, 'storeDiv'])->name('organization.divisions.store');
+        Route::patch('/organization/divisions/{division}', [App\Http\Controllers\OrgManagementController::class, 'updateDiv'])->name('organization.divisions.update');
+        Route::delete('/organization/divisions/{division}', [App\Http\Controllers\OrgManagementController::class, 'destroyDiv'])->name('organization.divisions.destroy');
+        
+        // Location CRUD
+        Route::post('/organization/locations', [App\Http\Controllers\OrgManagementController::class, 'storeLoc'])->name('organization.locations.store');
+        Route::patch('/organization/locations/{location}', [App\Http\Controllers\OrgManagementController::class, 'updateLoc'])->name('organization.locations.update');
+        Route::delete('/organization/locations/{location}', [App\Http\Controllers\OrgManagementController::class, 'destroyLoc'])->name('organization.locations.destroy');
+
         // Organization Chart
         Route::get('/organization', [App\Http\Controllers\OrganizationController::class , 'index'])->name('organization.index');
-        Route::get('/organization/manage', [App\Http\Controllers\OrgManagementController::class, 'index'])->name('organization.manage');
-        Route::post('/organization/manage', [App\Http\Controllers\OrgManagementController::class, 'update'])->name('organization.update-structure');
+
     });
