@@ -199,7 +199,7 @@
                                 open: false, 
                                 selectedId: '{{ old('employee_id') }}',
                                 employees: @js($employees->map(fn($e) => [
-                                    'id' => $e->emp_id,
+                                    'id' => $e->id,
                                     'name' => strtoupper($e->full_name),
                                     'location_id' => $e->location_id,
                                     'dept' => strtoupper($e->department ?? 'N/A'),

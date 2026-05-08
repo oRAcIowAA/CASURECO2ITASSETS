@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Employee extends Model
 {
     protected $table = 'employees';
-    protected $primaryKey = 'emp_id';
-    public $incrementing = false;
-    protected $keyType = 'string';
+    protected $primaryKey = 'id';
+    public $incrementing = true;
+    protected $keyType = 'int';
     public $timestamps = true;
-    protected $appends = ['id', 'full_name', 'employee_id'];
+    protected $appends = ['full_name', 'employee_id'];
 
     protected $fillable = [
         'emp_id',
@@ -31,11 +31,6 @@ class Employee extends Model
     /**
      * ACCESSORS FOR SYSTEM COMPATIBILITY
      */
-
-    public function getIdAttribute()
-    {
-        return $this->emp_id;
-    }
 
     public function getEmployeeIdAttribute()
     {
@@ -83,37 +78,37 @@ class Employee extends Model
 
     public function pcUnits(): HasMany
     {
-        return $this->hasMany(PcUnit::class , 'employee_id', 'emp_id');
+        return $this->hasMany(PcUnit::class , 'employee_id');
     }
 
     public function pcHistory(): HasMany
     {
-        return $this->hasMany(PcHistory::class , 'employee_id', 'emp_id');
+        return $this->hasMany(PcHistory::class , 'employee_id');
     }
 
     public function printers(): HasMany
     {
-        return $this->hasMany(Printer::class , 'employee_id', 'emp_id');
+        return $this->hasMany(Printer::class , 'employee_id');
     }
 
     public function networkDevices(): HasMany
     {
-        return $this->hasMany(NetworkDevice::class , 'employee_id', 'emp_id');
+        return $this->hasMany(NetworkDevice::class , 'employee_id');
     }
 
     public function employeeHistory(): HasMany
     {
-        return $this->hasMany(EmployeeHistory::class, 'employee_id', 'emp_id');
+        return $this->hasMany(EmployeeHistory::class, 'employee_id');
     }
 
     public function powerUtilities(): HasMany
     {
-        return $this->hasMany(PowerUtility::class, 'employee_id', 'emp_id');
+        return $this->hasMany(PowerUtility::class, 'employee_id');
     }
 
     public function mobileDevices(): HasMany
     {
-        return $this->hasMany(MobileDevice::class, 'employee_id', 'emp_id');
+        return $this->hasMany(MobileDevice::class, 'employee_id');
     }
 
     public function departmentRel()

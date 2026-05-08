@@ -34,7 +34,7 @@
                                 open: false, 
                                 selectedId: '{{ old('employee_id') }}',
                                 employees: @js($employees->map(fn($e) => [
-                                    'id' => $e->emp_id,
+                                    'id' => $e->id,
                                     'name' => strtoupper($e->full_name),
                                     'dept' => strtoupper($e->department ?? 'N/A'),
                                     'div' => strtoupper($e->division ?? 'N/A')

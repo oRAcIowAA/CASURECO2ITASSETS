@@ -89,15 +89,15 @@ class EmployeeController extends Controller
         $employee->load(['pcUnits', 'printers', 'networkDevices', 'employeeHistory.createdBy']);
 
         // Asset History
-        $pcHistory = PcHistory::where('employee_id', $employee->emp_id)
+        $pcHistory = PcHistory::where('employee_id', $employee->id)
             ->with(['pcUnit', 'createdBy', 'previousEmployee', 'employee'])
             ->get();
 
-        $printerHistory = PrinterHistory::where('employee_id', $employee->emp_id)
+        $printerHistory = PrinterHistory::where('employee_id', $employee->id)
             ->with(['printer', 'createdBy', 'previousEmployee', 'employee'])
             ->get();
 
-        $networkHistory = NetworkDeviceHistory::where('employee_id', $employee->emp_id)
+        $networkHistory = NetworkDeviceHistory::where('employee_id', $employee->id)
             ->with(['networkDevice', 'createdBy', 'previousEmployee', 'employee'])
             ->get();
 

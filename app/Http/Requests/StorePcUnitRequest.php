@@ -73,7 +73,7 @@ class StorePcUnitRequest extends FormRequest
             'location' => 'nullable|string',
             'department' => 'nullable|string',
             'division' => 'nullable|string',
-            'employee_id' => 'nullable|exists:employees,emp_id',
+            'employee_id' => 'nullable|exists:employees,id',
             'date_issued' => 'nullable|date',
             'remarks' => 'nullable|string',
             'ip_type' => 'required|in:STATIC,DYNAMIC',

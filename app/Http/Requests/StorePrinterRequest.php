@@ -76,7 +76,7 @@ class StorePrinterRequest extends FormRequest
                 new \App\Rules\GlobalUniqueMac(null, \App\Models\Printer::class)
             ],
             'network_segment' => 'nullable|string|max:255',
-            'employee_id' => 'nullable|exists:employees,emp_id',
+            'employee_id' => 'nullable|exists:employees,id',
             'date_issued' => 'nullable|date',
             'assignment_type' => 'required|in:STANDBY,ASSIGN', // Added to match form
         ];

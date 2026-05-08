@@ -22,7 +22,7 @@ class MobileDeviceHistory extends Model
 
     public function employee(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'employee_id', 'emp_id')->withDefault();
+        return $this->belongsTo(Employee::class, 'employee_id')->withDefault();
     }
 
     public function previousEmployee(): \Illuminate\Database\Eloquent\Relations\BelongsTo

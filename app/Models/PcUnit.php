@@ -54,7 +54,7 @@ class PcUnit extends Model
 
     public function employee(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'employee_id', 'emp_id')->withDefault();
+        return $this->belongsTo(Employee::class, 'employee_id')->withDefault();
     }
 
     public function updatedBy(): \Illuminate\Database\Eloquent\Relations\BelongsTo

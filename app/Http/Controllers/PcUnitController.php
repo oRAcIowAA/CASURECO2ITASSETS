@@ -306,7 +306,7 @@ class PcUnitController extends Controller
         }
 
         $request->validate([
-            'employee_id' => 'required|exists:employees,emp_id',
+            'employee_id' => 'required|exists:employees,id',
             'assignment_notes' => 'nullable|string'
         ]);
 

@@ -24,7 +24,7 @@ class PrinterHistory extends Model
 
     public function employee()
     {
-        return $this->belongsTo(Employee::class, 'employee_id', 'emp_id')->withDefault();
+        return $this->belongsTo(Employee::class, 'employee_id')->withDefault();
     }
 
     public function previousEmployee()

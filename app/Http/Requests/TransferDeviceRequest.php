@@ -22,7 +22,7 @@ class TransferDeviceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'employee_id' => 'required|exists:employees,emp_id',
+            'employee_id' => 'required|exists:employees,id',
             'notes' => 'nullable|string',
             'remarks' => 'nullable|string', // Some forms use remarks, some notes. Allowing both or unifying.
         ];
