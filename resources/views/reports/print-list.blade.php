@@ -102,7 +102,7 @@
                 BRANCH: {{ strtoupper($request->branch ?: 'All') }} | 
                 DEPT: {{ strtoupper($request->department ?: 'All') }} |
                 TYPE: {{ strtoupper(is_array($request->type) ? implode(', ', $request->type) : ($request->type ?: 'All')) }} |
-                STATUS: {{ strtoupper($request->status ?: 'All') }}
+                STATUS: {{ strtoupper(is_array($request->status) ? (count($request->status) ? implode(', ', $request->status) : 'All') : ($request->status ?: 'All')) }}
                 <br>
                 <strong>Total Units:</strong> {{ $items->count() }}
             </div>
@@ -114,7 +114,10 @@
 
     <div class="header">
         <h1>CASURECO II - Device Report</h1>
-        <h3>INVENTORY OF {{ $request->status && strtoupper($request->status) != 'ALL' ? strtoupper(str_replace('_', ' ', $request->status)) . ' ' : '' }}  IT ASSETS</h3>
+        @php
+            $statusLabel = is_array($request->status) ? (count($request->status) ? implode(', ', $request->status) : '') : ($request->status ?? '');
+        @endphp
+        <h3>INVENTORY OF {{ $statusLabel && strtoupper($statusLabel) != 'ALL' ? strtoupper(str_replace('_', ' ', $statusLabel)) . ' ' : '' }}  IT ASSETS</h3>
         <h4>As of {{ now()->format('F d, Y') }}</h4>
     </div>
 

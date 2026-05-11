@@ -118,7 +118,6 @@
                                     <div @click="toggleStatus(s)" class="flex items-center px-3 py-2 cursor-pointer hover:bg-indigo-50 transition-colors">
                                         <input type="checkbox" :checked="selectedStatuses.includes(s)" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-2">
                                         <span x-text="s.toUpperCase()" class="font-semibold text-xs text-gray-700"></span>
-                                        <input type="hidden" name="status[]" :value="s" x-if="selectedStatuses.includes(s)">
                                     </div>
                                 </template>
                                 <div x-show="selectedStatuses.length > 0" @click="selectedStatuses = []" class="border-t border-gray-100 px-3 py-2 cursor-pointer hover:bg-red-50 text-red-600 text-[10px] font-bold uppercase text-center">

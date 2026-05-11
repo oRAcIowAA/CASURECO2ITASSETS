@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -21,7 +20,8 @@ return new class extends Migration
         ];
 
         foreach ($tables as $tableName) {
-            if (!Schema::hasTable($tableName)) continue;
+            if (!Schema::hasTable($tableName))
+                continue;
 
             // Update department_id from department name
             DB::table($tableName)
